@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul Praktikum Pertemuan 14 - Debugging & Testing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; overflow-x: hidden; }
+        .book-container { max-width: 900px; margin: 50px auto; }
+        .book { background: #fff; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden; }
+        .controls { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; }
+        .control-btn { background: rgba(255,255,255,0.9); border: none; padding: 10px 15px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s ease; }
+        .control-btn:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* Cover - Debug Theme (Red/Pink) */
+        .cover-page { background: linear-gradient(135deg, #b71c1c 0%, #e53935 50%, #ef9a9a 100%); color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+        .cover-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 30% 20%, rgba(229,57,53,0.3) 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, rgba(183,28,28,0.2) 0%, transparent 50%); z-index: 1; }
+        .cover-page::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(2px 2px at 10% 15%, rgba(255,255,255,0.2) 50%, transparent 50%), radial-gradient(2px 2px at 85% 25%, rgba(255,255,255,0.15) 50%, transparent 50%), radial-gradient(1px 1px at 55% 65%, rgba(255,255,255,0.12) 50%, transparent 50%); z-index: 1; animation: twinkle 4s ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(229,57,53,0.4); } 50% { box-shadow: 0 0 20px 10px rgba(229,57,53,0.1); } }
+        .cover-content { position: relative; z-index: 2; padding: 50px 40px; }
+        .cover-top-bar { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 35px; animation: fadeInUp 0.8s ease-out; }
+        .cover-top-bar .bar-line { flex: 1; max-width: 120px; height: 1px; background: linear-gradient(90deg, transparent, rgba(239,154,154,0.6), transparent); }
+        .cover-university-badge { display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 10px 24px; border-radius: 50px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+        .cover-icon { font-size: 80px; margin-bottom: 20px; animation: fadeInUp 0.9s ease-out, float 3s ease-in-out infinite; }
+        .cover-label { display: inline-block; background: linear-gradient(135deg, rgba(229,57,53,0.3), rgba(229,57,53,0.1)); border: 1px solid rgba(239,154,154,0.5); padding: 8px 28px; border-radius: 6px; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #ffcdd2; margin-bottom: 25px; animation: fadeInUp 1s ease-out; }
+        .cover-main-title { font-size: 2.6em; font-weight: 800; margin-bottom: 8px; text-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: 2px; line-height: 1.2; animation: fadeInUp 1.1s ease-out; }
+        .cover-main-title .highlight { color: #ffcdd2; }
+        .cover-course-name { font-size: 1.4em; font-weight: 300; margin-bottom: 35px; opacity: 0.9; animation: fadeInUp 1.2s ease-out; }
+        .cover-meeting-badge { display: inline-flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #e53935, #b71c1c); color: white; padding: 14px 40px; border-radius: 50px; font-size: 1.3em; font-weight: 700; margin-bottom: 15px; box-shadow: 0 8px 30px rgba(229,57,53,0.4); animation: fadeInUp 1.3s ease-out, pulse 2s infinite; border: 2px solid rgba(255,255,255,0.2); }
+        .cover-meeting-badge .meeting-number { background: rgba(255,255,255,0.2); width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+        .cover-topic { font-size: 1.1em; color: rgba(255,255,255,0.85); margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6; animation: fadeInUp 1.4s ease-out; }
+        .cover-info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 650px; margin: 0 auto; animation: fadeInUp 1.5s ease-out; }
+        .cover-info-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 18px 12px; transition: all 0.3s ease; }
+        .cover-info-card:hover { background: rgba(255,255,255,0.12); border-color: rgba(239,154,154,0.5); transform: translateY(-4px); }
+        .cover-info-card .card-icon { font-size: 24px; margin-bottom: 8px; }
+        .cover-info-card .card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #ffcdd2; margin-bottom: 4px; }
+        .cover-info-card .card-value { font-size: 13px; font-weight: 500; }
+
+        /* Page Styles */
+        .page-content { padding: 60px 50px; line-height: 1.8; font-size: 16px; color: #333; }
+        .page-number { text-align: right; font-size: 14px; color: #999; margin-top: 40px; padding-top: 15px; border-top: 1px solid #eee; }
+        .section-title { color: #b71c1c; font-size: 1.9em; font-weight: 700; margin: 40px 0 20px 0; position: relative; }
+        .section-title::before { content: ''; position: absolute; left: 0; bottom: -5px; width: 60px; height: 3px; background: linear-gradient(90deg, #b71c1c, #e53935); }
+        .subsection-title { color: #e53935; font-size: 1.35em; font-weight: 600; margin: 30px 0 15px 0; }
+        .objective-list, .content-list { margin: 20px 0; padding-left: 20px; }
+        .objective-list li, .content-list li { margin: 10px 0; position: relative; }
+        .objective-list li::before { content: '\1F3AF'; position: absolute; left: -25px; }
+        .content-list li::before { content: '\1F4CB'; position: absolute; left: -25px; }
+        .learning-outcomes { background: linear-gradient(135deg, #ffebee 0%, #fff 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #e53935; box-shadow: 0 5px 15px rgba(229,57,53,0.1); }
+        .lab-setup { background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #b71c1c; }
+        .warning-box { background: #fff3cd; border-left: 5px solid #f39c12; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .warning-box::before { content: '\26A0\FE0F'; margin-right: 10px; }
+        .info-box { background: #e3f2fd; border-left: 5px solid #2196f3; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .info-box::before { content: '\2139\FE0F'; margin-right: 10px; }
+        .success-box { background: #e8f5e9; border-left: 5px solid #4caf50; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .success-box::before { content: '\2705'; margin-right: 10px; }
+        .danger-box { background: #ffebee; border-left: 5px solid #f44336; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .danger-box::before { content: '\274C'; margin-right: 10px; }
+        .step-item { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 25px; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .step-number { background: linear-gradient(135deg, #b71c1c, #e53935); color: white; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 15px; }
+        .step-title { color: #b71c1c; font-weight: 600; font-size: 1.1em; margin-bottom: 10px; }
+
+        /* Code Block */
+        .code-block { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 20px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; margin: 20px 0; overflow-x: auto; color: #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; }
+        .code-block::before { content: ''; position: absolute; top: 12px; left: 15px; width: 10px; height: 10px; background: #ff5f57; border-radius: 50%; box-shadow: 16px 0 0 #ffbd2e, 32px 0 0 #28ca42; }
+        .code-block code { display: block; margin-top: 10px; white-space: pre; line-height: 1.6; }
+        .code-label { display: inline-block; background: linear-gradient(135deg, #b71c1c, #e53935); color: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-bottom: 8px; }
+        .code-label.js { background: linear-gradient(135deg, #f7df1e, #d4a800); color: #000; }
+        .code-label.php { background: linear-gradient(135deg, #8892be, #4f5b93); }
+        .code-label.output { background: linear-gradient(135deg, #37474f, #607d8b); }
+        .code-label.console { background: linear-gradient(135deg, #212121, #424242); }
+        .file-tree { display: block; white-space: pre; line-height: 1.8; overflow-x: auto; }
+
+        /* Syntax Highlighting */
+        .tag { color: #ff79c6; }
+        .attr { color: #50fa7b; }
+        .value { color: #f1fa8c; }
+        .keyword { color: #ff79c6; }
+        .string { color: #50fa7b; }
+        .number { color: #bd93f9; }
+        .comment { color: #6272a4; font-style: italic; }
+        .function { color: #8be9fd; }
+        .php-var { color: #ffb86c; }
+        .method { color: #50fa7b; }
+        .error { color: #ff5555; }
+        .warning { color: #ffb86c; }
+        .success { color: #50fa7b; }
+
+        /* Table */
+        .table-container { overflow-x: auto; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: linear-gradient(135deg, #b71c1c, #e53935); color: white; font-weight: 600; }
+        tr:hover { background: #ffebee; }
+
+        /* Debug Flow */
+        .debug-flow { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin: 25px 0; padding: 30px; background: linear-gradient(135deg, #f8f9fa, #fff); border-radius: 15px; border: 2px solid #e53935; }
+        .debug-step { text-align: center; padding: 15px; border-radius: 12px; background: white; box-shadow: 0 3px 15px rgba(0,0,0,0.1); min-width: 100px; }
+        .debug-step .step-icon { font-size: 28px; margin-bottom: 8px; }
+        .debug-step .step-label { font-size: 11px; font-weight: 600; color: #333; }
+        .debug-arrow { font-size: 20px; color: #e53935; }
+
+        /* Error Type Cards */
+        .error-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 25px 0; }
+        .error-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 3px 15px rgba(0,0,0,0.1); border-left: 4px solid #e53935; }
+        .error-card.warning { border-left-color: #ff9800; }
+        .error-card.notice { border-left-color: #2196f3; }
+        .error-card.fatal { border-left-color: #b71c1c; }
+        .error-card h4 { color: #b71c1c; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .error-card.warning h4 { color: #e65100; }
+        .error-card.notice h4 { color: #1565c0; }
+        .error-card p { font-size: 13px; color: #666; }
+
+        /* Test Case Box */
+        .test-case { background: #f5f5f5; border-radius: 10px; padding: 20px; margin: 15px 0; border: 1px solid #e0e0e0; }
+        .test-case .test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .test-case .test-name { font-weight: 600; color: #333; }
+        .test-case .test-status { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .test-case .test-status.pass { background: #c8e6c9; color: #2e7d32; }
+        .test-case .test-status.fail { background: #ffcdd2; color: #c62828; }
+        .test-case .test-steps { font-size: 14px; }
+        .test-case .test-steps li { margin: 5px 0; }
+
+        /* Project Card */
+        .project-card { background: linear-gradient(135deg, #ffebee, #fff); border-radius: 15px; padding: 30px; margin: 25px 0; border: 2px solid #ffcdd2; }
+        .project-card h3 { color: #b71c1c; margin-bottom: 15px; }
+
+        /* Checklist */
+        .checklist { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .checklist-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item .check { font-size: 18px; }
+        .checklist-item .item-text { flex: 1; }
+        .checklist-item .item-text strong { color: #b71c1c; }
+
+        /* Bug Card */
+        .bug-card { background: white; border-radius: 10px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.08); border-left: 4px solid #e53935; }
+        .bug-card .bug-title { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .bug-card .bug-title h4 { color: #b71c1c; margin: 0; }
+        .bug-card .bug-cause { background: #ffebee; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 14px; }
+        .bug-card .bug-fix { background: #e8f5e9; padding: 10px; border-radius: 5px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button class="control-btn" onclick="scrollToTop()">&#8593; Atas</button>
+        <button class="control-btn" onclick="scrollToBottom()">&#8595; Bawah</button>
+    </div>
+
+    <div class="book-container">
+        <div class="book">
+
+            <!-- COVER PAGE -->
+            <div class="cover-page">
+                <div class="cover-content">
+                    <div class="cover-top-bar">
+                        <div class="bar-line"></div>
+                        <div class="cover-university-badge">
+                            <span>&#127891;</span>
+                            <span>Universitas Tidar</span>
+                        </div>
+                        <div class="bar-line"></div>
+                    </div>
+
+                    <div class="cover-icon">&#128027;</div>
+
+                    <div class="cover-label">Modul Praktikum</div>
+
+                    <h1 class="cover-main-title">
+                        PRAKTIKUM<br>
+                        <span class="highlight">APLIKASI WEB</span>
+                    </h1>
+
+                    <p class="cover-course-name">Program Studi Teknologi Informasi</p>
+
+                    <div class="cover-meeting-badge">
+                        <span class="meeting-number">14</span>
+                        <span>PERTEMUAN KEEMPATBELAS</span>
+                    </div>
+
+                    <p class="cover-topic">
+                        Debugging & Testing<br>
+                        <em>Menemukan dan Memperbaiki Bug</em>
+                    </p>
+
+                    <div class="cover-info-cards">
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128269;</div>
+                            <div class="card-label">Topik</div>
+                            <div class="card-value">Debugging</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#9989;</div>
+                            <div class="card-label">Fokus</div>
+                            <div class="card-value">Testing</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128295;</div>
+                            <div class="card-label">Skill</div>
+                            <div class="card-value">Bug Fixing</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 1: PENDAHULUAN -->
+            <div class="page-content">
+                <h2 class="section-title">&#128218; PENDAHULUAN</h2>
+
+                <div class="learning-outcomes">
+                    <h3 style="color: #b71c1c; margin-bottom: 15px;">&#127919; Capaian Pembelajaran</h3>
+                    <p>Setelah menyelesaikan praktikum ini, mahasiswa mampu:</p>
+                    <ul class="objective-list">
+                        <li>Memahami konsep debugging dan jenis-jenis error</li>
+                        <li>Menggunakan teknik debugging di PHP</li>
+                        <li>Memanfaatkan Browser Developer Tools</li>
+                        <li>Melakukan testing manual pada aplikasi web</li>
+                        <li>Mendokumentasikan dan memperbaiki bug</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Apa itu Debugging?</h3>
+
+                <div class="info-box">
+                    <strong>Debugging</strong> adalah proses menemukan dan memperbaiki kesalahan (bug) dalam kode program. Istilah "bug" berasal dari serangga nyata yang ditemukan di dalam komputer pada tahun 1947.
+                </div>
+
+                <h3 class="subsection-title">Alur Debugging</h3>
+
+                <div class="debug-flow">
+                    <div class="debug-step">
+                        <div class="step-icon">&#128027;</div>
+                        <div class="step-label">Temukan<br>Bug</div>
+                    </div>
+                    <div class="debug-arrow">&#10140;</div>
+                    <div class="debug-step">
+                        <div class="step-icon">&#128269;</div>
+                        <div class="step-label">Reproduksi<br>Error</div>
+                    </div>
+                    <div class="debug-arrow">&#10140;</div>
+                    <div class="debug-step">
+                        <div class="step-icon">&#128161;</div>
+                        <div class="step-label">Identifikasi<br>Penyebab</div>
+                    </div>
+                    <div class="debug-arrow">&#10140;</div>
+                    <div class="debug-step">
+                        <div class="step-icon">&#128295;</div>
+                        <div class="step-label">Perbaiki<br>Kode</div>
+                    </div>
+                    <div class="debug-arrow">&#10140;</div>
+                    <div class="debug-step">
+                        <div class="step-icon">&#9989;</div>
+                        <div class="step-label">Test<br>Ulang</div>
+                    </div>
+                </div>
+
+                <div class="page-number">Halaman 1</div>
+            </div>
+
+            <!-- PAGE 2: JENIS ERROR PHP -->
+            <div class="page-content">
+                <h2 class="section-title">&#128680; JENIS-JENIS ERROR PHP</h2>
+
+                <div class="error-grid">
+                    <div class="error-card fatal">
+                        <h4>&#128683; Fatal Error</h4>
+                        <p>Error kritis yang menghentikan eksekusi script. Contoh: memanggil fungsi yang tidak ada, class tidak ditemukan.</p>
+                    </div>
+                    <div class="error-card">
+                        <h4>&#9888;&#65039; Parse Error</h4>
+                        <p>Kesalahan syntax yang mencegah PHP mem-parse kode. Contoh: lupa titik koma, kurung tidak lengkap.</p>
+                    </div>
+                    <div class="error-card warning">
+                        <h4>&#9888;&#65039; Warning</h4>
+                        <p>Peringatan yang tidak menghentikan eksekusi. Contoh: include file yang tidak ada, division by zero.</p>
+                    </div>
+                    <div class="error-card notice">
+                        <h4>&#128221; Notice</h4>
+                        <p>Pemberitahuan minor. Contoh: mengakses variabel yang belum didefinisikan, index array tidak ada.</p>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Contoh Error Messages</h3>
+
+                <div class="code-block">
+                    <span class="code-label output">Contoh Pesan Error</span>
+                    <code><span class="error">Fatal error:</span> Uncaught Error: Call to undefined function
+<span class="function">getUser</span>() in <span class="string">/var/www/html/index.php</span> on line <span class="number">15</span>
+
+<span class="warning">Warning:</span> include(config.php): Failed to open stream:
+No such file or directory in <span class="string">/var/www/html/index.php</span> on line <span class="number">3</span>
+
+<span class="error">Parse error:</span> syntax error, unexpected <span class="string">'}'</span>
+in <span class="string">/var/www/html/index.php</span> on line <span class="number">25</span>
+
+<span class="comment">Notice:</span> Undefined variable: <span class="php-var">$username</span>
+in <span class="string">/var/www/html/index.php</span> on line <span class="number">10</span></code>
+                </div>
+
+                <div class="success-box">
+                    <strong>Tips Membaca Error:</strong>
+                    <ol style="margin-top: 8px; margin-left: 15px;">
+                        <li>Perhatikan <strong>jenis error</strong> (Fatal, Warning, Notice)</li>
+                        <li>Baca <strong>deskripsi</strong> masalahnya</li>
+                        <li>Cek <strong>nama file</strong> dan <strong>nomor baris</strong></li>
+                        <li>Buka file tersebut dan periksa baris yang disebutkan</li>
+                    </ol>
+                </div>
+
+                <div class="page-number">Halaman 2</div>
+            </div>
+
+            <!-- PAGE 3: KONFIGURASI ERROR -->
+            <div class="page-content">
+                <h3 class="subsection-title">Konfigurasi Error Reporting</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">Mengaktifkan Error Display</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">// ===== DI AWAL FILE UNTUK DEBUGGING =====</span>
+
+<span class="comment">// Tampilkan semua error</span>
+<span class="function">ini_set</span>(<span class="string">'display_errors'</span>, <span class="number">1</span>);
+<span class="function">ini_set</span>(<span class="string">'display_startup_errors'</span>, <span class="number">1</span>);
+<span class="function">error_reporting</span>(E_ALL);
+
+<span class="comment">// Atau hanya error tertentu</span>
+<span class="function">error_reporting</span>(E_ERROR | E_WARNING | E_PARSE);
+
+<span class="comment">// Simpan error ke file log</span>
+<span class="function">ini_set</span>(<span class="string">'log_errors'</span>, <span class="number">1</span>);
+<span class="function">ini_set</span>(<span class="string">'error_log'</span>, <span class="string">'/path/to/error.log'</span>);
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label php">Custom Error Handler</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">// Fungsi custom untuk menangani error</span>
+<span class="keyword">function</span> <span class="function">customErrorHandler</span>(<span class="php-var">$errno</span>, <span class="php-var">$errstr</span>, <span class="php-var">$errfile</span>, <span class="php-var">$errline</span>) {
+    <span class="php-var">$message</span> = <span class="string">"[{<span class="php-var">$errno</span>}] {<span class="php-var">$errstr</span>} in {<span class="php-var">$errfile</span>} on line {<span class="php-var">$errline</span>}"</span>;
+
+    <span class="comment">// Log ke file</span>
+    <span class="function">error_log</span>(<span class="php-var">$message</span>, <span class="number">3</span>, <span class="string">'logs/error.log'</span>);
+
+    <span class="comment">// Tampilkan pesan user-friendly</span>
+    <span class="keyword">if</span> (<span class="php-var">$errno</span> === E_USER_ERROR) {
+        <span class="keyword">echo</span> <span class="string">'&lt;div class="alert alert-danger"&gt;Terjadi kesalahan sistem.&lt;/div&gt;'</span>;
+        <span class="keyword">exit</span>(<span class="number">1</span>);
+    }
+
+    <span class="keyword">return</span> <span class="keyword">true</span>;
+}
+
+<span class="comment">// Set custom handler</span>
+<span class="function">set_error_handler</span>(<span class="string">'customErrorHandler'</span>);
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Ingat!</strong> Selalu matikan <code>display_errors</code> di production dan gunakan error logging sebagai gantinya.
+                </div>
+
+                <div class="page-number">Halaman 3</div>
+            </div>
+
+            <!-- PAGE 4: TEKNIK DEBUGGING -->
+            <div class="page-content">
+                <h2 class="section-title">&#128269; TEKNIK DEBUGGING PHP</h2>
+
+                <h3 class="subsection-title">1. var_dump() dan print_r()</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">Melihat Isi Variabel</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="php-var">$user</span> = [
+    <span class="string">'id'</span> => <span class="number">1</span>,
+    <span class="string">'nama'</span> => <span class="string">'John Doe'</span>,
+    <span class="string">'email'</span> => <span class="string">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="254f4a4d4b654048444c490b464a48">[email&#160;protected]</a>'</span>,
+    <span class="string">'active'</span> => <span class="keyword">true</span>
+];
+
+<span class="comment">// var_dump - menampilkan tipe data dan nilai</span>
+<span class="keyword">echo</span> <span class="string">'&lt;pre&gt;'</span>;
+<span class="function">var_dump</span>(<span class="php-var">$user</span>);
+<span class="keyword">echo</span> <span class="string">'&lt;/pre&gt;'</span>;
+
+<span class="comment">// print_r - menampilkan struktur array/object</span>
+<span class="keyword">echo</span> <span class="string">'&lt;pre&gt;'</span>;
+<span class="function">print_r</span>(<span class="php-var">$user</span>);
+<span class="keyword">echo</span> <span class="string">'&lt;/pre&gt;'</span>;
+
+<span class="comment">// Atau dengan return value</span>
+<span class="php-var">$debug</span> = <span class="function">print_r</span>(<span class="php-var">$user</span>, <span class="keyword">true</span>);
+<span class="function">error_log</span>(<span class="php-var">$debug</span>); <span class="comment">// Simpan ke log</span>
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label output">Output var_dump()</span>
+                    <code>array(4) {
+  ["id"]=>
+  int(1)
+  ["nama"]=>
+  string(8) "John Doe"
+  ["email"]=>
+  string(14) "<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="afc5c0c7c1efcac2cec6c381ccc0c2">[email&#160;protected]</a>"
+  ["active"]=>
+  bool(true)
+}</code>
+                </div>
+
+                <h3 class="subsection-title">2. die() dan exit()</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">Menghentikan Eksekusi untuk Debug</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">// Debug: cek nilai sebelum proses</span>
+<span class="php-var">$query</span> = <span class="string">"SELECT * FROM users WHERE id = {<span class="php-var">$id</span>}"</span>;
+<span class="function">die</span>(<span class="string">"Query: "</span> . <span class="php-var">$query</span>); <span class="comment">// Tampilkan dan stop</span>
+
+<span class="comment">// Atau dengan var_dump</span>
+<span class="function">var_dump</span>(<span class="php-var">$_POST</span>);
+<span class="function">exit</span>; <span class="comment">// Stop eksekusi</span>
+
+<span class="comment">// Debug di titik tertentu</span>
+<span class="keyword">if</span> (<span class="php-var">$condition</span>) {
+    <span class="function">die</span>(<span class="string">'Sampai sini OK'</span>);
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 4</div>
+            </div>
+
+            <!-- PAGE 5: TEKNIK DEBUGGING LANJUTAN -->
+            <div class="page-content">
+                <h3 class="subsection-title">3. error_log() - Debug tanpa Mengganggu Output</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">Logging ke File</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">// Log pesan sederhana</span>
+<span class="function">error_log</span>(<span class="string">'User login attempt: '</span> . <span class="php-var">$email</span>);
+
+<span class="comment">// Log array/object</span>
+<span class="function">error_log</span>(<span class="function">print_r</span>(<span class="php-var">$_POST</span>, <span class="keyword">true</span>));
+
+<span class="comment">// Log ke file khusus</span>
+<span class="function">error_log</span>(
+    <span class="function">date</span>(<span class="string">'Y-m-d H:i:s'</span>) . <span class="string">' - Debug: '</span> . <span class="php-var">$message</span> . <span class="string">"\n"</span>,
+    <span class="number">3</span>,
+    <span class="string">'logs/debug.log'</span>
+);
+
+<span class="comment">// Helper function untuk debugging</span>
+<span class="keyword">function</span> <span class="function">debug_log</span>(<span class="php-var">$data</span>, <span class="php-var">$label</span> = <span class="string">'DEBUG'</span>) {
+    <span class="php-var">$output</span> = <span class="function">is_array</span>(<span class="php-var">$data</span>) || <span class="function">is_object</span>(<span class="php-var">$data</span>)
+        ? <span class="function">print_r</span>(<span class="php-var">$data</span>, <span class="keyword">true</span>)
+        : <span class="php-var">$data</span>;
+
+    <span class="function">error_log</span>(<span class="string">"[{<span class="php-var">$label</span>}] {<span class="php-var">$output</span>}"</span>);
+}
+
+<span class="comment">// Penggunaan</span>
+<span class="function">debug_log</span>(<span class="php-var">$_SESSION</span>, <span class="string">'SESSION DATA'</span>);
+<span class="function">debug_log</span>(<span class="php-var">$result</span>, <span class="string">'QUERY RESULT'</span>);
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <h3 class="subsection-title">4. Debugging Database Query</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">Debug Query PDO</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">// Aktifkan error mode</span>
+<span class="php-var">$pdo</span>-><span class="method">setAttribute</span>(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+<span class="keyword">try</span> {
+    <span class="php-var">$sql</span> = <span class="string">"SELECT * FROM mahasiswa WHERE nim = :nim"</span>;
+    <span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+    <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="string">':nim'</span> => <span class="php-var">$nim</span>]);
+
+    <span class="comment">// Debug: lihat query yang dieksekusi</span>
+    <span class="function">error_log</span>(<span class="string">"Query: {<span class="php-var">$sql</span>}, Param: {<span class="php-var">$nim</span>}"</span>);
+
+    <span class="php-var">$result</span> = <span class="php-var">$stmt</span>-><span class="method">fetchAll</span>();
+
+    <span class="comment">// Debug: cek hasil</span>
+    <span class="function">error_log</span>(<span class="string">"Rows found: "</span> . <span class="function">count</span>(<span class="php-var">$result</span>));
+
+} <span class="keyword">catch</span> (PDOException <span class="php-var">$e</span>) {
+    <span class="comment">// Log error database</span>
+    <span class="function">error_log</span>(<span class="string">"DB Error: "</span> . <span class="php-var">$e</span>-><span class="method">getMessage</span>());
+
+    <span class="comment">// Debug: tampilkan di development</span>
+    <span class="keyword">if</span> (<span class="php-var">$_SERVER</span>[<span class="string">'SERVER_NAME'</span>] === <span class="string">'localhost'</span>) {
+        <span class="keyword">echo</span> <span class="string">"&lt;pre&gt;Error: "</span> . <span class="php-var">$e</span>-><span class="method">getMessage</span>() . <span class="string">"&lt;/pre&gt;"</span>;
+    }
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 5</div>
+            </div>
+
+            <!-- PAGE 6: BROWSER DEVTOOLS -->
+            <div class="page-content">
+                <h2 class="section-title">&#128187; BROWSER DEVELOPER TOOLS</h2>
+
+                <div class="info-box">
+                    <strong>Membuka DevTools:</strong>
+                    <ul style="margin-top: 8px; margin-left: 15px;">
+                        <li><strong>Chrome/Edge:</strong> F12 atau Ctrl+Shift+I</li>
+                        <li><strong>Firefox:</strong> F12 atau Ctrl+Shift+I</li>
+                        <li><strong>Safari:</strong> Cmd+Option+I</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Tab-tab Penting di DevTools</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Tab</th><th>Fungsi</th><th>Kegunaan</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Elements</strong></td>
+                                <td>Inspeksi HTML/CSS</td>
+                                <td>Debug tampilan, edit CSS live</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Console</strong></td>
+                                <td>JavaScript console</td>
+                                <td>Lihat error JS, test kode, log</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network</strong></td>
+                                <td>Monitor request</td>
+                                <td>Debug AJAX, cek response, timing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Application</strong></td>
+                                <td>Storage</td>
+                                <td>Lihat cookies, session, localStorage</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sources</strong></td>
+                                <td>Debug JavaScript</td>
+                                <td>Breakpoint, step through code</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="subsection-title">Debug JavaScript dengan Console</h3>
+
+                <div class="code-block">
+                    <span class="code-label js">console.log() dan Variannya</span>
+                    <code><span class="comment">// Log biasa</span>
+<span class="js-func">console</span>.<span class="method">log</span>(<span class="js-string">'Data:'</span>, data);
+
+<span class="comment">// Warning (kuning)</span>
+<span class="js-func">console</span>.<span class="method">warn</span>(<span class="js-string">'Perhatian: nilai kosong'</span>);
+
+<span class="comment">// Error (merah)</span>
+<span class="js-func">console</span>.<span class="method">error</span>(<span class="js-string">'Error: gagal submit'</span>);
+
+<span class="comment">// Tampilkan sebagai tabel</span>
+<span class="js-func">console</span>.<span class="method">table</span>(arrayData);
+
+<span class="comment">// Group logs</span>
+<span class="js-func">console</span>.<span class="method">group</span>(<span class="js-string">'Form Validation'</span>);
+<span class="js-func">console</span>.<span class="method">log</span>(<span class="js-string">'Email:'</span>, email);
+<span class="js-func">console</span>.<span class="method">log</span>(<span class="js-string">'Valid:'</span>, isValid);
+<span class="js-func">console</span>.<span class="method">groupEnd</span>();
+
+<span class="comment">// Timing</span>
+<span class="js-func">console</span>.<span class="method">time</span>(<span class="js-string">'fetchData'</span>);
+<span class="comment">// ... proses ...</span>
+<span class="js-func">console</span>.<span class="method">timeEnd</span>(<span class="js-string">'fetchData'</span>); <span class="comment">// Output: fetchData: 123.45ms</span></code>
+                </div>
+
+                <div class="page-number">Halaman 6</div>
+            </div>
+
+            <!-- PAGE 7: DEBUG NETWORK -->
+            <div class="page-content">
+                <h3 class="subsection-title">Debug Form Submit dengan Network Tab</h3>
+
+                <div class="step-item">
+                    <div class="step-title"><span class="step-number">1</span> Buka Tab Network</div>
+                    <p>Tekan F12, klik tab <strong>Network</strong>, centang <strong>Preserve log</strong></p>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-title"><span class="step-number">2</span> Submit Form</div>
+                    <p>Isi form dan klik submit. Akan muncul request baru di list.</p>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-title"><span class="step-number">3</span> Klik Request</div>
+                    <p>Klik pada request POST untuk melihat detailnya:</p>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li><strong>Headers:</strong> Method, Status Code, Content-Type</li>
+                        <li><strong>Payload:</strong> Data yang dikirim (Form Data)</li>
+                        <li><strong>Response:</strong> Output dari server</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label console">Contoh Info di Network Tab</span>
+                    <code><span class="attr">Request URL:</span> <span class="string">http://localhost/project/proses.php</span>
+<span class="attr">Request Method:</span> <span class="keyword">POST</span>
+<span class="attr">Status Code:</span> <span class="success">200 OK</span>  <span class="comment">atau</span>  <span class="error">500 Internal Server Error</span>
+
+<span class="attr">Form Data:</span>
+  nim: 12345678
+  nama: John Doe
+  email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="adc7c2c5c3edc8c0ccc4c183cec2c0">[email&#160;protected]</a>
+
+<span class="attr">Response:</span>
+  <span class="comment">&lt;!-- Jika error, response bisa berisi pesan error PHP --&gt;</span>
+  {"success": true, "message": "Data berhasil disimpan"}</code>
+                </div>
+
+                <div class="success-box">
+                    <strong>Tips:</strong> Jika status <strong>500</strong>, lihat tab <strong>Response</strong> untuk melihat pesan error PHP yang mungkin tersembunyi.
+                </div>
+
+                <div class="page-number">Halaman 7</div>
+            </div>
+
+            <!-- PAGE 8: COMMON BUGS -->
+            <div class="page-content">
+                <h2 class="section-title">&#128027; BUG UMUM & SOLUSINYA</h2>
+
+                <div class="bug-card">
+                    <div class="bug-title">
+                        <span>&#128027;</span>
+                        <h4>Undefined Variable / Index</h4>
+                    </div>
+                    <div class="bug-cause">
+                        <strong>Penyebab:</strong> Mengakses variabel atau array key yang belum ada
+                    </div>
+                    <div class="bug-fix">
+                        <strong>Solusi:</strong> Gunakan <code>isset()</code> atau null coalescing <code>??</code><br>
+                        <code>$name = $_POST['name'] ?? '';</code>
+                    </div>
+                </div>
+
+                <div class="bug-card">
+                    <div class="bug-title">
+                        <span>&#128027;</span>
+                        <h4>Headers Already Sent</h4>
+                    </div>
+                    <div class="bug-cause">
+                        <strong>Penyebab:</strong> Ada output (spasi, HTML) sebelum <code>header()</code> atau <code>session_start()</code>
+                    </div>
+                    <div class="bug-fix">
+                        <strong>Solusi:</strong> Pastikan tidak ada karakter apapun sebelum <code>&lt;?php</code>, termasuk BOM character. Letakkan <code>session_start()</code> di paling awal.
+                    </div>
+                </div>
+
+                <div class="bug-card">
+                    <div class="bug-title">
+                        <span>&#128027;</span>
+                        <h4>Class Not Found</h4>
+                    </div>
+                    <div class="bug-cause">
+                        <strong>Penyebab:</strong> File class tidak di-include atau path salah
+                    </div>
+                    <div class="bug-fix">
+                        <strong>Solusi:</strong> Cek path <code>require_once</code>, gunakan <code>__DIR__</code> untuk path relatif.<br>
+                        <code>require_once __DIR__ . '/../models/User.php';</code>
+                    </div>
+                </div>
+
+                <div class="bug-card">
+                    <div class="bug-title">
+                        <span>&#128027;</span>
+                        <h4>SQLSTATE Connection Refused</h4>
+                    </div>
+                    <div class="bug-cause">
+                        <strong>Penyebab:</strong> Database tidak berjalan atau kredensial salah
+                    </div>
+                    <div class="bug-fix">
+                        <strong>Solusi:</strong> Cek MySQL/XAMPP running, verifikasi DB_HOST, DB_USER, DB_PASS
+                    </div>
+                </div>
+
+                <div class="page-number">Halaman 8</div>
+            </div>
+
+            <!-- PAGE 9: MORE COMMON BUGS -->
+            <div class="page-content">
+                <h3 class="subsection-title">Bug Umum Lainnya</h3>
+
+                <div class="bug-card">
+                    <div class="bug-title">
+                        <span>&#128027;</span>
+                        <h4>Form Data Tidak Terkirim</h4>
+                    </div>
+                    <div class="bug-cause">
+                        <strong>Penyebab:</strong> Lupa <code>name</code> attribute, method salah, atau enctype untuk file
+                    </div>
+                    <div class="bug-fix">
+                        <strong>Solusi:</strong><br>
+                        - Pastikan setiap input punya <code>name="..."</code><br>
+                        - Gunakan <code>method="POST"</code> untuk form<br>
+                        - Tambah <code>enctype="multipart/form-data"</code> untuk upload file
+                    </div>
+                </div>
+
+                <div class="bug-card">
+                    <div class="bug-title">
+                        <span>&#128027;</span>
+                        <h4>Session Tidak Tersimpan</h4>
+                    </div>
+                    <div class="bug-cause">
+                        <strong>Penyebab:</strong> <code>session_start()</code> tidak dipanggil atau dipanggil setelah output
+                    </div>
+                    <div class="bug-fix">
+                        <strong>Solusi:</strong> Letakkan <code>session_start()</code> di baris pertama sebelum output apapun
+                    </div>
+                </div>
+
+                <div class="bug-card">
+                    <div class="bug-title">
+                        <span>&#128027;</span>
+                        <h4>Gambar/CSS Tidak Muncul</h4>
+                    </div>
+                    <div class="bug-cause">
+                        <strong>Penyebab:</strong> Path relatif salah, terutama setelah deploy
+                    </div>
+                    <div class="bug-fix">
+                        <strong>Solusi:</strong> Gunakan path dari root dengan <code>/</code> atau BASE_URL<br>
+                        <code>&lt;img src="&lt;?= BASE_URL ?&gt;uploads/foto.jpg"&gt;</code>
+                    </div>
+                </div>
+
+                <div class="bug-card">
+                    <div class="bug-title">
+                        <span>&#128027;</span>
+                        <h4>Redirect Loop</h4>
+                    </div>
+                    <div class="bug-cause">
+                        <strong>Penyebab:</strong> Kondisi redirect yang salah sehingga terus menerus redirect
+                    </div>
+                    <div class="bug-fix">
+                        <strong>Solusi:</strong> Cek kondisi <code>requireLogin()</code>, pastikan halaman login tidak di-protect
+                    </div>
+                </div>
+
+                <div class="page-number">Halaman 9</div>
+            </div>
+
+            <!-- PAGE 10: TESTING MANUAL -->
+            <div class="page-content">
+                <h2 class="section-title">&#9989; TESTING MANUAL</h2>
+
+                <div class="info-box">
+                    <strong>Testing Manual</strong> adalah proses menguji aplikasi secara langsung oleh manusia tanpa menggunakan tools otomatis. Ini penting untuk memastikan aplikasi berfungsi dari perspektif pengguna.
+                </div>
+
+                <h3 class="subsection-title">Test Case Template</h3>
+
+                <div class="test-case">
+                    <div class="test-header">
+                        <span class="test-name">TC-001: Login dengan kredensial valid</span>
+                        <span class="test-status pass">PASS</span>
+                    </div>
+                    <div class="test-steps">
+                        <strong>Langkah:</strong>
+                        <ol>
+                            <li>Buka halaman login</li>
+                            <li>Masukkan email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="18797c757176586c7d6b6c367b7775">[email&#160;protected]</a></li>
+                            <li>Masukkan password: password123</li>
+                            <li>Klik tombol Login</li>
+                        </ol>
+                        <strong>Expected:</strong> Redirect ke dashboard, nama user muncul di navbar<br>
+                        <strong>Actual:</strong> Sesuai expected
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <div class="test-header">
+                        <span class="test-name">TC-002: Login dengan password salah</span>
+                        <span class="test-status pass">PASS</span>
+                    </div>
+                    <div class="test-steps">
+                        <strong>Langkah:</strong>
+                        <ol>
+                            <li>Buka halaman login</li>
+                            <li>Masukkan email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3051545d595e70445543441e535f5d">[email&#160;protected]</a></li>
+                            <li>Masukkan password: wrongpassword</li>
+                            <li>Klik tombol Login</li>
+                        </ol>
+                        <strong>Expected:</strong> Tampil pesan error "Email atau password salah"<br>
+                        <strong>Actual:</strong> Sesuai expected
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <div class="test-header">
+                        <span class="test-name">TC-003: Upload file melebihi batas</span>
+                        <span class="test-status fail">FAIL</span>
+                    </div>
+                    <div class="test-steps">
+                        <strong>Langkah:</strong>
+                        <ol>
+                            <li>Buka form tambah mahasiswa</li>
+                            <li>Upload file gambar 5MB (batas 2MB)</li>
+                            <li>Klik Simpan</li>
+                        </ol>
+                        <strong>Expected:</strong> Tampil pesan error "Ukuran file maksimal 2MB"<br>
+                        <strong>Actual:</strong> Blank page, tidak ada pesan error
+                    </div>
+                </div>
+
+                <div class="page-number">Halaman 10</div>
+            </div>
+
+            <!-- PAGE 11: TESTING CHECKLIST -->
+            <div class="page-content">
+                <h3 class="subsection-title">Checklist Testing Aplikasi Web</h3>
+
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <span class="check">&#9744;</span>
+                        <div class="item-text">
+                            <strong>Authentication</strong><br>
+                            <small>Login, logout, register, remember me, session timeout</small>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="check">&#9744;</span>
+                        <div class="item-text">
+                            <strong>CRUD Operations</strong><br>
+                            <small>Create, Read, Update, Delete - semua entitas</small>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="check">&#9744;</span>
+                        <div class="item-text">
+                            <strong>Form Validation</strong><br>
+                            <small>Required fields, format email, unique values, min/max length</small>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="check">&#9744;</span>
+                        <div class="item-text">
+                            <strong>File Upload</strong><br>
+                            <small>Tipe file, ukuran file, nama file unik, tampilan gambar</small>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="check">&#9744;</span>
+                        <div class="item-text">
+                            <strong>Authorization</strong><br>
+                            <small>Akses halaman tanpa login, akses fitur admin sebagai user</small>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="check">&#9744;</span>
+                        <div class="item-text">
+                            <strong>Navigation</strong><br>
+                            <small>Semua link berfungsi, breadcrumb, back button</small>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="check">&#9744;</span>
+                        <div class="item-text">
+                            <strong>Edge Cases</strong><br>
+                            <small>Empty state, data kosong, karakter spesial, input panjang</small>
+                        </div>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="check">&#9744;</span>
+                        <div class="item-text">
+                            <strong>Responsive Design</strong><br>
+                            <small>Tampilan di mobile, tablet, desktop</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-number">Halaman 11</div>
+            </div>
+
+            <!-- PAGE 12: TESTING SECURITY -->
+            <div class="page-content">
+                <h3 class="subsection-title">Testing Keamanan Dasar</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Test</th><th>Cara Test</th><th>Expected Result</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>SQL Injection</strong></td>
+                                <td>Input: <code>' OR '1'='1</code></td>
+                                <td>Tidak bisa login/bypass</td>
+                            </tr>
+                            <tr>
+                                <td><strong>XSS</strong></td>
+                                <td>Input: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></td>
+                                <td>Script tidak dieksekusi</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Direct URL Access</strong></td>
+                                <td>Akses <code>?action=index</code> tanpa login</td>
+                                <td>Redirect ke login</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IDOR</strong></td>
+                                <td>Edit URL ID ke data user lain</td>
+                                <td>Akses ditolak</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File Upload</strong></td>
+                                <td>Upload file .php sebagai gambar</td>
+                                <td>File ditolak</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">Contoh Input untuk Testing</span>
+                    <code><span class="comment"># SQL Injection attempts</span>
+<span class="string">' OR '1'='1</span>
+<span class="string">' OR '1'='1' --</span>
+<span class="string">1; DROP TABLE users;--</span>
+
+<span class="comment"># XSS attempts</span>
+<span class="string">&lt;script&gt;alert('XSS')&lt;/script&gt;</span>
+<span class="string">&lt;img src=x onerror=alert('XSS')&gt;</span>
+<span class="string">"&gt;&lt;script&gt;alert('XSS')&lt;/script&gt;</span>
+
+<span class="comment"># Path Traversal</span>
+<span class="string">../../../etc/passwd</span>
+<span class="string">....//....//....//etc/passwd</span></code>
+                </div>
+
+                <div class="danger-box">
+                    <strong>Penting!</strong> Jika input di atas berhasil mengeksekusi atau menampilkan data sensitif, berarti ada celah keamanan yang harus diperbaiki.
+                </div>
+
+                <div class="page-number">Halaman 12</div>
+            </div>
+
+            <!-- PAGE 13: DOKUMENTASI BUG -->
+            <div class="page-content">
+                <h2 class="section-title">&#128221; DOKUMENTASI BUG</h2>
+
+                <h3 class="subsection-title">Format Bug Report</h3>
+
+                <div class="code-block">
+                    <span class="code-label">Template Bug Report</span>
+                    <code><span class="attr">BUG ID:</span>        BUG-001
+<span class="attr">Judul:</span>         Upload gambar gagal untuk file > 2MB
+<span class="attr">Severity:</span>      Medium
+<span class="attr">Status:</span>        Open
+
+<span class="attr">Environment:</span>
+- Browser: Chrome 120
+- OS: Windows 11
+- Server: Localhost/XAMPP
+
+<span class="attr">Langkah Reproduksi:</span>
+1. Login sebagai user
+2. Buka menu Tambah Mahasiswa
+3. Isi form dengan data valid
+4. Upload file gambar berukuran 5MB
+5. Klik tombol Simpan
+
+<span class="attr">Expected Result:</span>
+Muncul pesan error "Ukuran file maksimal 2MB"
+
+<span class="attr">Actual Result:</span>
+Halaman blank/putih tanpa pesan error
+
+<span class="attr">Screenshot:</span>
+[Lampirkan screenshot]
+
+<span class="attr">Catatan:</span>
+Error log menunjukkan: "POST Content-Length exceeds limit"</code>
+                </div>
+
+                <h3 class="subsection-title">Severity Level</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Level</th><th>Deskripsi</th><th>Contoh</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong style="color: #b71c1c;">Critical</strong></td>
+                                <td>Aplikasi tidak bisa digunakan</td>
+                                <td>Tidak bisa login sama sekali</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: #e53935;">High</strong></td>
+                                <td>Fitur utama tidak berfungsi</td>
+                                <td>Data tidak tersimpan ke DB</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: #ff9800;">Medium</strong></td>
+                                <td>Fitur tidak berfungsi dengan workaround</td>
+                                <td>Validasi client tidak jalan</td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: #4caf50;">Low</strong></td>
+                                <td>Minor issue, tidak mempengaruhi fungsi</td>
+                                <td>Typo, alignment tidak rapi</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="page-number">Halaman 13</div>
+            </div>
+
+            <!-- PAGE 14: BEST PRACTICES -->
+            <div class="page-content">
+                <h2 class="section-title">&#128161; BEST PRACTICES</h2>
+
+                <div class="success-box">
+                    <strong>Tips Debugging Efektif:</strong>
+                    <ol style="margin-top: 10px; margin-left: 15px;">
+                        <li><strong>Baca error message dengan teliti</strong> - Informasi penting ada di sana</li>
+                        <li><strong>Reproduksi bug secara konsisten</strong> - Pastikan bisa mengulang bug</li>
+                        <li><strong>Isolasi masalah</strong> - Cari tahu bagian mana yang bermasalah</li>
+                        <li><strong>Cek perubahan terakhir</strong> - Apa yang baru diubah?</li>
+                        <li><strong>Gunakan version control</strong> - Git membantu melacak perubahan</li>
+                        <li><strong>Minta bantuan</strong> - Fresh eyes bisa menemukan bug lebih cepat</li>
+                    </ol>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Hal yang Harus Dihindari:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>Debugging di production tanpa backup</li>
+                        <li>Mengubah banyak hal sekaligus tanpa test</li>
+                        <li>Mengabaikan warning dan notice</li>
+                        <li>Tidak mencatat bug yang ditemukan</li>
+                        <li>Lupa menghapus kode debug sebelum commit</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Debug Helper Function</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">includes/debug.php</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">/**
+ * Helper functions untuk debugging
+ * HAPUS atau nonaktifkan di production!
+ */</span>
+
+<span class="comment">// Pretty print untuk debugging</span>
+<span class="keyword">function</span> <span class="function">dd</span>(<span class="php-var">$data</span>) {
+    <span class="keyword">echo</span> <span class="string">'&lt;pre style="background:#1a1a2e;color:#e2e8f0;padding:15px;border-radius:8px;"&gt;'</span>;
+    <span class="function">var_dump</span>(<span class="php-var">$data</span>);
+    <span class="keyword">echo</span> <span class="string">'&lt;/pre&gt;'</span>;
+    <span class="function">exit</span>;
+}
+
+<span class="comment">// Dump tanpa exit</span>
+<span class="keyword">function</span> <span class="function">dump</span>(<span class="php-var">$data</span>) {
+    <span class="keyword">echo</span> <span class="string">'&lt;pre style="background:#1a1a2e;color:#e2e8f0;padding:15px;border-radius:8px;"&gt;'</span>;
+    <span class="function">var_dump</span>(<span class="php-var">$data</span>);
+    <span class="keyword">echo</span> <span class="string">'&lt;/pre&gt;'</span>;
+}
+
+<span class="comment">// Log ke file</span>
+<span class="keyword">function</span> <span class="function">logDebug</span>(<span class="php-var">$message</span>, <span class="php-var">$data</span> = <span class="keyword">null</span>) {
+    <span class="php-var">$log</span> = <span class="function">date</span>(<span class="string">'Y-m-d H:i:s'</span>) . <span class="string">" - {<span class="php-var">$message</span>}"</span>;
+    <span class="keyword">if</span> (<span class="php-var">$data</span>) {
+        <span class="php-var">$log</span> .= <span class="string">": "</span> . <span class="function">print_r</span>(<span class="php-var">$data</span>, <span class="keyword">true</span>);
+    }
+    <span class="function">file_put_contents</span>(<span class="string">'logs/debug.log'</span>, <span class="php-var">$log</span> . <span class="string">"\n"</span>, FILE_APPEND);
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 14</div>
+            </div>
+
+            <!-- PAGE 15: TUGAS -->
+            <div class="page-content">
+                <h2 class="section-title">&#128203; TUGAS PRAKTIKUM</h2>
+
+                <div class="project-card">
+                    <h3>&#9989; Tugas: Testing & Bug Fixing</h3>
+                    <p style="margin-bottom: 15px;">Lakukan testing pada project yang sudah di-deploy dan dokumentasikan hasilnya:</p>
+                    <ol style="margin-left: 20px; line-height: 2.2;">
+                        <li>Buat <strong>minimal 10 test case</strong> untuk fitur utama aplikasi</li>
+                        <li>Jalankan semua test case dan catat hasilnya (PASS/FAIL)</li>
+                        <li>Untuk setiap test yang FAIL, buat <strong>bug report</strong></li>
+                        <li>Perbaiki bug yang ditemukan</li>
+                        <li>Jalankan ulang test untuk memastikan bug sudah diperbaiki</li>
+                        <li>Lakukan <strong>testing keamanan dasar</strong> (SQL Injection, XSS)</li>
+                        <li>Dokumentasikan semua proses dalam <strong>laporan testing</strong></li>
+                    </ol>
+                </div>
+
+                <h3 class="subsection-title">Kriteria Penilaian</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Aspek</th><th>Bobot</th><th>Kriteria</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Test Cases</td><td>25%</td><td>Minimal 10 test case lengkap</td></tr>
+                            <tr><td>Bug Reports</td><td>20%</td><td>Format lengkap, reproducible</td></tr>
+                            <tr><td>Bug Fixing</td><td>25%</td><td>Bug berhasil diperbaiki</td></tr>
+                            <tr><td>Security Testing</td><td>15%</td><td>Test SQL Injection & XSS</td></tr>
+                            <tr><td>Dokumentasi</td><td>15%</td><td>Laporan rapi dan lengkap</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warning-box" style="margin-top: 25px;">
+                    <strong>&#128679; Format Pengumpulan:</strong>
+                    <p style="margin-top: 8px;">Kumpulkan laporan testing dalam format PDF yang berisi: daftar test case, hasil testing, bug reports, dan bukti perbaikan (screenshot before/after).</p>
+                </div>
+
+                <div style="margin-top: 40px; padding: 30px; background: #f8f9fa; border-radius: 15px; border-left: 5px solid #e53935;">
+                    <h3 style="color: #b71c1c; margin-bottom: 15px;">&#128231; Contact Information</h3>
+                    <p><strong>Dosen:</strong> Ikhwan Alfath Nurul Fathony, S.Kom., M.Kom.</p>
+                    <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8fe6e4e7f8eee1a1eee3e9eefbe7cffae1fbe6ebeefda1eeeca1e6eb">[email&#160;protected]</a></p>
+                </div>
+
+                <div style="margin-top: 30px; font-size: 0.9em; color: #888; text-align: center;">
+                    <p>&copy; 2025 Program Studi Teknologi Informasi - Universitas Tidar</p>
+                </div>
+
+                <div class="page-number">Halaman 15</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Home') { e.preventDefault(); scrollToTop(); }
+            if (e.key === 'End') { e.preventDefault(); scrollToBottom(); }
+        });
+    </script>
+</body>
+</html>

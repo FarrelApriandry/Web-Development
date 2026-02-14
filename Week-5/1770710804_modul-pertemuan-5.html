@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul Praktikum Pertemuan 5 - PHP Dasar & MySQL</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; overflow-x: hidden; }
+        .book-container { max-width: 900px; margin: 50px auto; }
+        .book { background: #fff; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden; }
+        .controls { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; }
+        .control-btn { background: rgba(255,255,255,0.9); border: none; padding: 10px 15px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s ease; }
+        .control-btn:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* Cover - PHP Purple Theme */
+        .cover-page { background: linear-gradient(135deg, #4f2d7f 0%, #7b4397 50%, #9c5bcd 100%); color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+        .cover-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 30% 20%, rgba(156,91,205,0.2) 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, rgba(123,67,151,0.15) 0%, transparent 50%); z-index: 1; }
+        .cover-page::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(2px 2px at 10% 15%, rgba(255,255,255,0.15) 50%, transparent 50%), radial-gradient(2px 2px at 45% 10%, rgba(255,255,255,0.1) 50%, transparent 50%), radial-gradient(1px 1px at 75% 25%, rgba(255,255,255,0.15) 50%, transparent 50%), radial-gradient(1px 1px at 55% 65%, rgba(255,255,255,0.1) 50%, transparent 50%); z-index: 1; animation: twinkle 4s ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(156,91,205,0.4); } 50% { box-shadow: 0 0 20px 10px rgba(156,91,205,0.1); } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .cover-content { position: relative; z-index: 2; padding: 50px 40px; }
+        .cover-top-bar { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 35px; animation: fadeInUp 0.8s ease-out; }
+        .cover-top-bar .bar-line { flex: 1; max-width: 120px; height: 1px; background: linear-gradient(90deg, transparent, rgba(156,91,205,0.6), transparent); }
+        .cover-university-badge { display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 10px 24px; border-radius: 50px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+        .cover-code-icons { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; animation: fadeInUp 0.9s ease-out; }
+        .cover-code-icons .code-icon { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 14px 18px; font-size: 22px; animation: float 3s ease-in-out infinite; font-weight: bold; }
+        .cover-code-icons .code-icon:nth-child(2) { animation-delay: 0.5s; }
+        .cover-code-icons .code-icon:nth-child(3) { animation-delay: 1s; }
+        .cover-code-icons .code-icon.php { color: #aeb2d5; }
+        .cover-code-icons .code-icon.mysql { color: #f29111; }
+        .cover-label { display: inline-block; background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); border: 1px solid rgba(255,255,255,0.3); padding: 8px 28px; border-radius: 6px; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #e0d4f7; margin-bottom: 25px; animation: fadeInUp 1s ease-out; }
+        .cover-main-title { font-size: 2.8em; font-weight: 800; margin-bottom: 8px; text-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: 2px; line-height: 1.2; animation: fadeInUp 1.1s ease-out; }
+        .cover-main-title .php { color: #aeb2d5; }
+        .cover-main-title .mysql { color: #f29111; }
+        .cover-course-name { font-size: 1.4em; font-weight: 300; margin-bottom: 35px; opacity: 0.9; animation: fadeInUp 1.2s ease-out; }
+        .cover-meeting-badge { display: inline-flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #9c5bcd, #7b4397); color: white; padding: 14px 40px; border-radius: 50px; font-size: 1.3em; font-weight: 700; margin-bottom: 15px; box-shadow: 0 8px 30px rgba(156,91,205,0.4); animation: fadeInUp 1.3s ease-out, pulse 2s infinite; border: 2px solid rgba(255,255,255,0.2); }
+        .cover-meeting-badge .meeting-number { background: rgba(255,255,255,0.2); width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+        .cover-topic { font-size: 1.1em; color: rgba(255,255,255,0.85); margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6; animation: fadeInUp 1.4s ease-out; }
+        .cover-info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 650px; margin: 0 auto; animation: fadeInUp 1.5s ease-out; }
+        .cover-info-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 18px 12px; transition: all 0.3s ease; }
+        .cover-info-card:hover { background: rgba(255,255,255,0.12); border-color: rgba(156,91,205,0.5); transform: translateY(-4px); }
+        .cover-info-card .card-icon { font-size: 24px; margin-bottom: 8px; }
+        .cover-info-card .card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #d4c4e8; margin-bottom: 4px; }
+        .cover-info-card .card-value { font-size: 13px; font-weight: 500; }
+        .cover-tech-badge { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; animation: fadeInUp 1.6s ease-out; }
+        .cover-tech-badge span { padding: 8px 15px; background: rgba(255,255,255,0.1); border-radius: 20px; font-size: 12px; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* Page Styles */
+        .page-content { padding: 60px 50px; line-height: 1.8; font-size: 16px; color: #333; }
+        .page-number { text-align: right; font-size: 14px; color: #999; margin-top: 40px; padding-top: 15px; border-top: 1px solid #eee; }
+        .section-title { color: #4f2d7f; font-size: 1.9em; font-weight: 700; margin: 40px 0 20px 0; position: relative; }
+        .section-title::before { content: ''; position: absolute; left: 0; bottom: -5px; width: 60px; height: 3px; background: linear-gradient(90deg, #7b4397, #9c5bcd); }
+        .subsection-title { color: #5a3d7a; font-size: 1.35em; font-weight: 600; margin: 30px 0 15px 0; }
+        .objective-list, .content-list { margin: 20px 0; padding-left: 20px; }
+        .objective-list li, .content-list li { margin: 10px 0; position: relative; }
+        .objective-list li::before { content: '\1F3AF'; position: absolute; left: -25px; }
+        .content-list li::before { content: '\1F4CB'; position: absolute; left: -25px; }
+        .learning-outcomes { background: linear-gradient(135deg, #f8f5fc 0%, #fff 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #7b4397; box-shadow: 0 5px 15px rgba(123,67,151,0.1); }
+        .lab-setup { background: linear-gradient(135deg, #f8f5fc 0%, #faf8fd 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #9c5bcd; }
+        .warning-box { background: #fff3cd; border-left: 5px solid #f39c12; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .warning-box::before { content: '\26A0\FE0F'; margin-right: 10px; }
+        .info-box { background: #d1ecf1; border-left: 5px solid #17a2b8; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .info-box::before { content: '\2139\FE0F'; margin-right: 10px; }
+        .success-box { background: #d4edda; border-left: 5px solid #28a745; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .success-box::before { content: '\2705'; margin-right: 10px; }
+        .step-item { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 25px; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.08); transition: all 0.3s ease; }
+        .step-item:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+        .step-number { background: linear-gradient(135deg, #7b4397, #9c5bcd); color: white; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 15px; }
+        .step-title { color: #4f2d7f; font-weight: 600; font-size: 1.1em; margin-bottom: 10px; }
+
+        /* Code Block - PHP Theme */
+        .code-block { background: linear-gradient(135deg, #2d2d2d 0%, #1a1a2e 100%); border-radius: 12px; padding: 20px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; margin: 20px 0; overflow-x: auto; color: #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; }
+        .code-block::before { content: ''; position: absolute; top: 12px; left: 15px; width: 10px; height: 10px; background: #ff5f57; border-radius: 50%; box-shadow: 16px 0 0 #ffbd2e, 32px 0 0 #28ca42; }
+        .code-block code { display: block; margin-top: 10px; white-space: pre; line-height: 1.6; }
+        .code-label { display: inline-block; background: linear-gradient(135deg, #7b4397, #9c5bcd); color: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-bottom: 8px; }
+        .code-label.sql { background: linear-gradient(135deg, #00758f, #f29111); }
+
+        /* Syntax Highlighting - PHP */
+        .php-tag { color: #ff79c6; }
+        .keyword { color: #ff79c6; }
+        .string { color: #50fa7b; }
+        .number { color: #bd93f9; }
+        .comment { color: #6272a4; font-style: italic; }
+        .function { color: #8be9fd; }
+        .variable { color: #f8f8f2; }
+        .php-var { color: #ffb86c; }
+        .operator { color: #ff79c6; }
+        .sql-keyword { color: #ff79c6; font-weight: bold; }
+        .sql-table { color: #50fa7b; }
+        .sql-field { color: #8be9fd; }
+        .sql-value { color: #f1fa8c; }
+
+        /* Table */
+        .table-container { overflow-x: auto; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: linear-gradient(135deg, #4f2d7f, #7b4397); color: white; font-weight: 600; }
+        tr:hover { background: #f8f5fc; }
+
+        /* UI Demo */
+        .ui-demo { border: 2px solid #ddd; border-radius: 10px; overflow: hidden; margin: 15px 0; background: white; }
+        .ui-demo-bar { background: #e0e0e0; padding: 8px 15px; display: flex; align-items: center; gap: 6px; }
+        .ui-demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .ui-demo-dot.red { background: #ff5f57; }
+        .ui-demo-dot.yellow { background: #ffbd2e; }
+        .ui-demo-dot.green { background: #28ca42; }
+        .ui-demo-body { padding: 20px; }
+
+        /* Project Card */
+        .project-card { background: linear-gradient(135deg, #4f2d7f, #7b4397); color: white; border-radius: 16px; padding: 30px; margin: 25px 0; }
+        .project-card h3 { color: #e0d4f7; margin-bottom: 15px; }
+
+        /* Connection Flow */
+        .connection-flow { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin: 30px 0; padding: 25px; background: linear-gradient(135deg, #f8f9fa, #fff); border-radius: 15px; }
+        .flow-item { text-align: center; padding: 12px 15px; border-radius: 10px; background: white; box-shadow: 0 3px 10px rgba(0,0,0,0.1); min-width: 80px; }
+        .flow-item.active { background: linear-gradient(135deg, #7b4397, #9c5bcd); color: white; }
+        .flow-item.active .flow-label { color: white; }
+        .flow-item .flow-icon { font-size: 20px; margin-bottom: 3px; }
+        .flow-item .flow-label { font-size: 10px; font-weight: 600; color: #666; }
+        .flow-arrow { font-size: 18px; color: #ccc; }
+
+        /* Database Schema */
+        .db-schema { background: linear-gradient(135deg, #2d2d2d, #1a1a2e); border-radius: 12px; padding: 25px; margin: 20px 0; color: #e2e8f0; }
+        .db-table { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; margin: 10px 0; overflow: hidden; }
+        .db-table-header { background: linear-gradient(135deg, #7b4397, #9c5bcd); padding: 10px 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .db-table-body { padding: 10px 15px; font-size: 13px; font-family: 'Consolas', monospace; }
+        .db-table-body div { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; }
+        .db-table-body div:last-child { border-bottom: none; }
+        .db-pk { color: #f0db4f; }
+        .db-fk { color: #50fa7b; }
+        .db-field { color: #8be9fd; }
+        .db-type { color: #6272a4; font-size: 11px; }
+
+        /* Comparison */
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .comparison-box { border-radius: 12px; padding: 20px; }
+        .comparison-box.js { background: linear-gradient(135deg, #fffef0, #fff); border: 2px solid #f0db4f; }
+        .comparison-box.php { background: linear-gradient(135deg, #f8f5fc, #fff); border: 2px solid #7b4397; }
+        .comparison-box h4 { margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .comparison-box.js h4 { color: #1a1a2e; }
+        .comparison-box.php h4 { color: #4f2d7f; }
+
+        @media (max-width: 768px) {
+            .book-container { margin: 15px; }
+            .page-content { padding: 30px 20px; }
+            .cover-main-title { font-size: 2em; }
+            .cover-info-cards { grid-template-columns: 1fr; max-width: 280px; }
+            .code-block { font-size: 11px; padding: 15px; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .connection-flow { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+        .smooth-scroll { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="smooth-scroll">
+    <div class="controls">
+        <button class="control-btn" onclick="scrollToTop()">&#11014;&#65039; Top</button>
+        <button class="control-btn" onclick="scrollToBottom()">&#11015;&#65039; Bottom</button>
+        <button class="control-btn" onclick="toggleFullscreen()" id="fullscreenBtn">&#128269; Fullscreen</button>
+    </div>
+
+    <div class="book-container">
+        <div class="book">
+
+            <!-- COVER PAGE -->
+            <div class="cover-page">
+                <div class="cover-content">
+                    <div class="cover-top-bar">
+                        <div class="bar-line"></div>
+                        <div class="cover-university-badge">
+                            <span>&#127891;</span>
+                            <span>Universitas Tidar</span>
+                        </div>
+                        <div class="bar-line"></div>
+                    </div>
+                    <div class="cover-code-icons">
+                        <div class="code-icon php">&lt;?php</div>
+                        <div class="code-icon mysql" style="color: #f29111;">SQL</div>
+                        <div class="code-icon php">?&gt;</div>
+                    </div>
+                    <div class="cover-label">Modul Praktikum</div>
+                    <h1 class="cover-main-title"><span class="php">PHP</span> Dasar &<br><span class="mysql">MySQL</span></h1>
+                    <p class="cover-course-name">Backend Programming & Database</p>
+                    <div class="cover-meeting-badge">
+                        <span class="meeting-number">05</span>
+                        <span>PERTEMUAN 5</span>
+                    </div>
+                    <p class="cover-topic">Memahami Dasar Pemrograman Backend dengan PHP dan Mengakses Database MySQL</p>
+                    <div class="cover-info-cards">
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128218;</div>
+                            <div class="card-label">Program Studi</div>
+                            <div class="card-value">S1 Teknologi Informasi</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128101;</div>
+                            <div class="card-label">Mode</div>
+                            <div class="card-value">Project Kelompok</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128197;</div>
+                            <div class="card-label">Tahun Akademik</div>
+                            <div class="card-value">Genap 2024/2025</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="cover-tech-badge">
+                    <span>&#128024; PHP 8.x</span>
+                    <span>&#128024; MySQL 8.x</span>
+                    <span>&#128024; phpMyAdmin</span>
+                </div>
+            </div>
+
+            <!-- PAGE 1: INFO MODUL -->
+            <div class="page-content">
+                <div style="text-align: center; padding: 40px 0; background: linear-gradient(135deg, #4f2d7f 0%, #7b4397 100%); color: white; border-radius: 15px; margin-bottom: 40px;">
+                    <div style="font-size: 50px; margin-bottom: 15px;">&#128024;</div>
+                    <h1 style="font-size: 2.2em; font-weight: 700; margin-bottom: 10px;">PERTEMUAN 5</h1>
+                    <h2 style="font-size: 1.3em; opacity: 0.9;">PHP Dasar & MySQL Database</h2>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                    <h3 style="color: #4f2d7f; margin-bottom: 15px; text-align: center;">&#128203; Informasi Mata Kuliah</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #7b4397;">
+                            <p><strong style="color: #4f2d7f;">Mata Kuliah:</strong> Praktikum Aplikasi Web</p>
+                            <p><strong style="color: #4f2d7f;">Kode:</strong> TFC355</p>
+                            <p><strong style="color: #4f2d7f;">SKS:</strong> 1 SKS</p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #9c5bcd;">
+                            <p><strong style="color: #4f2d7f;">Dosen:</strong> Ikhwan Alfath N.F., S.Kom., M.Kom.</p>
+                            <p><strong style="color: #4f2d7f;">Durasi:</strong> 1 x 150 menit</p>
+                            <p><strong style="color: #4f2d7f;">Metode:</strong> Discovery Learning + Project Based</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="learning-outcomes">
+                    <h3 class="subsection-title" style="color: #4f2d7f;">&#127919; Capaian Pembelajaran</h3>
+                    <ul class="objective-list">
+                        <li><strong>Kemampuan Akhir:</strong> Mahasiswa mampu memahami dasar-dasar pemrograman backend menggunakan PHP dan dapat mengakses database dengan MySQL</li>
+                        <li>Memahami sintaks dasar PHP dan cara kerjanya</li>
+                        <li>Mampu menggunakan struktur kontrol (if, switch, loop)</li>
+                        <li>Memahami konsep tabel database dan relasinya</li>
+                        <li>Mampu menulis query dasar (SELECT, INSERT, UPDATE, DELETE)</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">&#128279; Perjalanan Project Kita</h3>
+                <div class="connection-flow">
+                    <div class="flow-item">
+                        <div class="flow-icon">&#128290;</div>
+                        <div class="flow-label">Flowchart</div>
+                    </div>
+                    <div class="flow-arrow">&#10145;</div>
+                    <div class="flow-item">
+                        <div class="flow-icon">&#127912;</div>
+                        <div class="flow-label">Wireframe</div>
+                    </div>
+                    <div class="flow-arrow">&#10145;</div>
+                    <div class="flow-item">
+                        <div class="flow-icon">&lt;/&gt;</div>
+                        <div class="flow-label">HTML/CSS</div>
+                    </div>
+                    <div class="flow-arrow">&#10145;</div>
+                    <div class="flow-item">
+                        <div class="flow-icon">JS</div>
+                        <div class="flow-label">JavaScript</div>
+                    </div>
+                    <div class="flow-arrow">&#10145;</div>
+                    <div class="flow-item active">
+                        <div class="flow-icon">&#128024;</div>
+                        <div class="flow-label">PHP+MySQL</div>
+                    </div>
+                    <div class="flow-arrow">&#10145;</div>
+                    <div class="flow-item">
+                        <div class="flow-icon">&#9989;</div>
+                        <div class="flow-label">CRUD</div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Saatnya Backend!</strong> Setelah membuat tampilan dengan HTML/CSS dan interaktivitas dengan JavaScript, sekarang kita akan buat aplikasi yang bisa menyimpan dan mengolah data di server!
+                </div>
+
+                <div class="page-number">Halaman 1</div>
+            </div>
+
+            <!-- PAGE 2: PENGANTAR PHP -->
+            <div class="page-content">
+                <h2 class="section-title">&#128024; BAGIAN 1: PENGANTAR PHP</h2>
+
+                <h3 class="subsection-title">Apa itu PHP?</h3>
+                <p><strong>PHP (PHP: Hypertext Preprocessor)</strong> adalah bahasa pemrograman server-side yang dirancang khusus untuk pengembangan web. Berbeda dengan JavaScript yang berjalan di browser (client), PHP berjalan di server.</p>
+
+                <div class="lab-setup">
+                    <h4 style="color: #4f2d7f; margin-bottom: 12px;">Perbedaan Client-Side vs Server-Side:</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #f0db4f;">
+                            <strong style="color: #1a1a2e;">&#128187; Client-Side (JavaScript)</strong>
+                            <ul style="margin-top: 10px; margin-left: 15px; font-size: 14px;">
+                                <li>Berjalan di browser user</li>
+                                <li>Tidak bisa akses database</li>
+                                <li>Untuk interaktivitas UI</li>
+                                <li>Kode bisa dilihat user</li>
+                            </ul>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #7b4397;">
+                            <strong style="color: #4f2d7f;">&#128421; Server-Side (PHP)</strong>
+                            <ul style="margin-top: 10px; margin-left: 15px; font-size: 14px;">
+                                <li>Berjalan di server</li>
+                                <li>Bisa akses database</li>
+                                <li>Untuk proses data</li>
+                                <li>Kode tersembunyi</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Cara Kerja PHP</h3>
+                <div style="background: #f8f9fa; padding: 25px; border-radius: 12px; margin: 20px 0;">
+                    <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 15px; text-align: center;">
+                        <div style="padding: 15px;">
+                            <div style="font-size: 40px;">&#128187;</div>
+                            <div style="font-weight: 600; margin-top: 5px;">Browser</div>
+                            <div style="font-size: 12px; color: #666;">Request halaman</div>
+                        </div>
+                        <div style="font-size: 30px; color: #7b4397;">&#10145;</div>
+                        <div style="padding: 15px;">
+                            <div style="font-size: 40px;">&#128421;</div>
+                            <div style="font-weight: 600; margin-top: 5px;">Web Server</div>
+                            <div style="font-size: 12px; color: #666;">Apache/XAMPP</div>
+                        </div>
+                        <div style="font-size: 30px; color: #7b4397;">&#10145;</div>
+                        <div style="padding: 15px;">
+                            <div style="font-size: 40px;">&#128024;</div>
+                            <div style="font-weight: 600; margin-top: 5px;">PHP Engine</div>
+                            <div style="font-size: 12px; color: #666;">Proses kode</div>
+                        </div>
+                        <div style="font-size: 30px; color: #7b4397;">&#10145;</div>
+                        <div style="padding: 15px;">
+                            <div style="font-size: 40px;">&#128451;</div>
+                            <div style="font-weight: 600; margin-top: 5px;">MySQL</div>
+                            <div style="font-size: 12px; color: #666;">Database</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 2px dashed #ddd;">
+                        <span style="font-size: 30px; color: #7b4397;">&#11013;</span>
+                        <span style="margin: 0 20px; font-weight: 600;">Hasil: HTML dikirim ke browser</span>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Penting!</strong> File PHP harus diakses melalui web server (XAMPP), bukan langsung dibuka dari file explorer. URL harus <code>http://localhost/...</code> bukan <code>file:///...</code>
+                </div>
+
+                <div class="page-number">Halaman 2</div>
+            </div>
+
+            <!-- PAGE 3: SINTAKS DASAR PHP -->
+            <div class="page-content">
+                <h3 class="subsection-title">Sintaks Dasar PHP</h3>
+                <p>Kode PHP ditulis di antara tag <code>&lt;?php</code> dan <code>?&gt;</code>. PHP bisa disisipkan di dalam file HTML.</p>
+
+                <div class="code-block">
+                    <span class="code-label">Sintaks Dasar PHP</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">// Ini adalah komentar satu baris</span>
+
+<span class="comment">/* Ini adalah
+   komentar multi-baris */</span>
+
+<span class="comment">// Menampilkan output</span>
+<span class="keyword">echo</span> <span class="string">"Halo, Dunia!"</span>;         <span class="comment">// dengan echo</span>
+<span class="keyword">print</span> <span class="string">"Selamat Datang"</span>;       <span class="comment">// dengan print</span>
+
+<span class="comment">// Setiap statement diakhiri dengan titik koma (;)</span>
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <h3 class="subsection-title">Variabel di PHP</h3>
+                <p>Di PHP, variabel dimulai dengan tanda <code>$</code> (dollar). PHP adalah loosely typed, artinya tidak perlu mendeklarasikan tipe data.</p>
+
+                <div class="comparison-grid">
+                    <div class="comparison-box js">
+                        <h4>&#128310; JavaScript</h4>
+                        <div class="code-block" style="margin: 10px 0; font-size: 12px;">
+                            <code><span class="keyword">let</span> nama = <span class="string">"Ahmad"</span>;
+<span class="keyword">let</span> umur = <span class="number">20</span>;
+<span class="keyword">const</span> IPK = <span class="number">3.85</span>;
+<span class="keyword">let</span> aktif = <span class="keyword">true</span>;</code>
+                        </div>
+                    </div>
+                    <div class="comparison-box php">
+                        <h4>&#128024; PHP</h4>
+                        <div class="code-block" style="margin: 10px 0; font-size: 12px;">
+                            <code><span class="php-var">$nama</span> = <span class="string">"Ahmad"</span>;
+<span class="php-var">$umur</span> = <span class="number">20</span>;
+<span class="php-var">$ipk</span> = <span class="number">3.85</span>;
+<span class="php-var">$aktif</span> = <span class="keyword">true</span>;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">Variabel untuk Sistem Akademik</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">// Data Mahasiswa</span>
+<span class="php-var">$nim</span> = <span class="string">"2024001"</span>;
+<span class="php-var">$nama</span> = <span class="string">"Ahmad Rizki"</span>;
+<span class="php-var">$email</span> = <span class="string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d3b2bbbeb2b793a0a7a6b7b6bda7fda6bda7bab7b2a1fdb2b0fdbab7">[email&#160;protected]</a>"</span>;
+<span class="php-var">$prodi</span> = <span class="string">"Teknologi Informasi"</span>;
+<span class="php-var">$semester</span> = <span class="number">4</span>;
+<span class="php-var">$ipk</span> = <span class="number">3.85</span>;
+<span class="php-var">$status_aktif</span> = <span class="keyword">true</span>;
+
+<span class="comment">// Menampilkan variabel</span>
+<span class="keyword">echo</span> <span class="string">"Nama: "</span> . <span class="php-var">$nama</span>;                  <span class="comment">// Concatenation dengan titik (.)</span>
+<span class="keyword">echo</span> <span class="string">"IPK: {<span class="php-var">$ipk</span>}"</span>;                     <span class="comment">// Interpolasi dalam double quote</span>
+<span class="keyword">echo</span> <span class="string">'Nama: '</span> . <span class="php-var">$nama</span>;                  <span class="comment">// Single quote + concatenation</span>
+
+<span class="comment">// Array</span>
+<span class="php-var">$mata_kuliah</span> = [<span class="string">"Pemrograman Web"</span>, <span class="string">"Basis Data"</span>, <span class="string">"Algoritma"</span>];
+<span class="php-var">$nilai</span> = [<span class="number">85</span>, <span class="number">90</span>, <span class="number">78</span>, <span class="number">88</span>];
+
+<span class="comment">// Associative Array (seperti Object di JS)</span>
+<span class="php-var">$mahasiswa</span> = [
+    <span class="string">"nim"</span> => <span class="string">"2024001"</span>,
+    <span class="string">"nama"</span> => <span class="string">"Ahmad Rizki"</span>,
+    <span class="string">"prodi"</span> => <span class="string">"Teknologi Informasi"</span>,
+    <span class="string">"ipk"</span> => <span class="number">3.85</span>
+];
+
+<span class="keyword">echo</span> <span class="php-var">$mahasiswa</span>[<span class="string">"nama"</span>];  <span class="comment">// Ahmad Rizki</span>
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 3</div>
+            </div>
+
+            <!-- PAGE 4: PHP DALAM HTML -->
+            <div class="page-content">
+                <h3 class="subsection-title">Menyisipkan PHP dalam HTML</h3>
+                <p>PHP bisa disisipkan di mana saja dalam file HTML. Ini sangat berguna untuk membuat halaman dinamis.</p>
+
+                <div class="code-block">
+                    <span class="code-label">dashboard.php - Contoh PHP dalam HTML</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">// Data yang nanti akan diambil dari database</span>
+<span class="php-var">$nama_user</span> = <span class="string">"Ahmad Rizki"</span>;
+<span class="php-var">$role</span> = <span class="string">"Mahasiswa"</span>;
+<span class="php-var">$total_matkul</span> = <span class="number">6</span>;
+<span class="php-var">$ipk</span> = <span class="number">3.85</span>;
+<span class="php-tag">?&gt;</span>
+
+<span class="php-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="php-tag">&lt;html&gt;</span>
+<span class="php-tag">&lt;head&gt;</span>
+    <span class="php-tag">&lt;title&gt;</span>Dashboard - <span class="php-tag">&lt;?php</span> <span class="keyword">echo</span> <span class="php-var">$nama_user</span>; <span class="php-tag">?&gt;</span><span class="php-tag">&lt;/title&gt;</span>
+<span class="php-tag">&lt;/head&gt;</span>
+<span class="php-tag">&lt;body&gt;</span>
+    <span class="php-tag">&lt;div class="header"&gt;</span>
+        <span class="php-tag">&lt;h1&gt;</span>Selamat Datang, <span class="php-tag">&lt;?php</span> <span class="keyword">echo</span> <span class="php-var">$nama_user</span>; <span class="php-tag">?&gt;</span>!<span class="php-tag">&lt;/h1&gt;</span>
+        <span class="php-tag">&lt;p&gt;</span>Role: <span class="php-tag">&lt;?php</span> <span class="keyword">echo</span> <span class="php-var">$role</span>; <span class="php-tag">?&gt;</span><span class="php-tag">&lt;/p&gt;</span>
+    <span class="php-tag">&lt;/div&gt;</span>
+
+    <span class="php-tag">&lt;div class="stats"&gt;</span>
+        <span class="php-tag">&lt;div class="card"&gt;</span>
+            <span class="php-tag">&lt;h3&gt;</span><span class="php-tag">&lt;?php</span> <span class="keyword">echo</span> <span class="php-var">$total_matkul</span>; <span class="php-tag">?&gt;</span><span class="php-tag">&lt;/h3&gt;</span>
+            <span class="php-tag">&lt;p&gt;</span>Mata Kuliah<span class="php-tag">&lt;/p&gt;</span>
+        <span class="php-tag">&lt;/div&gt;</span>
+        <span class="php-tag">&lt;div class="card"&gt;</span>
+            <span class="php-tag">&lt;h3&gt;</span><span class="php-tag">&lt;?php</span> <span class="keyword">echo</span> <span class="php-var">$ipk</span>; <span class="php-tag">?&gt;</span><span class="php-tag">&lt;/h3&gt;</span>
+            <span class="php-tag">&lt;p&gt;</span>IPK<span class="php-tag">&lt;/p&gt;</span>
+        <span class="php-tag">&lt;/div&gt;</span>
+    <span class="php-tag">&lt;/div&gt;</span>
+
+    <span class="php-tag">&lt;?php</span>
+    <span class="comment">// Shorthand untuk echo</span>
+    <span class="php-tag">?&gt;</span>
+    <span class="php-tag">&lt;p&gt;</span>IPK Anda: <span class="php-tag">&lt;?=</span> <span class="php-var">$ipk</span> <span class="php-tag">?&gt;</span><span class="php-tag">&lt;/p&gt;</span>   <span class="comment">&lt;!-- &lt;?= sama dengan &lt;?php echo --&gt;</span>
+<span class="php-tag">&lt;/body&gt;</span>
+<span class="php-tag">&lt;/html&gt;</span></code>
+                </div>
+
+                <div class="success-box">
+                    <strong>Tips:</strong> Gunakan <code>&lt;?= $variabel ?&gt;</code> sebagai shorthand untuk <code>&lt;?php echo $variabel; ?&gt;</code>. Lebih ringkas dan mudah dibaca!
+                </div>
+
+                <div class="page-number">Halaman 4</div>
+            </div>
+
+            <!-- PAGE 5: STRUKTUR KONTROL -->
+            <div class="page-content">
+                <h2 class="section-title">&#128260; BAGIAN 2: STRUKTUR KONTROL</h2>
+
+                <h3 class="subsection-title">If - Else Statement</h3>
+                <p>Struktur kontrol untuk membuat keputusan berdasarkan kondisi. Sangat mirip dengan JavaScript!</p>
+
+                <div class="code-block">
+                    <span class="code-label">Contoh If-Else - Konversi Nilai</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="php-var">$nilai</span> = <span class="number">85</span>;
+<span class="php-var">$grade</span> = <span class="string">""</span>;
+
+<span class="comment">// If-Else untuk konversi nilai</span>
+<span class="keyword">if</span> (<span class="php-var">$nilai</span> >= <span class="number">85</span>) {
+    <span class="php-var">$grade</span> = <span class="string">"A"</span>;
+} <span class="keyword">elseif</span> (<span class="php-var">$nilai</span> >= <span class="number">70</span>) {
+    <span class="php-var">$grade</span> = <span class="string">"B"</span>;
+} <span class="keyword">elseif</span> (<span class="php-var">$nilai</span> >= <span class="number">55</span>) {
+    <span class="php-var">$grade</span> = <span class="string">"C"</span>;
+} <span class="keyword">elseif</span> (<span class="php-var">$nilai</span> >= <span class="number">40</span>) {
+    <span class="php-var">$grade</span> = <span class="string">"D"</span>;
+} <span class="keyword">else</span> {
+    <span class="php-var">$grade</span> = <span class="string">"E"</span>;
+}
+
+<span class="keyword">echo</span> <span class="string">"Nilai: {<span class="php-var">$nilai</span>} - Grade: {<span class="php-var">$grade</span>}"</span>;
+
+<span class="comment">// Ternary operator (cara singkat)</span>
+<span class="php-var">$status</span> = (<span class="php-var">$nilai</span> >= <span class="number">55</span>) ? <span class="string">"Lulus"</span> : <span class="string">"Tidak Lulus"</span>;
+<span class="keyword">echo</span> <span class="string">"Status: {<span class="php-var">$status</span>}"</span>;
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <h3 class="subsection-title">Switch Statement</h3>
+                <div class="code-block">
+                    <span class="code-label">Switch untuk Menu Navigasi</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="php-var">$halaman</span> = <span class="string">"mahasiswa"</span>;  <span class="comment">// Bisa dari $_GET['page']</span>
+
+<span class="keyword">switch</span> (<span class="php-var">$halaman</span>) {
+    <span class="keyword">case</span> <span class="string">"dashboard"</span>:
+        <span class="keyword">echo</span> <span class="string">"Menampilkan Dashboard"</span>;
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">"mahasiswa"</span>:
+        <span class="keyword">echo</span> <span class="string">"Menampilkan Data Mahasiswa"</span>;
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">"matkul"</span>:
+        <span class="keyword">echo</span> <span class="string">"Menampilkan Mata Kuliah"</span>;
+        <span class="keyword">break</span>;
+    <span class="keyword">default</span>:
+        <span class="keyword">echo</span> <span class="string">"Halaman tidak ditemukan"</span>;
+}
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 5</div>
+            </div>
+
+            <!-- PAGE 6: LOOPING -->
+            <div class="page-content">
+                <h3 class="subsection-title">Looping (Perulangan)</h3>
+                <p>PHP memiliki beberapa jenis loop yang sama dengan JavaScript.</p>
+
+                <div class="code-block">
+                    <span class="code-label">Berbagai Jenis Loop di PHP</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">// ===== FOR LOOP =====</span>
+<span class="keyword">echo</span> <span class="string">"&lt;h3&gt;Daftar Semester&lt;/h3&gt;"</span>;
+<span class="keyword">for</span> (<span class="php-var">$i</span> = <span class="number">1</span>; <span class="php-var">$i</span> <= <span class="number">8</span>; <span class="php-var">$i</span>++) {
+    <span class="keyword">echo</span> <span class="string">"Semester {<span class="php-var">$i</span>}&lt;br&gt;"</span>;
+}
+
+<span class="comment">// ===== WHILE LOOP =====</span>
+<span class="php-var">$counter</span> = <span class="number">1</span>;
+<span class="keyword">while</span> (<span class="php-var">$counter</span> <= <span class="number">5</span>) {
+    <span class="keyword">echo</span> <span class="string">"Perulangan ke-{<span class="php-var">$counter</span>}&lt;br&gt;"</span>;
+    <span class="php-var">$counter</span>++;
+}
+
+<span class="comment">// ===== FOREACH - Untuk Array =====</span>
+<span class="php-var">$mahasiswa</span> = [<span class="string">"Ahmad"</span>, <span class="string">"Budi"</span>, <span class="string">"Citra"</span>, <span class="string">"Dina"</span>];
+
+<span class="keyword">echo</span> <span class="string">"&lt;h3&gt;Daftar Mahasiswa&lt;/h3&gt;"</span>;
+<span class="keyword">echo</span> <span class="string">"&lt;ul&gt;"</span>;
+<span class="keyword">foreach</span> (<span class="php-var">$mahasiswa</span> <span class="keyword">as</span> <span class="php-var">$mhs</span>) {
+    <span class="keyword">echo</span> <span class="string">"&lt;li&gt;{<span class="php-var">$mhs</span>}&lt;/li&gt;"</span>;
+}
+<span class="keyword">echo</span> <span class="string">"&lt;/ul&gt;"</span>;
+
+<span class="comment">// Foreach dengan index (key)</span>
+<span class="keyword">foreach</span> (<span class="php-var">$mahasiswa</span> <span class="keyword">as</span> <span class="php-var">$index</span> => <span class="php-var">$mhs</span>) {
+    <span class="keyword">echo</span> <span class="string">"No. "</span> . (<span class="php-var">$index</span> + <span class="number">1</span>) . <span class="string">": {<span class="php-var">$mhs</span>}&lt;br&gt;"</span>;
+}
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <h3 class="subsection-title">Foreach untuk Menampilkan Tabel</h3>
+                <div class="code-block">
+                    <span class="code-label">Menampilkan Data dalam Tabel HTML</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">// Data mahasiswa (nanti dari database)</span>
+<span class="php-var">$data_mahasiswa</span> = [
+    [<span class="string">"nim"</span> => <span class="string">"2024001"</span>, <span class="string">"nama"</span> => <span class="string">"Ahmad Rizki"</span>, <span class="string">"ipk"</span> => <span class="number">3.85</span>],
+    [<span class="string">"nim"</span> => <span class="string">"2024002"</span>, <span class="string">"nama"</span> => <span class="string">"Budi Santoso"</span>, <span class="string">"ipk"</span> => <span class="number">3.65</span>],
+    [<span class="string">"nim"</span> => <span class="string">"2024003"</span>, <span class="string">"nama"</span> => <span class="string">"Citra Dewi"</span>, <span class="string">"ipk"</span> => <span class="number">3.90</span>],
+];
+<span class="php-tag">?&gt;</span>
+
+<span class="php-tag">&lt;table class="data-table"&gt;</span>
+    <span class="php-tag">&lt;thead&gt;</span>
+        <span class="php-tag">&lt;tr&gt;</span>
+            <span class="php-tag">&lt;th&gt;</span>No<span class="php-tag">&lt;/th&gt;</span>
+            <span class="php-tag">&lt;th&gt;</span>NIM<span class="php-tag">&lt;/th&gt;</span>
+            <span class="php-tag">&lt;th&gt;</span>Nama<span class="php-tag">&lt;/th&gt;</span>
+            <span class="php-tag">&lt;th&gt;</span>IPK<span class="php-tag">&lt;/th&gt;</span>
+            <span class="php-tag">&lt;th&gt;</span>Aksi<span class="php-tag">&lt;/th&gt;</span>
+        <span class="php-tag">&lt;/tr&gt;</span>
+    <span class="php-tag">&lt;/thead&gt;</span>
+    <span class="php-tag">&lt;tbody&gt;</span>
+        <span class="php-tag">&lt;?php</span> <span class="php-var">$no</span> = <span class="number">1</span>; <span class="php-tag">?&gt;</span>
+        <span class="php-tag">&lt;?php</span> <span class="keyword">foreach</span> (<span class="php-var">$data_mahasiswa</span> <span class="keyword">as</span> <span class="php-var">$mhs</span>): <span class="php-tag">?&gt;</span>
+        <span class="php-tag">&lt;tr&gt;</span>
+            <span class="php-tag">&lt;td&gt;</span><span class="php-tag">&lt;?=</span> <span class="php-var">$no</span>++ <span class="php-tag">?&gt;</span><span class="php-tag">&lt;/td&gt;</span>
+            <span class="php-tag">&lt;td&gt;</span><span class="php-tag">&lt;?=</span> <span class="php-var">$mhs</span>[<span class="string">'nim'</span>] <span class="php-tag">?&gt;</span><span class="php-tag">&lt;/td&gt;</span>
+            <span class="php-tag">&lt;td&gt;</span><span class="php-tag">&lt;?=</span> <span class="php-var">$mhs</span>[<span class="string">'nama'</span>] <span class="php-tag">?&gt;</span><span class="php-tag">&lt;/td&gt;</span>
+            <span class="php-tag">&lt;td&gt;</span><span class="php-tag">&lt;?=</span> <span class="php-var">$mhs</span>[<span class="string">'ipk'</span>] <span class="php-tag">?&gt;</span><span class="php-tag">&lt;/td&gt;</span>
+            <span class="php-tag">&lt;td&gt;</span>
+                <span class="php-tag">&lt;a href="edit.php?nim=&lt;?=</span> <span class="php-var">$mhs</span>[<span class="string">'nim'</span>] <span class="php-tag">?&gt;</span>"<span class="php-tag">&gt;</span>Edit<span class="php-tag">&lt;/a&gt;</span>
+                <span class="php-tag">&lt;a href="hapus.php?nim=&lt;?=</span> <span class="php-var">$mhs</span>[<span class="string">'nim'</span>] <span class="php-tag">?&gt;</span>"<span class="php-tag">&gt;</span>Hapus<span class="php-tag">&lt;/a&gt;</span>
+            <span class="php-tag">&lt;/td&gt;</span>
+        <span class="php-tag">&lt;/tr&gt;</span>
+        <span class="php-tag">&lt;?php</span> <span class="keyword">endforeach</span>; <span class="php-tag">?&gt;</span>
+    <span class="php-tag">&lt;/tbody&gt;</span>
+<span class="php-tag">&lt;/table&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 6</div>
+            </div>
+
+            <!-- PAGE 7: FUNGSI PHP -->
+            <div class="page-content">
+                <h3 class="subsection-title">Fungsi di PHP</h3>
+                <p>Fungsi di PHP sangat mirip dengan JavaScript. Mari konversi fungsi yang sudah dibuat di pertemuan 4.</p>
+
+                <div class="comparison-grid">
+                    <div class="comparison-box js">
+                        <h4>&#128310; JavaScript (Pertemuan 4)</h4>
+                        <div class="code-block" style="margin: 10px 0; font-size: 11px;">
+                            <code><span class="keyword">function</span> <span class="function">hitungIPK</span>(total, sks) {
+    <span class="keyword">if</span> (sks === <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;
+    <span class="keyword">return</span> (total / sks).<span class="function">toFixed</span>(<span class="number">2</span>);
+}
+
+<span class="keyword">function</span> <span class="function">konversiNilai</span>(nilai) {
+    <span class="keyword">if</span> (nilai >= <span class="number">85</span>) <span class="keyword">return</span> <span class="string">"A"</span>;
+    <span class="keyword">if</span> (nilai >= <span class="number">70</span>) <span class="keyword">return</span> <span class="string">"B"</span>;
+    <span class="keyword">if</span> (nilai >= <span class="number">55</span>) <span class="keyword">return</span> <span class="string">"C"</span>;
+    <span class="keyword">if</span> (nilai >= <span class="number">40</span>) <span class="keyword">return</span> <span class="string">"D"</span>;
+    <span class="keyword">return</span> <span class="string">"E"</span>;
+}</code>
+                        </div>
+                    </div>
+                    <div class="comparison-box php">
+                        <h4>&#128024; PHP (Sekarang)</h4>
+                        <div class="code-block" style="margin: 10px 0; font-size: 11px;">
+                            <code><span class="keyword">function</span> <span class="function">hitungIPK</span>(<span class="php-var">$total</span>, <span class="php-var">$sks</span>) {
+    <span class="keyword">if</span> (<span class="php-var">$sks</span> === <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;
+    <span class="keyword">return</span> <span class="function">number_format</span>(<span class="php-var">$total</span> / <span class="php-var">$sks</span>, <span class="number">2</span>);
+}
+
+<span class="keyword">function</span> <span class="function">konversiNilai</span>(<span class="php-var">$nilai</span>) {
+    <span class="keyword">if</span> (<span class="php-var">$nilai</span> >= <span class="number">85</span>) <span class="keyword">return</span> <span class="string">"A"</span>;
+    <span class="keyword">if</span> (<span class="php-var">$nilai</span> >= <span class="number">70</span>) <span class="keyword">return</span> <span class="string">"B"</span>;
+    <span class="keyword">if</span> (<span class="php-var">$nilai</span> >= <span class="number">55</span>) <span class="keyword">return</span> <span class="string">"C"</span>;
+    <span class="keyword">if</span> (<span class="php-var">$nilai</span> >= <span class="number">40</span>) <span class="keyword">return</span> <span class="string">"D"</span>;
+    <span class="keyword">return</span> <span class="string">"E"</span>;
+}</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">functions.php - File Kumpulan Fungsi</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">// ============================================</span>
+<span class="comment">// FUNGSI-FUNGSI UNTUK SISTEM AKADEMIK</span>
+<span class="comment">// ============================================</span>
+
+<span class="comment">/**
+ * Menghitung IPK dari total nilai dan SKS
+ */</span>
+<span class="keyword">function</span> <span class="function">hitungIPK</span>(<span class="php-var">$total_nilai</span>, <span class="php-var">$total_sks</span>) {
+    <span class="keyword">if</span> (<span class="php-var">$total_sks</span> == <span class="number">0</span>) {
+        <span class="keyword">return</span> <span class="number">0</span>;
+    }
+    <span class="keyword">return</span> <span class="function">number_format</span>(<span class="php-var">$total_nilai</span> / <span class="php-var">$total_sks</span>, <span class="number">2</span>);
+}
+
+<span class="comment">/**
+ * Konversi nilai angka ke huruf
+ */</span>
+<span class="keyword">function</span> <span class="function">konversiNilai</span>(<span class="php-var">$nilai</span>) {
+    <span class="keyword">if</span> (<span class="php-var">$nilai</span> >= <span class="number">85</span>) <span class="keyword">return</span> <span class="string">"A"</span>;
+    <span class="keyword">if</span> (<span class="php-var">$nilai</span> >= <span class="number">70</span>) <span class="keyword">return</span> <span class="string">"B"</span>;
+    <span class="keyword">if</span> (<span class="php-var">$nilai</span> >= <span class="number">55</span>) <span class="keyword">return</span> <span class="string">"C"</span>;
+    <span class="keyword">if</span> (<span class="php-var">$nilai</span> >= <span class="number">40</span>) <span class="keyword">return</span> <span class="string">"D"</span>;
+    <span class="keyword">return</span> <span class="string">"E"</span>;
+}
+
+<span class="comment">/**
+ * Format nama (Capitalize setiap kata)
+ */</span>
+<span class="keyword">function</span> <span class="function">formatNama</span>(<span class="php-var">$nama</span>) {
+    <span class="keyword">return</span> <span class="function">ucwords</span>(<span class="function">strtolower</span>(<span class="php-var">$nama</span>));
+}
+
+<span class="comment">/**
+ * Validasi email
+ */</span>
+<span class="keyword">function</span> <span class="function">validasiEmail</span>(<span class="php-var">$email</span>) {
+    <span class="keyword">return</span> <span class="function">filter_var</span>(<span class="php-var">$email</span>, FILTER_VALIDATE_EMAIL) !== <span class="keyword">false</span>;
+}
+
+<span class="comment">/**
+ * Format tanggal Indonesia
+ */</span>
+<span class="keyword">function</span> <span class="function">formatTanggal</span>(<span class="php-var">$tanggal</span>) {
+    <span class="keyword">return</span> <span class="function">date</span>(<span class="string">"d-m-Y"</span>, <span class="function">strtotime</span>(<span class="php-var">$tanggal</span>));
+}
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <div class="info-box">
+                    <strong>Cara Pakai:</strong> Gunakan <code>require 'functions.php';</code> atau <code>include 'functions.php';</code> di awal file PHP untuk menggunakan fungsi-fungsi tersebut.
+                </div>
+
+                <div class="page-number">Halaman 7</div>
+            </div>
+
+            <!-- PAGE 8: PENGANTAR MySQL -->
+            <div class="page-content">
+                <h2 class="section-title">&#128451; BAGIAN 3: PENGANTAR MySQL</h2>
+
+                <h3 class="subsection-title">Apa itu MySQL?</h3>
+                <p><strong>MySQL</strong> adalah sistem manajemen database relasional (RDBMS) yang paling populer untuk aplikasi web. Database menyimpan data secara terstruktur dalam bentuk <strong>tabel</strong>.</p>
+
+                <div class="lab-setup">
+                    <h4 style="color: #4f2d7f; margin-bottom: 12px;">Konsep Dasar Database:</h4>
+                    <ul class="content-list">
+                        <li><strong>Database:</strong> Kumpulan tabel yang saling berelasi (contoh: db_akademik)</li>
+                        <li><strong>Tabel:</strong> Struktur untuk menyimpan data sejenis (contoh: tabel mahasiswa)</li>
+                        <li><strong>Field/Kolom:</strong> Atribut data (contoh: nim, nama, email)</li>
+                        <li><strong>Record/Baris:</strong> Satu entri data lengkap</li>
+                        <li><strong>Primary Key:</strong> Field unik sebagai identitas record</li>
+                        <li><strong>Foreign Key:</strong> Field yang menghubungkan ke tabel lain</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Struktur Database Sistem Akademik</h3>
+                <p>Berikut adalah desain database untuk project Sistem Akademik:</p>
+
+                <div class="db-schema">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div class="db-table">
+                            <div class="db-table-header">&#128100; users</div>
+                            <div class="db-table-body">
+                                <div><span class="db-pk">&#128273; id</span> <span class="db-type">INT AUTO_INCREMENT</span></div>
+                                <div><span class="db-field">email</span> <span class="db-type">VARCHAR(100)</span></div>
+                                <div><span class="db-field">password</span> <span class="db-type">VARCHAR(255)</span></div>
+                                <div><span class="db-field">nama</span> <span class="db-type">VARCHAR(100)</span></div>
+                                <div><span class="db-field">role</span> <span class="db-type">ENUM('admin','user')</span></div>
+                                <div><span class="db-field">created_at</span> <span class="db-type">TIMESTAMP</span></div>
+                            </div>
+                        </div>
+                        <div class="db-table">
+                            <div class="db-table-header">&#127891; mahasiswa</div>
+                            <div class="db-table-body">
+                                <div><span class="db-pk">&#128273; nim</span> <span class="db-type">VARCHAR(10)</span></div>
+                                <div><span class="db-field">nama</span> <span class="db-type">VARCHAR(100)</span></div>
+                                <div><span class="db-field">email</span> <span class="db-type">VARCHAR(100)</span></div>
+                                <div><span class="db-fk">&#128279; prodi_id</span> <span class="db-type">INT (FK)</span></div>
+                                <div><span class="db-field">semester</span> <span class="db-type">INT</span></div>
+                                <div><span class="db-field">alamat</span> <span class="db-type">TEXT</span></div>
+                                <div><span class="db-field">no_hp</span> <span class="db-type">VARCHAR(15)</span></div>
+                            </div>
+                        </div>
+                        <div class="db-table">
+                            <div class="db-table-header">&#128218; prodi</div>
+                            <div class="db-table-body">
+                                <div><span class="db-pk">&#128273; id</span> <span class="db-type">INT AUTO_INCREMENT</span></div>
+                                <div><span class="db-field">kode</span> <span class="db-type">VARCHAR(10)</span></div>
+                                <div><span class="db-field">nama</span> <span class="db-type">VARCHAR(100)</span></div>
+                                <div><span class="db-field">fakultas</span> <span class="db-type">VARCHAR(100)</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-number">Halaman 8</div>
+            </div>
+
+            <!-- PAGE 9: TIPE DATA MySQL -->
+            <div class="page-content">
+                <h3 class="subsection-title">Tipe Data MySQL yang Sering Digunakan</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Tipe Data</th><th>Deskripsi</th><th>Contoh Penggunaan</th></tr></thead>
+                        <tbody>
+                            <tr><td colspan="3" style="background: #f8f5fc; font-weight: 600; color: #4f2d7f;">&#128290; Numerik</td></tr>
+                            <tr><td><code>INT</code></td><td>Bilangan bulat (-2M s/d 2M)</td><td>id, semester, sks</td></tr>
+                            <tr><td><code>BIGINT</code></td><td>Bilangan bulat besar</td><td>id untuk data besar</td></tr>
+                            <tr><td><code>DECIMAL(p,s)</code></td><td>Bilangan desimal presisi</td><td>ipk, harga</td></tr>
+                            <tr><td><code>FLOAT</code></td><td>Bilangan desimal</td><td>nilai, koordinat</td></tr>
+                            <tr><td colspan="3" style="background: #f8f5fc; font-weight: 600; color: #4f2d7f;">&#128394; Teks</td></tr>
+                            <tr><td><code>VARCHAR(n)</code></td><td>Teks variabel (max n karakter)</td><td>nama, email, nim</td></tr>
+                            <tr><td><code>TEXT</code></td><td>Teks panjang</td><td>alamat, deskripsi</td></tr>
+                            <tr><td><code>CHAR(n)</code></td><td>Teks fixed length</td><td>kode_prodi, jenis_kelamin</td></tr>
+                            <tr><td colspan="3" style="background: #f8f5fc; font-weight: 600; color: #4f2d7f;">&#128197; Tanggal & Waktu</td></tr>
+                            <tr><td><code>DATE</code></td><td>Tanggal (YYYY-MM-DD)</td><td>tanggal_lahir</td></tr>
+                            <tr><td><code>DATETIME</code></td><td>Tanggal + Waktu</td><td>created_at</td></tr>
+                            <tr><td><code>TIMESTAMP</code></td><td>Unix timestamp</td><td>updated_at</td></tr>
+                            <tr><td colspan="3" style="background: #f8f5fc; font-weight: 600; color: #4f2d7f;">&#128178; Lainnya</td></tr>
+                            <tr><td><code>ENUM</code></td><td>Pilihan terbatas</td><td>role, status, jenis_kelamin</td></tr>
+                            <tr><td><code>BOOLEAN</code></td><td>True/False (1/0)</td><td>is_active, is_verified</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="subsection-title">Membuat Database & Tabel</h3>
+                <div class="code-block">
+                    <span class="code-label sql">SQL - Membuat Database</span>
+                    <code><span class="sql-keyword">CREATE DATABASE</span> <span class="sql-table">db_akademik</span>;
+<span class="sql-keyword">USE</span> <span class="sql-table">db_akademik</span>;</code>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label sql">SQL - Membuat Tabel Mahasiswa</span>
+                    <code><span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">mahasiswa</span> (
+    <span class="sql-field">nim</span>       <span class="sql-keyword">VARCHAR</span>(<span class="number">10</span>) <span class="sql-keyword">PRIMARY KEY</span>,
+    <span class="sql-field">nama</span>      <span class="sql-keyword">VARCHAR</span>(<span class="number">100</span>) <span class="sql-keyword">NOT NULL</span>,
+    <span class="sql-field">email</span>     <span class="sql-keyword">VARCHAR</span>(<span class="number">100</span>) <span class="sql-keyword">UNIQUE</span>,
+    <span class="sql-field">prodi</span>     <span class="sql-keyword">VARCHAR</span>(<span class="number">50</span>),
+    <span class="sql-field">semester</span>  <span class="sql-keyword">INT</span> <span class="sql-keyword">DEFAULT</span> <span class="number">1</span>,
+    <span class="sql-field">alamat</span>    <span class="sql-keyword">TEXT</span>,
+    <span class="sql-field">no_hp</span>     <span class="sql-keyword">VARCHAR</span>(<span class="number">15</span>),
+    <span class="sql-field">created_at</span> <span class="sql-keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);</code>
+                </div>
+
+                <div class="page-number">Halaman 9</div>
+            </div>
+
+            <!-- PAGE 10: QUERY DASAR -->
+            <div class="page-content">
+                <h2 class="section-title">&#128270; BAGIAN 4: QUERY DASAR (CRUD)</h2>
+
+                <p><strong>CRUD</strong> adalah singkatan dari Create, Read, Update, Delete - empat operasi dasar dalam database.</p>
+
+                <h3 class="subsection-title">1. CREATE - Menambah Data (INSERT)</h3>
+                <div class="code-block">
+                    <span class="code-label sql">SQL - INSERT INTO</span>
+                    <code><span class="comment">-- Menambah satu data mahasiswa</span>
+<span class="sql-keyword">INSERT INTO</span> <span class="sql-table">mahasiswa</span> (<span class="sql-field">nim</span>, <span class="sql-field">nama</span>, <span class="sql-field">email</span>, <span class="sql-field">prodi</span>, <span class="sql-field">semester</span>)
+<span class="sql-keyword">VALUES</span> (<span class="sql-value">'2024001'</span>, <span class="sql-value">'Ahmad Rizki'</span>, <span class="sql-value">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="86e7eeebe7e2c6f3e8f2efe2e7f4a8e7e5a8efe2">[email&#160;protected]</a>'</span>, <span class="sql-value">'Teknologi Informasi'</span>, <span class="number">4</span>);
+
+<span class="comment">-- Menambah beberapa data sekaligus</span>
+<span class="sql-keyword">INSERT INTO</span> <span class="sql-table">mahasiswa</span> (<span class="sql-field">nim</span>, <span class="sql-field">nama</span>, <span class="sql-field">email</span>, <span class="sql-field">prodi</span>, <span class="sql-field">semester</span>)
+<span class="sql-keyword">VALUES</span>
+    (<span class="sql-value">'2024002'</span>, <span class="sql-value">'Budi Santoso'</span>, <span class="sql-value">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="99fbecfdf0d9ecf7edf0fdf8ebb7f8fab7f0fd">[email&#160;protected]</a>'</span>, <span class="sql-value">'Teknologi Informasi'</span>, <span class="number">4</span>),
+    (<span class="sql-value">'2024003'</span>, <span class="sql-value">'Citra Dewi'</span>, <span class="sql-value">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c4a7adb0b6a584b1aab0ada0a5b6eaa5a7eaada0">[email&#160;protected]</a>'</span>, <span class="sql-value">'Sistem Informasi'</span>, <span class="number">2</span>),
+    (<span class="sql-value">'2024004'</span>, <span class="sql-value">'Dina Putri'</span>, <span class="sql-value">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="27434e4946675249534e434655094644094e43">[email&#160;protected]</a>'</span>, <span class="sql-value">'Teknologi Informasi'</span>, <span class="number">6</span>);</code>
+                </div>
+
+                <h3 class="subsection-title">2. READ - Membaca Data (SELECT)</h3>
+                <div class="code-block">
+                    <span class="code-label sql">SQL - SELECT</span>
+                    <code><span class="comment">-- Mengambil semua data</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> <span class="sql-table">mahasiswa</span>;
+
+<span class="comment">-- Mengambil kolom tertentu</span>
+<span class="sql-keyword">SELECT</span> <span class="sql-field">nim</span>, <span class="sql-field">nama</span>, <span class="sql-field">email</span> <span class="sql-keyword">FROM</span> <span class="sql-table">mahasiswa</span>;
+
+<span class="comment">-- Dengan kondisi WHERE</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> <span class="sql-table">mahasiswa</span> <span class="sql-keyword">WHERE</span> <span class="sql-field">prodi</span> = <span class="sql-value">'Teknologi Informasi'</span>;
+
+<span class="comment">-- Dengan pengurutan ORDER BY</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> <span class="sql-table">mahasiswa</span> <span class="sql-keyword">ORDER BY</span> <span class="sql-field">nama</span> <span class="sql-keyword">ASC</span>;
+
+<span class="comment">-- Dengan pencarian LIKE</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> <span class="sql-table">mahasiswa</span> <span class="sql-keyword">WHERE</span> <span class="sql-field">nama</span> <span class="sql-keyword">LIKE</span> <span class="sql-value">'%Ahmad%'</span>;
+
+<span class="comment">-- Dengan batasan LIMIT</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> <span class="sql-table">mahasiswa</span> <span class="sql-keyword">LIMIT</span> <span class="number">10</span>;
+
+<span class="comment">-- Menghitung jumlah data</span>
+<span class="sql-keyword">SELECT COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-field">total</span> <span class="sql-keyword">FROM</span> <span class="sql-table">mahasiswa</span>;</code>
+                </div>
+
+                <div class="page-number">Halaman 10</div>
+            </div>
+
+            <!-- PAGE 11: UPDATE & DELETE -->
+            <div class="page-content">
+                <h3 class="subsection-title">3. UPDATE - Mengubah Data</h3>
+                <div class="code-block">
+                    <span class="code-label sql">SQL - UPDATE</span>
+                    <code><span class="comment">-- Mengubah satu field</span>
+<span class="sql-keyword">UPDATE</span> <span class="sql-table">mahasiswa</span>
+<span class="sql-keyword">SET</span> <span class="sql-field">semester</span> = <span class="number">5</span>
+<span class="sql-keyword">WHERE</span> <span class="sql-field">nim</span> = <span class="sql-value">'2024001'</span>;
+
+<span class="comment">-- Mengubah beberapa field</span>
+<span class="sql-keyword">UPDATE</span> <span class="sql-table">mahasiswa</span>
+<span class="sql-keyword">SET</span>
+    <span class="sql-field">email</span> = <span class="sql-value">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0e6f66636f6a207c677465674e7b607a676a6f7c206f6d20676a">[email&#160;protected]</a>'</span>,
+    <span class="sql-field">no_hp</span> = <span class="sql-value">'081234567890'</span>,
+    <span class="sql-field">alamat</span> = <span class="sql-value">'Jl. Kapten Suparman No. 123, Magelang'</span>
+<span class="sql-keyword">WHERE</span> <span class="sql-field">nim</span> = <span class="sql-value">'2024001'</span>;
+
+<span class="comment">-- Update dengan kondisi</span>
+<span class="sql-keyword">UPDATE</span> <span class="sql-table">mahasiswa</span>
+<span class="sql-keyword">SET</span> <span class="sql-field">semester</span> = <span class="sql-field">semester</span> + <span class="number">1</span>
+<span class="sql-keyword">WHERE</span> <span class="sql-field">prodi</span> = <span class="sql-value">'Teknologi Informasi'</span>;</code>
+                </div>
+
+                <h3 class="subsection-title">4. DELETE - Menghapus Data</h3>
+                <div class="code-block">
+                    <span class="code-label sql">SQL - DELETE</span>
+                    <code><span class="comment">-- Menghapus satu data</span>
+<span class="sql-keyword">DELETE FROM</span> <span class="sql-table">mahasiswa</span> <span class="sql-keyword">WHERE</span> <span class="sql-field">nim</span> = <span class="sql-value">'2024004'</span>;
+
+<span class="comment">-- Menghapus dengan kondisi</span>
+<span class="sql-keyword">DELETE FROM</span> <span class="sql-table">mahasiswa</span> <span class="sql-keyword">WHERE</span> <span class="sql-field">semester</span> > <span class="number">14</span>;
+
+<span class="comment">-- HATI-HATI! Ini menghapus SEMUA data</span>
+<span class="sql-keyword">DELETE FROM</span> <span class="sql-table">mahasiswa</span>;  <span class="comment">-- Tanpa WHERE = hapus semua!</span></code>
+                </div>
+
+                <div class="warning-box">
+                    <strong>PENTING!</strong> Selalu gunakan <code>WHERE</code> pada perintah UPDATE dan DELETE! Tanpa WHERE, semua data akan terpengaruh. Backup data sebelum melakukan operasi berbahaya.
+                </div>
+
+                <h3 class="subsection-title">Ringkasan Query CRUD</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Operasi</th><th>SQL Keyword</th><th>Contoh</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>C</strong>reate</td><td><code>INSERT INTO</code></td><td><code>INSERT INTO tabel VALUES (...)</code></td></tr>
+                            <tr><td><strong>R</strong>ead</td><td><code>SELECT</code></td><td><code>SELECT * FROM tabel WHERE ...</code></td></tr>
+                            <tr><td><strong>U</strong>pdate</td><td><code>UPDATE</code></td><td><code>UPDATE tabel SET ... WHERE ...</code></td></tr>
+                            <tr><td><strong>D</strong>elete</td><td><code>DELETE</code></td><td><code>DELETE FROM tabel WHERE ...</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="page-number">Halaman 11</div>
+            </div>
+
+            <!-- PAGE 12: phpMyAdmin -->
+            <div class="page-content">
+                <h3 class="subsection-title">Mengakses phpMyAdmin</h3>
+                <p><strong>phpMyAdmin</strong> adalah tool berbasis web untuk mengelola database MySQL. Sudah termasuk dalam paket XAMPP.</p>
+
+                <div class="step-item">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Buka XAMPP Control Panel</span>
+                    <p>Pastikan Apache dan MySQL sudah berjalan (status: Running)</p>
+                </div>
+
+                <div class="step-item">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Akses phpMyAdmin</span>
+                    <p>Buka browser dan ketik: <code>http://localhost/phpmyadmin</code></p>
+                </div>
+
+                <div class="step-item">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Buat Database Baru</span>
+                    <p>Klik "New" di sidebar kiri → Masukkan nama database: <code>db_akademik</code> → Klik "Create"</p>
+                </div>
+
+                <div class="ui-demo">
+                    <div class="ui-demo-bar">
+                        <div class="ui-demo-dot red"></div>
+                        <div class="ui-demo-dot yellow"></div>
+                        <div class="ui-demo-dot green"></div>
+                        <span style="margin-left: 10px; font-size: 11px;">localhost/phpmyadmin</span>
+                    </div>
+                    <div class="ui-demo-body" style="background: #f8f9fa; padding: 15px;">
+                        <div style="display: grid; grid-template-columns: 200px 1fr; gap: 15px;">
+                            <div style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+                                <div style="font-weight: 600; margin-bottom: 10px; color: #4f2d7f;">&#128451; Databases</div>
+                                <div style="font-size: 13px; padding: 5px 0; color: #666;">&#128194; information_schema</div>
+                                <div style="font-size: 13px; padding: 5px 0; color: #666;">&#128194; mysql</div>
+                                <div style="font-size: 13px; padding: 5px 0; background: #e8f0fe; border-radius: 4px; padding-left: 8px; color: #1967d2; font-weight: 600;">&#128194; db_akademik</div>
+                                <div style="font-size: 12px; padding: 5px 0; margin-left: 15px; color: #666;">&#128203; mahasiswa</div>
+                                <div style="font-size: 12px; padding: 5px 0; margin-left: 15px; color: #666;">&#128203; users</div>
+                            </div>
+                            <div style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+                                <div style="margin-bottom: 15px;">
+                                    <span style="padding: 8px 15px; background: #4f2d7f; color: white; border-radius: 4px; font-size: 13px; margin-right: 5px;">SQL</span>
+                                    <span style="padding: 8px 15px; background: #f1f3f4; border-radius: 4px; font-size: 13px; margin-right: 5px;">Browse</span>
+                                    <span style="padding: 8px 15px; background: #f1f3f4; border-radius: 4px; font-size: 13px;">Structure</span>
+                                </div>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 12px; border: 1px solid #ddd;">
+                                    <span style="color: #0d47a1;">SELECT</span> * <span style="color: #0d47a1;">FROM</span> mahasiswa;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>Latihan di phpMyAdmin:</strong>
+                    <ol style="margin-top: 10px; margin-left: 20px;">
+                        <li>Buat database <code>db_akademik</code></li>
+                        <li>Buat tabel <code>mahasiswa</code> dengan struktur yang sudah dibahas</li>
+                        <li>Insert 5 data mahasiswa contoh</li>
+                        <li>Coba query SELECT, UPDATE, DELETE</li>
+                    </ol>
+                </div>
+
+                <div class="page-number">Halaman 12</div>
+            </div>
+
+            <!-- PAGE 13: STRUKTUR FOLDER UPDATE -->
+            <div class="page-content">
+                <h3 class="subsection-title">Struktur Folder Project (Update)</h3>
+                <p>Setelah menambahkan PHP dan database, struktur folder project menjadi:</p>
+
+                <div class="code-block">
+                    <code>sistem-akademik/
+&#9500;&#9472;&#9472; config/
+&#9474;   &#9492;&#9472;&#9472; <span style="color: #50fa7b;">database.php</span>     <span class="comment"># Koneksi database (pertemuan 6)</span>
+&#9500;&#9472;&#9472; includes/
+&#9474;   &#9500;&#9472;&#9472; <span style="color: #50fa7b;">functions.php</span>   <span class="comment"># Kumpulan fungsi PHP</span>
+&#9474;   &#9500;&#9472;&#9472; <span style="color: #50fa7b;">header.php</span>      <span class="comment"># Header template</span>
+&#9474;   &#9492;&#9472;&#9472; <span style="color: #50fa7b;">footer.php</span>      <span class="comment"># Footer template</span>
+&#9500;&#9472;&#9472; css/
+&#9474;   &#9492;&#9472;&#9472; style.css
+&#9500;&#9472;&#9472; js/
+&#9474;   &#9500;&#9472;&#9472; validasi.js
+&#9474;   &#9500;&#9472;&#9472; login.js
+&#9474;   &#9492;&#9472;&#9472; script.js
+&#9500;&#9472;&#9472; img/
+&#9500;&#9472;&#9472; <span style="color: #ff79c6;">index.php</span>           <span class="comment"># Halaman login (dulu .html)</span>
+&#9500;&#9472;&#9472; <span style="color: #ff79c6;">dashboard.php</span>       <span class="comment"># Dashboard</span>
+&#9500;&#9472;&#9472; <span style="color: #ff79c6;">mahasiswa.php</span>       <span class="comment"># Daftar mahasiswa</span>
+&#9500;&#9472;&#9472; <span style="color: #ff79c6;">tambah.php</span>          <span class="comment"># Form tambah</span>
+&#9500;&#9472;&#9472; <span style="color: #ff79c6;">edit.php</span>            <span class="comment"># Form edit</span>
+&#9500;&#9472;&#9472; <span style="color: #ff79c6;">hapus.php</span>           <span class="comment"># Proses hapus</span>
+&#9492;&#9472;&#9472; <span style="color: #ff79c6;">proses_login.php</span>    <span class="comment"># Proses login</span></code>
+                </div>
+
+                <div class="info-box">
+                    <strong>Perubahan Penting:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>File <code>.html</code> diubah menjadi <code>.php</code></li>
+                        <li>Tambah folder <code>config/</code> untuk konfigurasi database</li>
+                        <li>Tambah folder <code>includes/</code> untuk file yang di-include</li>
+                        <li>Tambah file proses untuk menangani form submission</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">File database.sql</h3>
+                <p>Buat file SQL untuk membuat struktur database:</p>
+
+                <div class="code-block">
+                    <span class="code-label sql">database.sql</span>
+                    <code><span class="comment">-- Buat Database</span>
+<span class="sql-keyword">CREATE DATABASE IF NOT EXISTS</span> <span class="sql-table">db_akademik</span>;
+<span class="sql-keyword">USE</span> <span class="sql-table">db_akademik</span>;
+
+<span class="comment">-- Tabel Users (untuk login)</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">users</span> (
+    <span class="sql-field">id</span> <span class="sql-keyword">INT AUTO_INCREMENT PRIMARY KEY</span>,
+    <span class="sql-field">email</span> <span class="sql-keyword">VARCHAR</span>(<span class="number">100</span>) <span class="sql-keyword">NOT NULL UNIQUE</span>,
+    <span class="sql-field">password</span> <span class="sql-keyword">VARCHAR</span>(<span class="number">255</span>) <span class="sql-keyword">NOT NULL</span>,
+    <span class="sql-field">nama</span> <span class="sql-keyword">VARCHAR</span>(<span class="number">100</span>) <span class="sql-keyword">NOT NULL</span>,
+    <span class="sql-field">role</span> <span class="sql-keyword">ENUM</span>(<span class="sql-value">'admin'</span>, <span class="sql-value">'user'</span>) <span class="sql-keyword">DEFAULT</span> <span class="sql-value">'user'</span>,
+    <span class="sql-field">created_at</span> <span class="sql-keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);
+
+<span class="comment">-- Tabel Mahasiswa</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">mahasiswa</span> (
+    <span class="sql-field">nim</span> <span class="sql-keyword">VARCHAR</span>(<span class="number">10</span>) <span class="sql-keyword">PRIMARY KEY</span>,
+    <span class="sql-field">nama</span> <span class="sql-keyword">VARCHAR</span>(<span class="number">100</span>) <span class="sql-keyword">NOT NULL</span>,
+    <span class="sql-field">email</span> <span class="sql-keyword">VARCHAR</span>(<span class="number">100</span>) <span class="sql-keyword">UNIQUE</span>,
+    <span class="sql-field">prodi</span> <span class="sql-keyword">VARCHAR</span>(<span class="number">50</span>),
+    <span class="sql-field">semester</span> <span class="sql-keyword">INT DEFAULT</span> <span class="number">1</span>,
+    <span class="sql-field">alamat</span> <span class="sql-keyword">TEXT</span>,
+    <span class="sql-field">no_hp</span> <span class="sql-keyword">VARCHAR</span>(<span class="number">15</span>),
+    <span class="sql-field">created_at</span> <span class="sql-keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);
+
+<span class="comment">-- Insert data sample</span>
+<span class="sql-keyword">INSERT INTO</span> <span class="sql-table">users</span> (<span class="sql-field">email</span>, <span class="sql-field">password</span>, <span class="sql-field">nama</span>, <span class="sql-field">role</span>)
+<span class="sql-keyword">VALUES</span> (<span class="sql-value">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1c7d787175725c69726875787d6e327d7f327578">[email&#160;protected]</a>'</span>, <span class="sql-value">'admin123'</span>, <span class="sql-value">'Administrator'</span>, <span class="sql-value">'admin'</span>);</code>
+                </div>
+
+                <div class="page-number">Halaman 13</div>
+            </div>
+
+            <!-- PAGE 14: TUGAS -->
+            <div class="page-content">
+                <h2 class="section-title">&#128203; EVALUASI & TUGAS KELOMPOK</h2>
+
+                <div class="project-card">
+                    <h3>&#128101; Tugas Project Kelompok - Pertemuan 5</h3>
+                    <p style="margin-bottom: 15px;">Setiap kelompok harus menyelesaikan tugas berikut:</p>
+                    <ol style="margin-left: 20px; line-height: 2.2;">
+                        <li><strong>Buat database</strong> <code>db_akademik</code> di phpMyAdmin</li>
+                        <li><strong>Buat tabel</strong> <code>users</code> dan <code>mahasiswa</code> sesuai struktur</li>
+                        <li><strong>Insert</strong> minimal 10 data mahasiswa sample</li>
+                        <li><strong>Buat file</strong> <code>functions.php</code> dengan minimal 5 fungsi</li>
+                        <li><strong>Ubah</strong> file <code>.html</code> menjadi <code>.php</code></li>
+                        <li><strong>Buat file</strong> <code>database.sql</code> untuk dokumentasi struktur database</li>
+                    </ol>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Ketentuan Tugas:</strong>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Struktur tabel harus sesuai dengan kebutuhan project</li>
+                        <li>Gunakan tipe data yang tepat untuk setiap field</li>
+                        <li>Setiap tabel harus memiliki Primary Key</li>
+                        <li>File <code>functions.php</code> minimal berisi: hitungIPK(), konversiNilai(), formatNama(), validasiEmail(), formatTanggal()</li>
+                        <li>Simpan query SQL dalam file <code>database.sql</code></li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Kriteria Penilaian</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Aspek</th><th>Bobot</th><th>Kriteria</th></tr></thead>
+                        <tbody>
+                            <tr><td>Struktur Database</td><td>25%</td><td>Tabel lengkap, tipe data tepat, ada PK</td></tr>
+                            <tr><td>Query SQL</td><td>25%</td><td>CRUD query benar, bisa dieksekusi</td></tr>
+                            <tr><td>File PHP</td><td>25%</td><td>Sintaks benar, functions.php lengkap</td></tr>
+                            <tr><td>Struktur Folder</td><td>15%</td><td>Terorganisir sesuai standar</td></tr>
+                            <tr><td>Dokumentasi</td><td>10%</td><td>File database.sql lengkap</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="success-box">
+                    <strong>Pertemuan Selanjutnya:</strong> Kita akan <strong>menghubungkan PHP dengan MySQL</strong> menggunakan PDO/MySQLi. Data mahasiswa yang sudah dibuat di database akan ditampilkan di halaman web!
+                </div>
+
+                <div class="page-number">Halaman 14</div>
+            </div>
+
+            <!-- FINAL PAGE -->
+            <div class="page-content" style="text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 50vh;">
+                <h2 class="section-title" style="text-align: center;">&#127919; SELAMAT PRAKTIKUM!</h2>
+                <p style="font-size: 1.2em; margin: 30px 0; color: #666;">
+                    "The best error message is the one that never shows up."<br>
+                    <em>- Thomas Fuchs</em>
+                </p>
+                <div style="margin-top: 30px; padding: 30px; background: linear-gradient(135deg, #4f2d7f, #7b4397); color: white; border-radius: 15px;">
+                    <h3 style="color: #e0d4f7; margin-bottom: 20px;">Ringkasan Pertemuan 5</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; text-align: center;">
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">&#128024;</div>
+                            <div style="font-size: 12px;">Sintaks PHP</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">&#128260;</div>
+                            <div style="font-size: 12px;">Struktur Kontrol</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">&#128451;</div>
+                            <div style="font-size: 12px;">Konsep Tabel</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">&#128270;</div>
+                            <div style="font-size: 12px;">Query CRUD</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 40px; padding: 30px; background: #f8f9fa; border-radius: 15px; border-left: 5px solid #7b4397;">
+                    <h3 style="color: #4f2d7f; margin-bottom: 20px;">Contact Information</h3>
+                    <p><strong>Dosen:</strong> Ikhwan Alfath Nurul Fathony, S.Kom., M.Kom.</p>
+                    <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c7aeacafb0a6a9e9a6aba1a6b3af87b2a9b3aea3a6b5e9a6a4e9aea3">[email&#160;protected]</a></p>
+                </div>
+                <div style="margin-top: 30px; font-size: 0.9em; color: #888;">
+                    <p>&copy; 2025 Program Studi Teknologi Informasi - Universitas Tidar</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+        function toggleFullscreen() {
+            var btn = document.getElementById('fullscreenBtn');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(function() { btn.textContent = '\u274C Exit'; });
+            } else {
+                document.exitFullscreen().then(function() { btn.textContent = '\uD83D\uDD0D Fullscreen'; });
+            }
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Home') { e.preventDefault(); scrollToTop(); }
+            if (e.key === 'End') { e.preventDefault(); scrollToBottom(); }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul Praktikum Pertemuan 11 - Session & Autentikasi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; overflow-x: hidden; }
+        .book-container { max-width: 900px; margin: 50px auto; }
+        .book { background: #fff; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden; }
+        .controls { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; }
+        .control-btn { background: rgba(255,255,255,0.9); border: none; padding: 10px 15px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s ease; }
+        .control-btn:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* Cover - Security Theme (Blue/Indigo) */
+        .cover-page { background: linear-gradient(135deg, #1a237e 0%, #3949ab 50%, #7986cb 100%); color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+        .cover-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 30% 20%, rgba(57,73,171,0.3) 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, rgba(26,35,126,0.2) 0%, transparent 50%); z-index: 1; }
+        .cover-page::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(2px 2px at 10% 15%, rgba(255,255,255,0.15) 50%, transparent 50%), radial-gradient(2px 2px at 85% 25%, rgba(255,255,255,0.1) 50%, transparent 50%), radial-gradient(1px 1px at 55% 65%, rgba(255,255,255,0.12) 50%, transparent 50%); z-index: 1; animation: twinkle 4s ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(57,73,171,0.4); } 50% { box-shadow: 0 0 20px 10px rgba(57,73,171,0.1); } }
+        @keyframes lockPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .cover-content { position: relative; z-index: 2; padding: 50px 40px; }
+        .cover-top-bar { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 35px; animation: fadeInUp 0.8s ease-out; }
+        .cover-top-bar .bar-line { flex: 1; max-width: 120px; height: 1px; background: linear-gradient(90deg, transparent, rgba(121,134,203,0.6), transparent); }
+        .cover-university-badge { display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 10px 24px; border-radius: 50px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+        .cover-icon { font-size: 80px; margin-bottom: 20px; animation: fadeInUp 0.9s ease-out, float 3s ease-in-out infinite; }
+        .cover-label { display: inline-block; background: linear-gradient(135deg, rgba(57,73,171,0.3), rgba(57,73,171,0.1)); border: 1px solid rgba(121,134,203,0.5); padding: 8px 28px; border-radius: 6px; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #c5cae9; margin-bottom: 25px; animation: fadeInUp 1s ease-out; }
+        .cover-main-title { font-size: 2.6em; font-weight: 800; margin-bottom: 8px; text-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: 2px; line-height: 1.2; animation: fadeInUp 1.1s ease-out; }
+        .cover-main-title .highlight { color: #c5cae9; }
+        .cover-course-name { font-size: 1.4em; font-weight: 300; margin-bottom: 35px; opacity: 0.9; animation: fadeInUp 1.2s ease-out; }
+        .cover-meeting-badge { display: inline-flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #3949ab, #1a237e); color: white; padding: 14px 40px; border-radius: 50px; font-size: 1.3em; font-weight: 700; margin-bottom: 15px; box-shadow: 0 8px 30px rgba(57,73,171,0.4); animation: fadeInUp 1.3s ease-out, pulse 2s infinite; border: 2px solid rgba(255,255,255,0.2); }
+        .cover-meeting-badge .meeting-number { background: rgba(255,255,255,0.2); width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+        .cover-topic { font-size: 1.1em; color: rgba(255,255,255,0.85); margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6; animation: fadeInUp 1.4s ease-out; }
+        .cover-info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 650px; margin: 0 auto; animation: fadeInUp 1.5s ease-out; }
+        .cover-info-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 18px 12px; transition: all 0.3s ease; }
+        .cover-info-card:hover { background: rgba(255,255,255,0.12); border-color: rgba(121,134,203,0.5); transform: translateY(-4px); }
+        .cover-info-card .card-icon { font-size: 24px; margin-bottom: 8px; }
+        .cover-info-card .card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #c5cae9; margin-bottom: 4px; }
+        .cover-info-card .card-value { font-size: 13px; font-weight: 500; }
+
+        /* Page Styles */
+        .page-content { padding: 60px 50px; line-height: 1.8; font-size: 16px; color: #333; }
+        .page-number { text-align: right; font-size: 14px; color: #999; margin-top: 40px; padding-top: 15px; border-top: 1px solid #eee; }
+        .section-title { color: #1a237e; font-size: 1.9em; font-weight: 700; margin: 40px 0 20px 0; position: relative; }
+        .section-title::before { content: ''; position: absolute; left: 0; bottom: -5px; width: 60px; height: 3px; background: linear-gradient(90deg, #1a237e, #3949ab); }
+        .subsection-title { color: #3949ab; font-size: 1.35em; font-weight: 600; margin: 30px 0 15px 0; }
+        .objective-list, .content-list { margin: 20px 0; padding-left: 20px; }
+        .objective-list li, .content-list li { margin: 10px 0; position: relative; }
+        .objective-list li::before { content: '\1F3AF'; position: absolute; left: -25px; }
+        .content-list li::before { content: '\1F4CB'; position: absolute; left: -25px; }
+        .learning-outcomes { background: linear-gradient(135deg, #e8eaf6 0%, #fff 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #3949ab; box-shadow: 0 5px 15px rgba(57,73,171,0.1); }
+        .lab-setup { background: linear-gradient(135deg, #e8eaf6 0%, #f3f4fc 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #1a237e; }
+        .warning-box { background: #fff3cd; border-left: 5px solid #f39c12; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .warning-box::before { content: '\26A0\FE0F'; margin-right: 10px; }
+        .info-box { background: #e3f2fd; border-left: 5px solid #2196f3; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .info-box::before { content: '\2139\FE0F'; margin-right: 10px; }
+        .success-box { background: #e8f5e9; border-left: 5px solid #4caf50; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .success-box::before { content: '\2705'; margin-right: 10px; }
+        .danger-box { background: #ffebee; border-left: 5px solid #f44336; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .danger-box::before { content: '\274C'; margin-right: 10px; }
+        .step-item { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 25px; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .step-number { background: linear-gradient(135deg, #1a237e, #3949ab); color: white; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 15px; }
+        .step-title { color: #1a237e; font-weight: 600; font-size: 1.1em; margin-bottom: 10px; }
+
+        /* Code Block */
+        .code-block { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 20px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; margin: 20px 0; overflow-x: auto; color: #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; }
+        .code-block::before { content: ''; position: absolute; top: 12px; left: 15px; width: 10px; height: 10px; background: #ff5f57; border-radius: 50%; box-shadow: 16px 0 0 #ffbd2e, 32px 0 0 #28ca42; }
+        .code-block code { display: block; margin-top: 10px; white-space: pre; line-height: 1.6; }
+        .code-label { display: inline-block; background: linear-gradient(135deg, #1a237e, #3949ab); color: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-bottom: 8px; }
+        .code-label.js { background: linear-gradient(135deg, #f7df1e, #d4a800); color: #000; }
+        .code-label.php { background: linear-gradient(135deg, #8892be, #4f5b93); }
+        .code-label.sql { background: linear-gradient(135deg, #f29111, #e67e00); color: #fff; }
+        .file-tree { display: block; white-space: pre; line-height: 1.8; overflow-x: auto; }
+
+        /* Syntax Highlighting */
+        .tag { color: #ff79c6; }
+        .attr { color: #50fa7b; }
+        .value { color: #f1fa8c; }
+        .keyword { color: #ff79c6; }
+        .string { color: #50fa7b; }
+        .number { color: #bd93f9; }
+        .comment { color: #6272a4; font-style: italic; }
+        .function { color: #8be9fd; }
+        .php-var { color: #ffb86c; }
+        .method { color: #50fa7b; }
+        .js-keyword { color: #ff79c6; }
+        .js-string { color: #f1fa8c; }
+        .js-func { color: #8be9fd; }
+
+        /* Table */
+        .table-container { overflow-x: auto; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: linear-gradient(135deg, #1a237e, #3949ab); color: white; font-weight: 600; }
+        tr:hover { background: #e8eaf6; }
+
+        /* Auth Flow Diagram */
+        .auth-flow { display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; margin: 25px 0; padding: 30px; background: linear-gradient(135deg, #f8f9fa, #fff); border-radius: 15px; border: 2px solid #3949ab; }
+        .auth-step { text-align: center; padding: 20px; border-radius: 12px; background: white; box-shadow: 0 3px 15px rgba(0,0,0,0.1); min-width: 110px; }
+        .auth-step .step-icon { font-size: 32px; margin-bottom: 8px; }
+        .auth-step .step-label { font-size: 12px; font-weight: 600; color: #333; }
+        .auth-arrow { font-size: 24px; color: #3949ab; }
+
+        /* Comparison Cards */
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 25px 0; }
+        .compare-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 3px 15px rgba(0,0,0,0.1); border-top: 4px solid #3949ab; }
+        .compare-card.session { border-top-color: #4caf50; }
+        .compare-card.cookie { border-top-color: #ff9800; }
+        .compare-card h4 { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .compare-card ul { margin-left: 20px; }
+        .compare-card li { margin: 8px 0; }
+
+        /* Project Card */
+        .project-card { background: linear-gradient(135deg, #e8eaf6, #fff); border-radius: 15px; padding: 30px; margin: 25px 0; border: 2px solid #c5cae9; }
+        .project-card h3 { color: #1a237e; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button class="control-btn" onclick="scrollToTop()">&#8593; Atas</button>
+        <button class="control-btn" onclick="scrollToBottom()">&#8595; Bawah</button>
+    </div>
+
+    <div class="book-container">
+        <div class="book">
+
+            <!-- COVER PAGE -->
+            <div class="cover-page">
+                <div class="cover-content">
+                    <div class="cover-top-bar">
+                        <div class="bar-line"></div>
+                        <div class="cover-university-badge">
+                            <span>&#127891;</span>
+                            <span>Universitas Tidar</span>
+                        </div>
+                        <div class="bar-line"></div>
+                    </div>
+
+                    <div class="cover-icon">&#128274;</div>
+
+                    <div class="cover-label">Modul Praktikum</div>
+
+                    <h1 class="cover-main-title">
+                        PRAKTIKUM<br>
+                        <span class="highlight">APLIKASI WEB</span>
+                    </h1>
+
+                    <p class="cover-course-name">Program Studi Teknologi Informasi</p>
+
+                    <div class="cover-meeting-badge">
+                        <span class="meeting-number">11</span>
+                        <span>PERTEMUAN KESEBELAS</span>
+                    </div>
+
+                    <p class="cover-topic">
+                        Session, Cookie & Autentikasi<br>
+                        <em>Membangun Sistem Login yang Aman</em>
+                    </p>
+
+                    <div class="cover-info-cards">
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128100;</div>
+                            <div class="card-label">Topik</div>
+                            <div class="card-value">Login System</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128272;</div>
+                            <div class="card-label">Fokus</div>
+                            <div class="card-value">Session & Cookie</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128737;</div>
+                            <div class="card-label">Keamanan</div>
+                            <div class="card-value">Authentication</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 1: PENDAHULUAN -->
+            <div class="page-content">
+                <h2 class="section-title">&#128218; PENDAHULUAN</h2>
+
+                <div class="learning-outcomes">
+                    <h3 style="color: #1a237e; margin-bottom: 15px;">&#127919; Capaian Pembelajaran</h3>
+                    <p>Setelah menyelesaikan praktikum ini, mahasiswa mampu:</p>
+                    <ul class="objective-list">
+                        <li>Memahami konsep Session dan Cookie dalam aplikasi web</li>
+                        <li>Membedakan penggunaan Session dan Cookie</li>
+                        <li>Mengimplementasikan sistem autentikasi (Login/Logout)</li>
+                        <li>Melindungi halaman dengan middleware/guard</li>
+                        <li>Menerapkan fitur "Remember Me" dengan Cookie</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Apa itu Session & Cookie?</h3>
+
+                <div class="comparison-grid">
+                    <div class="compare-card session">
+                        <h4>&#128194; SESSION</h4>
+                        <p>Data yang disimpan di <strong>server</strong> dan diidentifikasi dengan Session ID yang dikirim ke browser.</p>
+                        <ul>
+                            <li>Tersimpan di server</li>
+                            <li>Lebih aman untuk data sensitif</li>
+                            <li>Hilang saat browser ditutup</li>
+                            <li>Kapasitas lebih besar</li>
+                        </ul>
+                    </div>
+                    <div class="compare-card cookie">
+                        <h4>&#127850; COOKIE</h4>
+                        <p>Data kecil yang disimpan di <strong>browser</strong> pengguna dan dikirim ke server setiap request.</p>
+                        <ul>
+                            <li>Tersimpan di browser</li>
+                            <li>Bisa diatur waktu kadaluarsa</li>
+                            <li>Bertahan setelah browser ditutup</li>
+                            <li>Maksimal 4KB per cookie</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Kapan Menggunakan?</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li><strong>Session:</strong> Data login, keranjang belanja, data sensitif</li>
+                        <li><strong>Cookie:</strong> Preferensi user, "Remember Me", tracking</li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 1</div>
+            </div>
+
+            <!-- PAGE 2: ALUR AUTENTIKASI -->
+            <div class="page-content">
+                <h2 class="section-title">&#128736; ALUR AUTENTIKASI</h2>
+
+                <h3 class="subsection-title">Bagaimana Login Bekerja?</h3>
+
+                <div class="auth-flow">
+                    <div class="auth-step">
+                        <div class="step-icon">&#128100;</div>
+                        <div class="step-label">User Input<br>Email & Password</div>
+                    </div>
+                    <div class="auth-arrow">&#10140;</div>
+                    <div class="auth-step">
+                        <div class="step-icon">&#128269;</div>
+                        <div class="step-label">Cek Database<br>Validasi User</div>
+                    </div>
+                    <div class="auth-arrow">&#10140;</div>
+                    <div class="auth-step">
+                        <div class="step-icon">&#128272;</div>
+                        <div class="step-label">Buat Session<br>Simpan Data</div>
+                    </div>
+                    <div class="auth-arrow">&#10140;</div>
+                    <div class="auth-step">
+                        <div class="step-icon">&#9989;</div>
+                        <div class="step-label">Redirect<br>Dashboard</div>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Update Struktur Project MVC</h3>
+
+                <div class="code-block">
+                    <span class="code-label">Struktur Folder dengan Auth</span>
+                    <code class="file-tree">project-mvc/
+├── config/
+│   └── database.php
+├── models/
+│   ├── Mahasiswa.php
+│   └── <span style="color: #50fa7b;">User.php</span>              <span class="comment"># BARU: Model User</span>
+├── controllers/
+│   ├── MahasiswaController.php
+│   └── <span style="color: #50fa7b;">AuthController.php</span>    <span class="comment"># BARU: Controller Auth</span>
+├── views/
+│   ├── layouts/
+│   │   └── main.php
+│   ├── mahasiswa/
+│   │   ├── index.php
+│   │   ├── create.php
+│   │   └── edit.php
+│   └── <span style="color: #50fa7b;">auth/</span>                  <span class="comment"># BARU: Views Auth</span>
+│       ├── <span style="color: #50fa7b;">login.php</span>
+│       └── <span style="color: #50fa7b;">register.php</span>
+├── includes/
+│   ├── validation.php
+│   └── <span style="color: #50fa7b;">auth.php</span>              <span class="comment"># BARU: Helper Auth</span>
+├── public/
+│   ├── css/
+│   └── js/
+└── index.php</code>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Persiapan:</strong> Pastikan project MVC dari Pertemuan 10 sudah berjalan dengan baik sebelum melanjutkan.
+                </div>
+
+                <div class="page-number">Halaman 2</div>
+            </div>
+
+            <!-- PAGE 3: TABEL USERS -->
+            <div class="page-content">
+                <h3 class="subsection-title">1. Membuat Tabel Users</h3>
+
+                <div class="code-block">
+                    <span class="code-label sql">SQL - Buat Tabel Users</span>
+                    <code><span class="comment">-- Jalankan di phpMyAdmin pada database db_akademik</span>
+
+<span class="keyword">CREATE TABLE</span> users (
+    id <span class="function">INT</span> <span class="keyword">PRIMARY KEY AUTO_INCREMENT</span>,
+    nama <span class="function">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT NULL</span>,
+    email <span class="function">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT NULL UNIQUE</span>,
+    password <span class="function">VARCHAR</span>(<span class="number">255</span>) <span class="keyword">NOT NULL</span>,
+    role <span class="function">ENUM</span>(<span class="string">'admin'</span>, <span class="string">'user'</span>) <span class="keyword">DEFAULT</span> <span class="string">'user'</span>,
+    remember_token <span class="function">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NULL</span>,
+    created_at <span class="function">TIMESTAMP</span> <span class="keyword">DEFAULT CURRENT_TIMESTAMP</span>,
+    updated_at <span class="function">TIMESTAMP</span> <span class="keyword">DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</span>
+);
+
+<span class="comment">-- Insert user admin untuk testing</span>
+<span class="keyword">INSERT INTO</span> users (nama, email, password, role) <span class="keyword">VALUES</span>
+(<span class="string">'Administrator'</span>, <span class="string">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7e1f1a1317103e1f151f1a1b131715501d1113">[email&#160;protected]</a>'</span>,
+ <span class="string">'$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'</span>, <span class="string">'admin'</span>);
+
+<span class="comment">-- Password di atas adalah hash dari: "password"</span></code>
+                </div>
+
+                <div class="info-box">
+                    <strong>&#128274; Password Hashing:</strong>
+                    <p style="margin-top: 8px;">Password <strong>TIDAK BOLEH</strong> disimpan dalam bentuk plain text. Gunakan <code>password_hash()</code> untuk mengenkripsi dan <code>password_verify()</code> untuk memverifikasi.</p>
+                </div>
+
+                <h3 class="subsection-title">Fungsi Password di PHP</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">Contoh Password Hashing</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">// MENYIMPAN PASSWORD (saat register)</span>
+<span class="php-var">$password</span> = <span class="string">'rahasia123'</span>;
+<span class="php-var">$hashed</span> = <span class="function">password_hash</span>(<span class="php-var">$password</span>, PASSWORD_DEFAULT);
+<span class="comment">// Hasil: $2y$10$xxxxxxxxxxx... (berbeda setiap kali)</span>
+
+<span class="comment">// MEMVERIFIKASI PASSWORD (saat login)</span>
+<span class="php-var">$inputPassword</span> = <span class="string">'rahasia123'</span>;
+<span class="php-var">$hashedFromDB</span> = <span class="string">'$2y$10$...'</span>; <span class="comment">// dari database</span>
+
+<span class="keyword">if</span> (<span class="function">password_verify</span>(<span class="php-var">$inputPassword</span>, <span class="php-var">$hashedFromDB</span>)) {
+    <span class="keyword">echo</span> <span class="string">'Password benar!'</span>;
+} <span class="keyword">else</span> {
+    <span class="keyword">echo</span> <span class="string">'Password salah!'</span>;
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 3</div>
+            </div>
+
+            <!-- PAGE 4: AUTH HELPER -->
+            <div class="page-content">
+                <h3 class="subsection-title">2. Helper Autentikasi</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">includes/auth.php</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">/**
+ * Helper functions untuk autentikasi
+ */</span>
+
+<span class="comment">// Pastikan session sudah dimulai</span>
+<span class="keyword">if</span> (<span class="function">session_status</span>() === PHP_SESSION_NONE) {
+    <span class="function">session_start</span>();
+}
+
+<span class="comment">/**
+ * Cek apakah user sudah login
+ */</span>
+<span class="keyword">function</span> <span class="function">isLoggedIn</span>() {
+    <span class="keyword">return</span> <span class="keyword">isset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>]);
+}
+
+<span class="comment">/**
+ * Dapatkan data user yang sedang login
+ */</span>
+<span class="keyword">function</span> <span class="function">currentUser</span>() {
+    <span class="keyword">return</span> [
+        <span class="string">'id'</span> => <span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>] ?? <span class="keyword">null</span>,
+        <span class="string">'nama'</span> => <span class="php-var">$_SESSION</span>[<span class="string">'user_nama'</span>] ?? <span class="keyword">null</span>,
+        <span class="string">'email'</span> => <span class="php-var">$_SESSION</span>[<span class="string">'user_email'</span>] ?? <span class="keyword">null</span>,
+        <span class="string">'role'</span> => <span class="php-var">$_SESSION</span>[<span class="string">'user_role'</span>] ?? <span class="keyword">null</span>
+    ];
+}
+
+<span class="comment">/**
+ * Redirect jika belum login (untuk halaman protected)
+ */</span>
+<span class="keyword">function</span> <span class="function">requireLogin</span>() {
+    <span class="keyword">if</span> (!<span class="function">isLoggedIn</span>()) {
+        <span class="php-var">$_SESSION</span>[<span class="string">'error'</span>] = <span class="string">'Silakan login terlebih dahulu!'</span>;
+        <span class="function">header</span>(<span class="string">'Location: ?action=login'</span>);
+        <span class="keyword">exit</span>;
+    }
+}
+
+<span class="comment">/**
+ * Redirect jika sudah login (untuk halaman login/register)
+ */</span>
+<span class="keyword">function</span> <span class="function">requireGuest</span>() {
+    <span class="keyword">if</span> (<span class="function">isLoggedIn</span>()) {
+        <span class="function">header</span>(<span class="string">'Location: ?action=index'</span>);
+        <span class="keyword">exit</span>;
+    }
+}
+
+<span class="comment">/**
+ * Cek apakah user adalah admin
+ */</span>
+<span class="keyword">function</span> <span class="function">isAdmin</span>() {
+    <span class="keyword">return</span> <span class="function">isLoggedIn</span>() && (<span class="php-var">$_SESSION</span>[<span class="string">'user_role'</span>] ?? <span class="string">''</span>) === <span class="string">'admin'</span>;
+}
+
+<span class="comment">/**
+ * Redirect jika bukan admin
+ */</span>
+<span class="keyword">function</span> <span class="function">requireAdmin</span>() {
+    <span class="function">requireLogin</span>();
+    <span class="keyword">if</span> (!<span class="function">isAdmin</span>()) {
+        <span class="php-var">$_SESSION</span>[<span class="string">'error'</span>] = <span class="string">'Akses ditolak! Hanya untuk admin.'</span>;
+        <span class="function">header</span>(<span class="string">'Location: ?action=index'</span>);
+        <span class="keyword">exit</span>;
+    }
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 4</div>
+            </div>
+
+            <!-- PAGE 5: MODEL USER -->
+            <div class="page-content">
+                <h3 class="subsection-title">3. Model User</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">models/User.php</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="keyword">require_once</span> __DIR__ . <span class="string">'/../config/database.php'</span>;
+
+<span class="keyword">class</span> <span class="function">User</span> {
+    <span class="keyword">private</span> <span class="php-var">$pdo</span>;
+    <span class="keyword">private</span> <span class="php-var">$table</span> = <span class="string">'users'</span>;
+
+    <span class="keyword">public function</span> <span class="method">__construct</span>() {
+        <span class="php-var">$this</span>->pdo = <span class="function">db</span>();
+    }
+
+    <span class="comment">// Cari user berdasarkan email</span>
+    <span class="keyword">public function</span> <span class="method">findByEmail</span>(<span class="php-var">$email</span>) {
+        <span class="php-var">$stmt</span> = <span class="php-var">$this</span>->pdo-><span class="method">prepare</span>(
+            <span class="string">"SELECT * FROM {<span class="php-var">$this</span>->table} WHERE email = ?"</span>
+        );
+        <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$email</span>]);
+        <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">fetch</span>();
+    }
+
+    <span class="comment">// Cari user berdasarkan ID</span>
+    <span class="keyword">public function</span> <span class="method">findById</span>(<span class="php-var">$id</span>) {
+        <span class="php-var">$stmt</span> = <span class="php-var">$this</span>->pdo-><span class="method">prepare</span>(
+            <span class="string">"SELECT * FROM {<span class="php-var">$this</span>->table} WHERE id = ?"</span>
+        );
+        <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$id</span>]);
+        <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">fetch</span>();
+    }
+
+    <span class="comment">// Buat user baru (Register)</span>
+    <span class="keyword">public function</span> <span class="method">create</span>(<span class="php-var">$data</span>) {
+        <span class="php-var">$sql</span> = <span class="string">"INSERT INTO {<span class="php-var">$this</span>->table} (nama, email, password) VALUES (?, ?, ?)"</span>;
+        <span class="php-var">$stmt</span> = <span class="php-var">$this</span>->pdo-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+        <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">execute</span>([
+            <span class="php-var">$data</span>[<span class="string">'nama'</span>],
+            <span class="php-var">$data</span>[<span class="string">'email'</span>],
+            <span class="function">password_hash</span>(<span class="php-var">$data</span>[<span class="string">'password'</span>], PASSWORD_DEFAULT)
+        ]);
+    }
+
+    <span class="comment">// Simpan remember token</span>
+    <span class="keyword">public function</span> <span class="method">setRememberToken</span>(<span class="php-var">$userId</span>, <span class="php-var">$token</span>) {
+        <span class="php-var">$stmt</span> = <span class="php-var">$this</span>->pdo-><span class="method">prepare</span>(
+            <span class="string">"UPDATE {<span class="php-var">$this</span>->table} SET remember_token = ? WHERE id = ?"</span>
+        );
+        <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$token</span>, <span class="php-var">$userId</span>]);
+    }
+
+    <span class="comment">// Cari user berdasarkan remember token</span>
+    <span class="keyword">public function</span> <span class="method">findByRememberToken</span>(<span class="php-var">$token</span>) {
+        <span class="php-var">$stmt</span> = <span class="php-var">$this</span>->pdo-><span class="method">prepare</span>(
+            <span class="string">"SELECT * FROM {<span class="php-var">$this</span>->table} WHERE remember_token = ?"</span>
+        );
+        <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$token</span>]);
+        <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">fetch</span>();
+    }
+
+    <span class="comment">// Cek apakah email sudah terdaftar</span>
+    <span class="keyword">public function</span> <span class="method">emailExists</span>(<span class="php-var">$email</span>) {
+        <span class="keyword">return</span> <span class="php-var">$this</span>-><span class="method">findByEmail</span>(<span class="php-var">$email</span>) !== <span class="keyword">false</span>;
+    }
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 5</div>
+            </div>
+
+            <!-- PAGE 6: AUTH CONTROLLER - PART 1 -->
+            <div class="page-content">
+                <h3 class="subsection-title">4. Controller Autentikasi</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">controllers/AuthController.php</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="keyword">require_once</span> __DIR__ . <span class="string">'/../models/User.php'</span>;
+<span class="keyword">require_once</span> __DIR__ . <span class="string">'/../includes/auth.php'</span>;
+<span class="keyword">require_once</span> __DIR__ . <span class="string">'/../includes/validation.php'</span>;
+
+<span class="keyword">class</span> <span class="function">AuthController</span> {
+    <span class="keyword">private</span> <span class="php-var">$user</span>;
+
+    <span class="keyword">public function</span> <span class="method">__construct</span>() {
+        <span class="php-var">$this</span>->user = <span class="keyword">new</span> User();
+    }
+
+    <span class="comment">// Tampilkan form login</span>
+    <span class="keyword">public function</span> <span class="method">loginForm</span>() {
+        <span class="function">requireGuest</span>(); <span class="comment">// Redirect jika sudah login</span>
+        <span class="php-var">$this</span>-><span class="method">view</span>(<span class="string">'auth/login'</span>);
+    }
+
+    <span class="comment">// Proses login</span>
+    <span class="keyword">public function</span> <span class="method">login</span>() {
+        <span class="function">requireGuest</span>();
+
+        <span class="keyword">if</span> (<span class="php-var">$_SERVER</span>[<span class="string">'REQUEST_METHOD'</span>] !== <span class="string">'POST'</span>) {
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=login'</span>);
+        }
+
+        <span class="php-var">$email</span> = <span class="function">trim</span>(<span class="php-var">$_POST</span>[<span class="string">'email'</span>] ?? <span class="string">''</span>);
+        <span class="php-var">$password</span> = <span class="php-var">$_POST</span>[<span class="string">'password'</span>] ?? <span class="string">''</span>;
+        <span class="php-var">$remember</span> = <span class="keyword">isset</span>(<span class="php-var">$_POST</span>[<span class="string">'remember'</span>]);
+
+        <span class="comment">// Validasi input</span>
+        <span class="keyword">if</span> (<span class="function">empty</span>(<span class="php-var">$email</span>) || <span class="function">empty</span>(<span class="php-var">$password</span>)) {
+            <span class="php-var">$_SESSION</span>[<span class="string">'error'</span>] = <span class="string">'Email dan password wajib diisi!'</span>;
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=login'</span>);
+        }
+
+        <span class="comment">// Cari user di database</span>
+        <span class="php-var">$user</span> = <span class="php-var">$this</span>->user-><span class="method">findByEmail</span>(<span class="php-var">$email</span>);
+
+        <span class="comment">// Verifikasi password</span>
+        <span class="keyword">if</span> (!<span class="php-var">$user</span> || !<span class="function">password_verify</span>(<span class="php-var">$password</span>, <span class="php-var">$user</span>[<span class="string">'password'</span>])) {
+            <span class="php-var">$_SESSION</span>[<span class="string">'error'</span>] = <span class="string">'Email atau password salah!'</span>;
+            <span class="php-var">$_SESSION</span>[<span class="string">'old'</span>] = [<span class="string">'email'</span> => <span class="php-var">$email</span>];
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=login'</span>);
+        }
+
+        <span class="comment">// LOGIN BERHASIL - Simpan data ke session</span>
+        <span class="php-var">$this</span>-><span class="method">createSession</span>(<span class="php-var">$user</span>);
+
+        <span class="comment">// Jika remember me dicentang</span>
+        <span class="keyword">if</span> (<span class="php-var">$remember</span>) {
+            <span class="php-var">$this</span>-><span class="method">setRememberCookie</span>(<span class="php-var">$user</span>[<span class="string">'id'</span>]);
+        }
+
+        <span class="php-var">$_SESSION</span>[<span class="string">'success'</span>] = <span class="string">'Selamat datang, '</span> . <span class="php-var">$user</span>[<span class="string">'nama'</span>] . <span class="string">'!'</span>;
+        <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=index'</span>);
+    }
+
+    <span class="comment">// ... lanjut di halaman berikutnya</span></code>
+                </div>
+
+                <div class="page-number">Halaman 6</div>
+            </div>
+
+            <!-- PAGE 7: AUTH CONTROLLER - PART 2 -->
+            <div class="page-content">
+                <h3 class="subsection-title">Controller Auth (Lanjutan)</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">controllers/AuthController.php (lanjutan)</span>
+                    <code>    <span class="comment">// Buat session untuk user</span>
+    <span class="keyword">private function</span> <span class="method">createSession</span>(<span class="php-var">$user</span>) {
+        <span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>] = <span class="php-var">$user</span>[<span class="string">'id'</span>];
+        <span class="php-var">$_SESSION</span>[<span class="string">'user_nama'</span>] = <span class="php-var">$user</span>[<span class="string">'nama'</span>];
+        <span class="php-var">$_SESSION</span>[<span class="string">'user_email'</span>] = <span class="php-var">$user</span>[<span class="string">'email'</span>];
+        <span class="php-var">$_SESSION</span>[<span class="string">'user_role'</span>] = <span class="php-var">$user</span>[<span class="string">'role'</span>];
+        <span class="function">session_regenerate_id</span>(<span class="keyword">true</span>); <span class="comment">// Keamanan</span>
+    }
+
+    <span class="comment">// Set cookie untuk Remember Me</span>
+    <span class="keyword">private function</span> <span class="method">setRememberCookie</span>(<span class="php-var">$userId</span>) {
+        <span class="php-var">$token</span> = <span class="function">bin2hex</span>(<span class="function">random_bytes</span>(<span class="number">32</span>)); <span class="comment">// Token random</span>
+        <span class="php-var">$expiry</span> = <span class="function">time</span>() + (<span class="number">30</span> * <span class="number">24</span> * <span class="number">60</span> * <span class="number">60</span>); <span class="comment">// 30 hari</span>
+
+        <span class="comment">// Simpan token ke database</span>
+        <span class="php-var">$this</span>->user-><span class="method">setRememberToken</span>(<span class="php-var">$userId</span>, <span class="php-var">$token</span>);
+
+        <span class="comment">// Set cookie</span>
+        <span class="function">setcookie</span>(<span class="string">'remember_token'</span>, <span class="php-var">$token</span>, [
+            <span class="string">'expires'</span> => <span class="php-var">$expiry</span>,
+            <span class="string">'path'</span> => <span class="string">'/'</span>,
+            <span class="string">'httponly'</span> => <span class="keyword">true</span>,  <span class="comment">// Tidak bisa diakses JavaScript</span>
+            <span class="string">'samesite'</span> => <span class="string">'Strict'</span>
+        ]);
+    }
+
+    <span class="comment">// Proses logout</span>
+    <span class="keyword">public function</span> <span class="method">logout</span>() {
+        <span class="comment">// Hapus remember token dari database</span>
+        <span class="keyword">if</span> (<span class="function">isLoggedIn</span>()) {
+            <span class="php-var">$this</span>->user-><span class="method">setRememberToken</span>(<span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>], <span class="keyword">null</span>);
+        }
+
+        <span class="comment">// Hapus cookie remember</span>
+        <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="php-var">$_COOKIE</span>[<span class="string">'remember_token'</span>])) {
+            <span class="function">setcookie</span>(<span class="string">'remember_token'</span>, <span class="string">''</span>, <span class="function">time</span>() - <span class="number">3600</span>, <span class="string">'/'</span>);
+        }
+
+        <span class="comment">// Hapus semua session</span>
+        <span class="php-var">$_SESSION</span> = [];
+        <span class="function">session_destroy</span>();
+
+        <span class="comment">// Mulai session baru untuk flash message</span>
+        <span class="function">session_start</span>();
+        <span class="php-var">$_SESSION</span>[<span class="string">'success'</span>] = <span class="string">'Anda berhasil logout!'</span>;
+
+        <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=login'</span>);
+    }
+
+    <span class="comment">// Cek remember cookie saat aplikasi dimuat</span>
+    <span class="keyword">public function</span> <span class="method">checkRememberCookie</span>() {
+        <span class="keyword">if</span> (!<span class="function">isLoggedIn</span>() && <span class="keyword">isset</span>(<span class="php-var">$_COOKIE</span>[<span class="string">'remember_token'</span>])) {
+            <span class="php-var">$user</span> = <span class="php-var">$this</span>->user-><span class="method">findByRememberToken</span>(<span class="php-var">$_COOKIE</span>[<span class="string">'remember_token'</span>]);
+            <span class="keyword">if</span> (<span class="php-var">$user</span>) {
+                <span class="php-var">$this</span>-><span class="method">createSession</span>(<span class="php-var">$user</span>);
+            }
+        }
+    }
+
+    <span class="comment">// ... register di halaman berikutnya</span></code>
+                </div>
+
+                <div class="page-number">Halaman 7</div>
+            </div>
+
+            <!-- PAGE 8: AUTH CONTROLLER - REGISTER -->
+            <div class="page-content">
+                <h3 class="subsection-title">Controller Auth - Register</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">controllers/AuthController.php (lanjutan)</span>
+                    <code>    <span class="comment">// Tampilkan form register</span>
+    <span class="keyword">public function</span> <span class="method">registerForm</span>() {
+        <span class="function">requireGuest</span>();
+        <span class="php-var">$this</span>-><span class="method">view</span>(<span class="string">'auth/register'</span>);
+    }
+
+    <span class="comment">// Proses register</span>
+    <span class="keyword">public function</span> <span class="method">register</span>() {
+        <span class="function">requireGuest</span>();
+
+        <span class="keyword">if</span> (<span class="php-var">$_SERVER</span>[<span class="string">'REQUEST_METHOD'</span>] !== <span class="string">'POST'</span>) {
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=register'</span>);
+        }
+
+        <span class="php-var">$data</span> = [
+            <span class="string">'nama'</span> => <span class="function">trim</span>(<span class="php-var">$_POST</span>[<span class="string">'nama'</span>] ?? <span class="string">''</span>),
+            <span class="string">'email'</span> => <span class="function">trim</span>(<span class="php-var">$_POST</span>[<span class="string">'email'</span>] ?? <span class="string">''</span>),
+            <span class="string">'password'</span> => <span class="php-var">$_POST</span>[<span class="string">'password'</span>] ?? <span class="string">''</span>,
+            <span class="string">'password_confirm'</span> => <span class="php-var">$_POST</span>[<span class="string">'password_confirm'</span>] ?? <span class="string">''</span>
+        ];
+
+        <span class="comment">// Validasi</span>
+        <span class="php-var">$errors</span> = <span class="php-var">$this</span>-><span class="method">validateRegister</span>(<span class="php-var">$data</span>);
+
+        <span class="keyword">if</span> (!<span class="function">empty</span>(<span class="php-var">$errors</span>)) {
+            <span class="php-var">$_SESSION</span>[<span class="string">'errors'</span>] = <span class="php-var">$errors</span>;
+            <span class="php-var">$_SESSION</span>[<span class="string">'old'</span>] = <span class="php-var">$data</span>;
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=register'</span>);
+        }
+
+        <span class="comment">// Simpan user baru</span>
+        <span class="keyword">if</span> (<span class="php-var">$this</span>->user-><span class="method">create</span>(<span class="php-var">$data</span>)) {
+            <span class="php-var">$_SESSION</span>[<span class="string">'success'</span>] = <span class="string">'Registrasi berhasil! Silakan login.'</span>;
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=login'</span>);
+        } <span class="keyword">else</span> {
+            <span class="php-var">$_SESSION</span>[<span class="string">'error'</span>] = <span class="string">'Gagal mendaftar. Silakan coba lagi.'</span>;
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=register'</span>);
+        }
+    }
+
+    <span class="comment">// Validasi data register</span>
+    <span class="keyword">private function</span> <span class="method">validateRegister</span>(<span class="php-var">$data</span>) {
+        <span class="php-var">$errors</span> = [];
+
+        <span class="keyword">if</span> (!<span class="function">required</span>(<span class="php-var">$data</span>[<span class="string">'nama'</span>])) <span class="php-var">$errors</span>[] = <span class="string">'Nama wajib diisi'</span>;
+        <span class="keyword">if</span> (!<span class="function">required</span>(<span class="php-var">$data</span>[<span class="string">'email'</span>])) <span class="php-var">$errors</span>[] = <span class="string">'Email wajib diisi'</span>;
+        <span class="keyword">if</span> (!<span class="function">validEmail</span>(<span class="php-var">$data</span>[<span class="string">'email'</span>])) <span class="php-var">$errors</span>[] = <span class="string">'Format email tidak valid'</span>;
+        <span class="keyword">if</span> (<span class="php-var">$this</span>->user-><span class="method">emailExists</span>(<span class="php-var">$data</span>[<span class="string">'email'</span>])) <span class="php-var">$errors</span>[] = <span class="string">'Email sudah terdaftar'</span>;
+        <span class="keyword">if</span> (!<span class="function">minLen</span>(<span class="php-var">$data</span>[<span class="string">'password'</span>], <span class="number">6</span>)) <span class="php-var">$errors</span>[] = <span class="string">'Password minimal 6 karakter'</span>;
+        <span class="keyword">if</span> (<span class="php-var">$data</span>[<span class="string">'password'</span>] !== <span class="php-var">$data</span>[<span class="string">'password_confirm'</span>]) {
+            <span class="php-var">$errors</span>[] = <span class="string">'Konfirmasi password tidak cocok'</span>;
+        }
+
+        <span class="keyword">return</span> <span class="php-var">$errors</span>;
+    }
+
+    <span class="comment">// Helper: Render view</span>
+    <span class="keyword">private function</span> <span class="method">view</span>(<span class="php-var">$view</span>, <span class="php-var">$data</span> = []) {
+        <span class="function">extract</span>(<span class="php-var">$data</span>);
+        <span class="php-var">$content</span> = __DIR__ . <span class="string">"/../views/{<span class="php-var">$view</span>}.php"</span>;
+        <span class="keyword">require</span> __DIR__ . <span class="string">'/../views/layouts/main.php'</span>;
+    }
+
+    <span class="comment">// Helper: Redirect</span>
+    <span class="keyword">private function</span> <span class="method">redirect</span>(<span class="php-var">$url</span>) {
+        <span class="function">header</span>(<span class="string">"Location: {<span class="php-var">$url</span>}"</span>);
+        <span class="keyword">exit</span>;
+    }
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 8</div>
+            </div>
+
+            <!-- PAGE 9: VIEW LOGIN -->
+            <div class="page-content">
+                <h3 class="subsection-title">5. View - Halaman Login</h3>
+
+                <div class="code-block">
+                    <span class="code-label">views/auth/login.php</span>
+                    <code><span class="tag">&lt;?php</span> <span class="php-var">$old</span> = <span class="php-var">$_SESSION</span>[<span class="string">'old'</span>] ?? []; <span class="keyword">unset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'old'</span>]); <span class="tag">?&gt;</span>
+
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"row justify-content-center"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"col-md-5"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"card shadow"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"card-header bg-primary text-white text-center"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;h4</span> <span class="attr">class</span>=<span class="value">"mb-0"</span><span class="tag">&gt;</span>&#128274; Login<span class="tag">&lt;/h4&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"card-body"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;form</span> <span class="attr">action</span>=<span class="value">"?action=doLogin"</span> <span class="attr">method</span>=<span class="value">"POST"</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"mb-3"</span><span class="tag">&gt;</span>
+                        <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>Email<span class="tag">&lt;/label&gt;</span>
+                        <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"email"</span> <span class="attr">name</span>=<span class="value">"email"</span> <span class="attr">class</span>=<span class="value">"form-control"</span>
+                               <span class="attr">value</span>=<span class="value">"&lt;?= htmlspecialchars($old['email'] ?? '') ?&gt;"</span>
+                               <span class="attr">placeholder</span>=<span class="value">"Masukkan email"</span> <span class="attr">required</span> <span class="attr">autofocus</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;/div&gt;</span>
+
+                    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"mb-3"</span><span class="tag">&gt;</span>
+                        <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>Password<span class="tag">&lt;/label&gt;</span>
+                        <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"password"</span> <span class="attr">name</span>=<span class="value">"password"</span> <span class="attr">class</span>=<span class="value">"form-control"</span>
+                               <span class="attr">placeholder</span>=<span class="value">"Masukkan password"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;/div&gt;</span>
+
+                    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"mb-3 form-check"</span><span class="tag">&gt;</span>
+                        <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"checkbox"</span> <span class="attr">name</span>=<span class="value">"remember"</span> <span class="attr">class</span>=<span class="value">"form-check-input"</span> <span class="attr">id</span>=<span class="value">"remember"</span><span class="tag">&gt;</span>
+                        <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-check-label"</span> <span class="attr">for</span>=<span class="value">"remember"</span><span class="tag">&gt;</span>
+                            Ingat Saya (30 hari)
+                        <span class="tag">&lt;/label&gt;</span>
+                    <span class="tag">&lt;/div&gt;</span>
+
+                    <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="value">"submit"</span> <span class="attr">class</span>=<span class="value">"btn btn-primary w-100"</span><span class="tag">&gt;</span>
+                        Login
+                    <span class="tag">&lt;/button&gt;</span>
+                <span class="tag">&lt;/form&gt;</span>
+
+                <span class="tag">&lt;hr&gt;</span>
+                <span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="value">"text-center mb-0"</span><span class="tag">&gt;</span>
+                    Belum punya akun?
+                    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"?action=register"</span><span class="tag">&gt;</span>Daftar di sini<span class="tag">&lt;/a&gt;</span>
+                <span class="tag">&lt;/p&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></code>
+                </div>
+
+                <div class="success-box">
+                    <strong>Fitur Form Login:</strong>
+                    <ul style="margin-top: 8px; margin-left: 15px;">
+                        <li>Input email dengan validasi HTML5</li>
+                        <li>Remember Me checkbox untuk cookie</li>
+                        <li>Link ke halaman register</li>
+                        <li>Old input untuk menampilkan email sebelumnya jika error</li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 9</div>
+            </div>
+
+            <!-- PAGE 10: VIEW REGISTER -->
+            <div class="page-content">
+                <h3 class="subsection-title">View - Halaman Register</h3>
+
+                <div class="code-block">
+                    <span class="code-label">views/auth/register.php</span>
+                    <code><span class="tag">&lt;?php</span> <span class="php-var">$old</span> = <span class="php-var">$_SESSION</span>[<span class="string">'old'</span>] ?? []; <span class="keyword">unset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'old'</span>]); <span class="tag">?&gt;</span>
+
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"row justify-content-center"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"col-md-6"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"card shadow"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"card-header bg-success text-white text-center"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;h4</span> <span class="attr">class</span>=<span class="value">"mb-0"</span><span class="tag">&gt;</span>&#128221; Daftar Akun Baru<span class="tag">&lt;/h4&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"card-body"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;form</span> <span class="attr">action</span>=<span class="value">"?action=doRegister"</span> <span class="attr">method</span>=<span class="value">"POST"</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"mb-3"</span><span class="tag">&gt;</span>
+                        <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>Nama Lengkap <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"text-danger"</span><span class="tag">&gt;</span>*<span class="tag">&lt;/span&gt;&lt;/label&gt;</span>
+                        <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"text"</span> <span class="attr">name</span>=<span class="value">"nama"</span> <span class="attr">class</span>=<span class="value">"form-control"</span>
+                               <span class="attr">value</span>=<span class="value">"&lt;?= htmlspecialchars($old['nama'] ?? '') ?&gt;"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;/div&gt;</span>
+
+                    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"mb-3"</span><span class="tag">&gt;</span>
+                        <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>Email <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"text-danger"</span><span class="tag">&gt;</span>*<span class="tag">&lt;/span&gt;&lt;/label&gt;</span>
+                        <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"email"</span> <span class="attr">name</span>=<span class="value">"email"</span> <span class="attr">class</span>=<span class="value">"form-control"</span>
+                               <span class="attr">value</span>=<span class="value">"&lt;?= htmlspecialchars($old['email'] ?? '') ?&gt;"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;/div&gt;</span>
+
+                    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"row"</span><span class="tag">&gt;</span>
+                        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"col-md-6 mb-3"</span><span class="tag">&gt;</span>
+                            <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>Password <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"text-danger"</span><span class="tag">&gt;</span>*<span class="tag">&lt;/span&gt;&lt;/label&gt;</span>
+                            <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"password"</span> <span class="attr">name</span>=<span class="value">"password"</span> <span class="attr">class</span>=<span class="value">"form-control"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+                            <span class="tag">&lt;small</span> <span class="attr">class</span>=<span class="value">"text-muted"</span><span class="tag">&gt;</span>Minimal 6 karakter<span class="tag">&lt;/small&gt;</span>
+                        <span class="tag">&lt;/div&gt;</span>
+                        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"col-md-6 mb-3"</span><span class="tag">&gt;</span>
+                            <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>Konfirmasi Password <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"text-danger"</span><span class="tag">&gt;</span>*<span class="tag">&lt;/span&gt;&lt;/label&gt;</span>
+                            <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"password"</span> <span class="attr">name</span>=<span class="value">"password_confirm"</span> <span class="attr">class</span>=<span class="value">"form-control"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+                        <span class="tag">&lt;/div&gt;</span>
+                    <span class="tag">&lt;/div&gt;</span>
+
+                    <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="value">"submit"</span> <span class="attr">class</span>=<span class="value">"btn btn-success w-100"</span><span class="tag">&gt;</span>
+                        Daftar Sekarang
+                    <span class="tag">&lt;/button&gt;</span>
+                <span class="tag">&lt;/form&gt;</span>
+
+                <span class="tag">&lt;hr&gt;</span>
+                <span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="value">"text-center mb-0"</span><span class="tag">&gt;</span>
+                    Sudah punya akun? <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"?action=login"</span><span class="tag">&gt;</span>Login di sini<span class="tag">&lt;/a&gt;</span>
+                <span class="tag">&lt;/p&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 10</div>
+            </div>
+
+            <!-- PAGE 11: UPDATE ROUTER -->
+            <div class="page-content">
+                <h3 class="subsection-title">6. Update Router (index.php)</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">index.php - Router dengan Auth</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">/**
+ * Entry Point - Router dengan Autentikasi
+ */</span>
+
+<span class="function">session_start</span>();
+
+<span class="comment">// Load Controllers</span>
+<span class="keyword">require_once</span> <span class="string">'controllers/MahasiswaController.php'</span>;
+<span class="keyword">require_once</span> <span class="string">'controllers/AuthController.php'</span>;
+<span class="keyword">require_once</span> <span class="string">'includes/auth.php'</span>;
+
+<span class="comment">// Inisialisasi controllers</span>
+<span class="php-var">$mahasiswaController</span> = <span class="keyword">new</span> MahasiswaController();
+<span class="php-var">$authController</span> = <span class="keyword">new</span> AuthController();
+
+<span class="comment">// Cek remember cookie untuk auto-login</span>
+<span class="php-var">$authController</span>-><span class="method">checkRememberCookie</span>();
+
+<span class="comment">// Ambil action dari URL</span>
+<span class="php-var">$action</span> = <span class="php-var">$_GET</span>[<span class="string">'action'</span>] ?? <span class="string">'index'</span>;
+<span class="php-var">$id</span> = <span class="function">filter_input</span>(INPUT_GET, <span class="string">'id'</span>, FILTER_VALIDATE_INT);
+
+<span class="comment">// Routing</span>
+<span class="keyword">switch</span> (<span class="php-var">$action</span>) {
+    <span class="comment">// ===== AUTH ROUTES (Guest Only) =====</span>
+    <span class="keyword">case</span> <span class="string">'login'</span>:
+        <span class="php-var">$authController</span>-><span class="method">loginForm</span>();
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">'doLogin'</span>:
+        <span class="php-var">$authController</span>-><span class="method">login</span>();
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">'register'</span>:
+        <span class="php-var">$authController</span>-><span class="method">registerForm</span>();
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">'doRegister'</span>:
+        <span class="php-var">$authController</span>-><span class="method">register</span>();
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">'logout'</span>:
+        <span class="php-var">$authController</span>-><span class="method">logout</span>();
+        <span class="keyword">break</span>;
+
+    <span class="comment">// ===== PROTECTED ROUTES (Login Required) =====</span>
+    <span class="keyword">case</span> <span class="string">'index'</span>:
+        <span class="function">requireLogin</span>(); <span class="comment">// Proteksi halaman</span>
+        <span class="php-var">$mahasiswaController</span>-><span class="method">index</span>();
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">'create'</span>:
+        <span class="function">requireLogin</span>();
+        <span class="php-var">$mahasiswaController</span>-><span class="method">create</span>();
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">'store'</span>:
+        <span class="function">requireLogin</span>();
+        <span class="php-var">$mahasiswaController</span>-><span class="method">store</span>();
+        <span class="keyword">break</span>;
+    <span class="comment">// ... route lainnya dengan requireLogin()</span>
+
+    <span class="keyword">default</span>:
+        <span class="function">header</span>(<span class="string">'Location: ?action=login'</span>);
+        <span class="keyword">exit</span>;
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 11</div>
+            </div>
+
+            <!-- PAGE 12: UPDATE LAYOUT -->
+            <div class="page-content">
+                <h3 class="subsection-title">7. Update Layout dengan User Info</h3>
+
+                <div class="code-block">
+                    <span class="code-label">views/layouts/main.php - Navbar dengan Auth</span>
+                    <code><span class="comment">&lt;!-- Navbar --&gt;</span>
+<span class="tag">&lt;nav</span> <span class="attr">class</span>=<span class="value">"navbar navbar-expand-lg navbar-dark bg-primary"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"container"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;a</span> <span class="attr">class</span>=<span class="value">"navbar-brand"</span> <span class="attr">href</span>=<span class="value">"?action=index"</span><span class="tag">&gt;</span>&#127891; Sistem Akademik<span class="tag">&lt;/a&gt;</span>
+
+        <span class="tag">&lt;button</span> <span class="attr">class</span>=<span class="value">"navbar-toggler"</span> <span class="attr">type</span>=<span class="value">"button"</span> <span class="attr">data-bs-toggle</span>=<span class="value">"collapse"</span>
+                <span class="attr">data-bs-target</span>=<span class="value">"#navbarNav"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"navbar-toggler-icon"</span><span class="tag">&gt;&lt;/span&gt;</span>
+        <span class="tag">&lt;/button&gt;</span>
+
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"collapse navbar-collapse"</span> <span class="attr">id</span>=<span class="value">"navbarNav"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;?php</span> <span class="keyword">if</span> (<span class="function">isLoggedIn</span>()): <span class="tag">?&gt;</span>
+            <span class="comment">&lt;!-- Menu untuk user yang sudah login --&gt;</span>
+            <span class="tag">&lt;ul</span> <span class="attr">class</span>=<span class="value">"navbar-nav me-auto"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;li</span> <span class="attr">class</span>=<span class="value">"nav-item"</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;a</span> <span class="attr">class</span>=<span class="value">"nav-link"</span> <span class="attr">href</span>=<span class="value">"?action=index"</span><span class="tag">&gt;</span>Data Mahasiswa<span class="tag">&lt;/a&gt;</span>
+                <span class="tag">&lt;/li&gt;</span>
+                <span class="tag">&lt;li</span> <span class="attr">class</span>=<span class="value">"nav-item"</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;a</span> <span class="attr">class</span>=<span class="value">"nav-link"</span> <span class="attr">href</span>=<span class="value">"?action=create"</span><span class="tag">&gt;</span>Tambah Mahasiswa<span class="tag">&lt;/a&gt;</span>
+                <span class="tag">&lt;/li&gt;</span>
+            <span class="tag">&lt;/ul&gt;</span>
+
+            <span class="comment">&lt;!-- User dropdown --&gt;</span>
+            <span class="tag">&lt;ul</span> <span class="attr">class</span>=<span class="value">"navbar-nav"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;li</span> <span class="attr">class</span>=<span class="value">"nav-item dropdown"</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;a</span> <span class="attr">class</span>=<span class="value">"nav-link dropdown-toggle"</span> <span class="attr">href</span>=<span class="value">"#"</span>
+                       <span class="attr">data-bs-toggle</span>=<span class="value">"dropdown"</span><span class="tag">&gt;</span>
+                        &#128100; <span class="tag">&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$_SESSION</span>[<span class="string">'user_nama'</span>]) <span class="tag">?&gt;</span>
+                        <span class="tag">&lt;?php</span> <span class="keyword">if</span> (<span class="function">isAdmin</span>()): <span class="tag">?&gt;</span>
+                            <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"badge bg-warning"</span><span class="tag">&gt;</span>Admin<span class="tag">&lt;/span&gt;</span>
+                        <span class="tag">&lt;?php</span> <span class="keyword">endif</span>; <span class="tag">?&gt;</span>
+                    <span class="tag">&lt;/a&gt;</span>
+                    <span class="tag">&lt;ul</span> <span class="attr">class</span>=<span class="value">"dropdown-menu dropdown-menu-end"</span><span class="tag">&gt;</span>
+                        <span class="tag">&lt;li&gt;&lt;span</span> <span class="attr">class</span>=<span class="value">"dropdown-item-text text-muted"</span><span class="tag">&gt;</span>
+                            <span class="tag">&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$_SESSION</span>[<span class="string">'user_email'</span>]) <span class="tag">?&gt;</span>
+                        <span class="tag">&lt;/span&gt;&lt;/li&gt;</span>
+                        <span class="tag">&lt;li&gt;&lt;hr</span> <span class="attr">class</span>=<span class="value">"dropdown-divider"</span><span class="tag">&gt;&lt;/li&gt;</span>
+                        <span class="tag">&lt;li&gt;&lt;a</span> <span class="attr">class</span>=<span class="value">"dropdown-item text-danger"</span> <span class="attr">href</span>=<span class="value">"?action=logout"</span><span class="tag">&gt;</span>
+                            &#128682; Logout
+                        <span class="tag">&lt;/a&gt;&lt;/li&gt;</span>
+                    <span class="tag">&lt;/ul&gt;</span>
+                <span class="tag">&lt;/li&gt;</span>
+            <span class="tag">&lt;/ul&gt;</span>
+            <span class="tag">&lt;?php</span> <span class="keyword">endif</span>; <span class="tag">?&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/nav&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 12</div>
+            </div>
+
+            <!-- PAGE 13: SESSION VS COOKIE -->
+            <div class="page-content">
+                <h2 class="section-title">&#128202; PERBANDINGAN SESSION & COOKIE</h2>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspek</th>
+                                <th>Session</th>
+                                <th>Cookie</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Lokasi Penyimpanan</strong></td>
+                                <td>Server (file/database)</td>
+                                <td>Browser pengguna</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kapasitas</strong></td>
+                                <td>Tidak terbatas</td>
+                                <td>~4KB per cookie</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Keamanan</strong></td>
+                                <td>Lebih aman</td>
+                                <td>Bisa dimanipulasi user</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Durasi</strong></td>
+                                <td>Sampai browser ditutup*</td>
+                                <td>Sesuai expiry time</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Akses JavaScript</strong></td>
+                                <td>Tidak bisa</td>
+                                <td>Bisa (jika tidak httponly)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Penggunaan</strong></td>
+                                <td>Data login, cart, dll</td>
+                                <td>Remember me, preferensi</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="subsection-title">Contoh Penggunaan Session & Cookie</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">Operasi Session</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="function">session_start</span>(); <span class="comment">// WAJIB di awal</span>
+
+<span class="comment">// SET session</span>
+<span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>] = <span class="number">123</span>;
+<span class="php-var">$_SESSION</span>[<span class="string">'username'</span>] = <span class="string">'john'</span>;
+
+<span class="comment">// GET session</span>
+<span class="php-var">$userId</span> = <span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>] ?? <span class="keyword">null</span>;
+
+<span class="comment">// CEK session ada</span>
+<span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>])) { <span class="comment">/* logged in */</span> }
+
+<span class="comment">// HAPUS satu session</span>
+<span class="keyword">unset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'username'</span>]);
+
+<span class="comment">// HAPUS semua & destroy</span>
+<span class="php-var">$_SESSION</span> = [];
+<span class="function">session_destroy</span>();
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label php">Operasi Cookie</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">// SET cookie (berlaku 30 hari)</span>
+<span class="function">setcookie</span>(<span class="string">'theme'</span>, <span class="string">'dark'</span>, <span class="function">time</span>() + (<span class="number">30</span>*<span class="number">24</span>*<span class="number">60</span>*<span class="number">60</span>), <span class="string">'/'</span>);
+
+<span class="comment">// SET cookie dengan opsi lengkap (PHP 7.3+)</span>
+<span class="function">setcookie</span>(<span class="string">'token'</span>, <span class="php-var">$value</span>, [
+    <span class="string">'expires'</span> => <span class="function">time</span>() + <span class="number">86400</span>,
+    <span class="string">'path'</span> => <span class="string">'/'</span>,
+    <span class="string">'secure'</span> => <span class="keyword">true</span>,      <span class="comment">// Hanya HTTPS</span>
+    <span class="string">'httponly'</span> => <span class="keyword">true</span>,   <span class="comment">// Tidak bisa diakses JS</span>
+    <span class="string">'samesite'</span> => <span class="string">'Strict'</span> <span class="comment">// Proteksi CSRF</span>
+]);
+
+<span class="comment">// GET cookie</span>
+<span class="php-var">$theme</span> = <span class="php-var">$_COOKIE</span>[<span class="string">'theme'</span>] ?? <span class="string">'light'</span>;
+
+<span class="comment">// HAPUS cookie (set expiry ke masa lalu)</span>
+<span class="function">setcookie</span>(<span class="string">'theme'</span>, <span class="string">''</span>, <span class="function">time</span>() - <span class="number">3600</span>, <span class="string">'/'</span>);
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 13</div>
+            </div>
+
+            <!-- PAGE 14: KEAMANAN -->
+            <div class="page-content">
+                <h2 class="section-title">&#128737; TIPS KEAMANAN AUTENTIKASI</h2>
+
+                <div class="danger-box">
+                    <strong>JANGAN PERNAH:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>Menyimpan password dalam plain text</li>
+                        <li>Menyimpan data sensitif di cookie</li>
+                        <li>Menampilkan pesan error terlalu detail ("Password salah" vs "Email tidak terdaftar")</li>
+                        <li>Lupa regenerate session ID setelah login</li>
+                    </ul>
+                </div>
+
+                <div class="success-box">
+                    <strong>SELALU LAKUKAN:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>Gunakan <code>password_hash()</code> dan <code>password_verify()</code></li>
+                        <li>Set <code>httponly</code> dan <code>secure</code> pada cookie sensitif</li>
+                        <li>Gunakan <code>session_regenerate_id(true)</code> setelah login</li>
+                        <li>Validasi input di server (jangan percaya client)</li>
+                        <li>Gunakan prepared statements untuk query database</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Checklist Keamanan Login</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Checklist</th><th>Status</th><th>Keterangan</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Password di-hash</td>
+                                <td>&#9989;</td>
+                                <td><code>password_hash()</code></td>
+                            </tr>
+                            <tr>
+                                <td>Session regenerate</td>
+                                <td>&#9989;</td>
+                                <td><code>session_regenerate_id(true)</code></td>
+                            </tr>
+                            <tr>
+                                <td>Cookie httponly</td>
+                                <td>&#9989;</td>
+                                <td>Tidak bisa diakses JavaScript</td>
+                            </tr>
+                            <tr>
+                                <td>Prepared statements</td>
+                                <td>&#9989;</td>
+                                <td>Mencegah SQL Injection</td>
+                            </tr>
+                            <tr>
+                                <td>Input validation</td>
+                                <td>&#9989;</td>
+                                <td>Server-side validation</td>
+                            </tr>
+                            <tr>
+                                <td>CSRF Protection</td>
+                                <td>&#128312;</td>
+                                <td>Opsional (advanced)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-box">
+                    <strong>&#128161; Tip:</strong> Untuk aplikasi production, pertimbangkan juga:
+                    <ul style="margin-top: 8px; margin-left: 15px;">
+                        <li>Rate limiting (mencegah brute force)</li>
+                        <li>CSRF token pada form</li>
+                        <li>Two-Factor Authentication (2FA)</li>
+                        <li>Password strength validation</li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 14</div>
+            </div>
+
+            <!-- PAGE 15: TUGAS -->
+            <div class="page-content">
+                <h2 class="section-title">&#128203; TUGAS PRAKTIKUM</h2>
+
+                <div class="project-card">
+                    <h3>&#9989; Tugas: Implementasi Sistem Login</h3>
+                    <p style="margin-bottom: 15px;">Implementasikan sistem autentikasi pada <strong>project masing-masing</strong>:</p>
+                    <ol style="margin-left: 20px; line-height: 2.2;">
+                        <li>Buat tabel <code>users</code> dengan field yang sesuai</li>
+                        <li>Implementasi fitur <strong>Register</strong> dengan validasi</li>
+                        <li>Implementasi fitur <strong>Login</strong> dengan password hashing</li>
+                        <li>Implementasi fitur <strong>Logout</strong></li>
+                        <li>Tambahkan fitur <strong>Remember Me</strong> dengan cookie</li>
+                        <li>Proteksi halaman dengan <code>requireLogin()</code></li>
+                        <li>Tampilkan info user yang login di navbar</li>
+                    </ol>
+                </div>
+
+                <h3 class="subsection-title">Kriteria Penilaian</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Aspek</th><th>Bobot</th><th>Kriteria</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Register</td><td>20%</td><td>Validasi lengkap, password hash</td></tr>
+                            <tr><td>Login</td><td>25%</td><td>Verifikasi password, session</td></tr>
+                            <tr><td>Logout</td><td>10%</td><td>Hapus session & cookie</td></tr>
+                            <tr><td>Remember Me</td><td>15%</td><td>Cookie dengan token aman</td></tr>
+                            <tr><td>Proteksi Halaman</td><td>15%</td><td>Middleware requireLogin</td></tr>
+                            <tr><td>Keamanan</td><td>15%</td><td>Sesuai checklist keamanan</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warning-box" style="margin-top: 25px;">
+                    <strong>&#128679; Ingat!</strong> Sesuaikan implementasi dengan tema project masing-masing (Toko Online, Perpustakaan, E-Voting, dll). Field user bisa disesuaikan dengan kebutuhan project.
+                </div>
+
+                <div style="margin-top: 40px; padding: 30px; background: #f8f9fa; border-radius: 15px; border-left: 5px solid #3949ab;">
+                    <h3 style="color: #1a237e; margin-bottom: 15px;">&#128231; Contact Information</h3>
+                    <p><strong>Dosen:</strong> Ikhwan Alfath Nurul Fathony, S.Kom., M.Kom.</p>
+                    <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="157c7e7d62747b3b74797374617d55607b617c7174673b74763b7c71">[email&#160;protected]</a></p>
+                </div>
+
+                <div style="margin-top: 30px; font-size: 0.9em; color: #888; text-align: center;">
+                    <p>&copy; 2025 Program Studi Teknologi Informasi - Universitas Tidar</p>
+                </div>
+
+                <div class="page-number">Halaman 15</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Home') { e.preventDefault(); scrollToTop(); }
+            if (e.key === 'End') { e.preventDefault(); scrollToBottom(); }
+        });
+    </script>
+</body>
+</html>

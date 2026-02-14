@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul Praktikum Pertemuan 3 - HTML & CSS Dasar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; overflow-x: hidden; }
+        .book-container { max-width: 900px; margin: 50px auto; }
+        .book { background: #fff; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden; }
+        .controls { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; }
+        .control-btn { background: rgba(255,255,255,0.9); border: none; padding: 10px 15px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s ease; }
+        .control-btn:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* Cover */
+        .cover-page { background: linear-gradient(135deg, #0c3b2e 0%, #1d976c 50%, #38ef7d 100%); color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+        .cover-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 30% 20%, rgba(56,239,125,0.2) 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, rgba(29,151,108,0.25) 0%, transparent 50%); z-index: 1; }
+        .cover-page::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.12) 50%, transparent 50%), radial-gradient(1px 1px at 45% 10%, rgba(255,255,255,0.1) 50%, transparent 50%), radial-gradient(1px 1px at 75% 25%, rgba(255,255,255,0.12) 50%, transparent 50%), radial-gradient(1px 1px at 55% 65%, rgba(255,255,255,0.08) 50%, transparent 50%); z-index: 1; animation: twinkle 4s ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .cover-content { position: relative; z-index: 2; padding: 50px 40px; }
+        .cover-top-bar { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 35px; animation: fadeInUp 0.8s ease-out; }
+        .cover-top-bar .bar-line { flex: 1; max-width: 120px; height: 1px; background: linear-gradient(90deg, transparent, rgba(56,239,125,0.6), transparent); }
+        .cover-university-badge { display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 10px 24px; border-radius: 50px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+        .cover-code-icons { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; animation: fadeInUp 0.9s ease-out; }
+        .cover-code-icons .code-icon { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 14px 18px; font-size: 26px; animation: float 3s ease-in-out infinite; }
+        .cover-code-icons .code-icon:nth-child(2) { animation-delay: 0.5s; }
+        .cover-code-icons .code-icon:nth-child(3) { animation-delay: 1s; }
+        .cover-label { display: inline-block; background: linear-gradient(135deg, rgba(56,239,125,0.2), rgba(56,239,125,0.05)); border: 1px solid rgba(56,239,125,0.4); padding: 8px 28px; border-radius: 6px; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #38ef7d; margin-bottom: 25px; animation: fadeInUp 1s ease-out; }
+        .cover-main-title { font-size: 3em; font-weight: 800; margin-bottom: 8px; text-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: 2px; line-height: 1.2; animation: fadeInUp 1.1s ease-out; }
+        .cover-course-name { font-size: 1.5em; font-weight: 300; margin-bottom: 35px; opacity: 0.85; animation: fadeInUp 1.2s ease-out; }
+        .cover-meeting-badge { display: inline-flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #38ef7d, #1d976c); color: #0c3b2e; padding: 14px 40px; border-radius: 50px; font-size: 1.3em; font-weight: 700; margin-bottom: 15px; box-shadow: 0 8px 30px rgba(56,239,125,0.35); animation: fadeInUp 1.3s ease-out; }
+        .cover-meeting-badge .meeting-number { background: rgba(0,0,0,0.15); width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+        .cover-topic { font-size: 1.1em; color: rgba(255,255,255,0.85); margin-bottom: 40px; max-width: 550px; margin-left: auto; margin-right: auto; line-height: 1.6; animation: fadeInUp 1.4s ease-out; }
+        .cover-info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 650px; margin: 0 auto; animation: fadeInUp 1.5s ease-out; }
+        .cover-info-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 18px 12px; transition: all 0.3s ease; }
+        .cover-info-card:hover { background: rgba(255,255,255,0.12); border-color: rgba(56,239,125,0.4); transform: translateY(-4px); }
+        .cover-info-card .card-icon { font-size: 24px; margin-bottom: 8px; }
+        .cover-info-card .card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #38ef7d; margin-bottom: 4px; }
+        .cover-info-card .card-value { font-size: 13px; font-weight: 500; }
+
+        /* Page Styles */
+        .page-content { padding: 60px 50px; line-height: 1.8; font-size: 16px; color: #333; }
+        .page-number { text-align: right; font-size: 14px; color: #999; margin-top: 40px; padding-top: 15px; border-top: 1px solid #eee; }
+        .section-title { color: #1d976c; font-size: 1.9em; font-weight: 700; margin: 40px 0 20px 0; position: relative; }
+        .section-title::before { content: ''; position: absolute; left: 0; bottom: -5px; width: 60px; height: 3px; background: #38ef7d; }
+        .subsection-title { color: #0c3b2e; font-size: 1.35em; font-weight: 600; margin: 30px 0 15px 0; }
+        .objective-list, .content-list { margin: 20px 0; padding-left: 20px; }
+        .objective-list li, .content-list li { margin: 10px 0; position: relative; }
+        .objective-list li::before { content: '\1F3AF'; position: absolute; left: -25px; }
+        .content-list li::before { content: '\1F4CB'; position: absolute; left: -25px; }
+        .learning-outcomes { background: linear-gradient(135deg, #f0fff4 0%, #fff 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #1d976c; box-shadow: 0 5px 15px rgba(29,151,108,0.1); }
+        .lab-setup { background: linear-gradient(135deg, #e6ffed 0%, #f0fff4 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #38ef7d; }
+        .warning-box { background: #fff3cd; border-left: 5px solid #f39c12; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .warning-box::before { content: '\26A0\FE0F'; margin-right: 10px; }
+        .info-box { background: #d1ecf1; border-left: 5px solid #17a2b8; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .info-box::before { content: '\2139\FE0F'; margin-right: 10px; }
+        .success-box { background: #d4edda; border-left: 5px solid #28a745; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .success-box::before { content: '\2705'; margin-right: 10px; }
+        .step-item { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 25px; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.08); transition: all 0.3s ease; }
+        .step-item:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+        .step-number { background: #1d976c; color: white; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 15px; }
+        .step-title { color: #1d976c; font-weight: 600; font-size: 1.1em; margin-bottom: 10px; }
+
+        /* Code Block */
+        .code-block { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 20px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; margin: 20px 0; overflow-x: auto; color: #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; }
+        .code-block::before { content: ''; position: absolute; top: 12px; left: 15px; width: 10px; height: 10px; background: #ff5f57; border-radius: 50%; box-shadow: 16px 0 0 #ffbd2e, 32px 0 0 #28ca42; }
+        .code-block code { display: block; margin-top: 10px; white-space: pre; line-height: 1.6; }
+        .code-label { display: inline-block; background: #1d976c; color: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-bottom: 8px; }
+
+        /* Syntax Highlighting */
+        .tag { color: #ff79c6; }
+        .attr { color: #50fa7b; }
+        .value { color: #f1fa8c; }
+        .comment { color: #6272a4; font-style: italic; }
+        .selector { color: #ff79c6; }
+        .property { color: #8be9fd; }
+        .css-value { color: #f1fa8c; }
+
+        /* Table */
+        .table-container { overflow-x: auto; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #1d976c; color: white; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+
+        /* UI Demo */
+        .ui-demo { border: 2px solid #ddd; border-radius: 10px; overflow: hidden; margin: 15px 0; background: white; }
+        .ui-demo-bar { background: #e0e0e0; padding: 8px 15px; display: flex; align-items: center; gap: 6px; }
+        .ui-demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .ui-demo-dot.red { background: #ff5f57; }
+        .ui-demo-dot.yellow { background: #ffbd2e; }
+        .ui-demo-dot.green { background: #28ca42; }
+        .ui-demo-body { padding: 20px; }
+
+        /* Project Card */
+        .project-card { background: linear-gradient(135deg, #1d976c, #0c3b2e); color: white; border-radius: 16px; padding: 30px; margin: 25px 0; }
+        .project-card h3 { color: #38ef7d; margin-bottom: 15px; }
+
+        @media (max-width: 768px) {
+            .book-container { margin: 15px; }
+            .page-content { padding: 30px 20px; }
+            .cover-main-title { font-size: 2em; }
+            .cover-info-cards { grid-template-columns: 1fr; max-width: 280px; }
+            .code-block { font-size: 11px; padding: 15px; }
+        }
+        .smooth-scroll { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="smooth-scroll">
+    <div class="controls">
+        <button class="control-btn" onclick="scrollToTop()">&#11014;&#65039; Top</button>
+        <button class="control-btn" onclick="scrollToBottom()">&#11015;&#65039; Bottom</button>
+        <button class="control-btn" onclick="toggleFullscreen()" id="fullscreenBtn">&#128269; Fullscreen</button>
+    </div>
+
+    <div class="book-container">
+        <div class="book">
+
+            <!-- COVER PAGE -->
+            <div class="cover-page">
+                <div class="cover-content">
+                    <div class="cover-top-bar">
+                        <div class="bar-line"></div>
+                        <div class="cover-university-badge">
+                            <span>&#127891;</span>
+                            <span>Universitas Tidar</span>
+                        </div>
+                        <div class="bar-line"></div>
+                    </div>
+                    <div class="cover-code-icons">
+                        <div class="code-icon">&lt;/&gt;</div>
+                        <div class="code-icon">{ }</div>
+                        <div class="code-icon">#</div>
+                    </div>
+                    <div class="cover-label">Modul Praktikum</div>
+                    <h1 class="cover-main-title">HTML & CSS<br>DASAR</h1>
+                    <p class="cover-course-name">Struktur &amp; Styling Halaman Web</p>
+                    <div class="cover-meeting-badge">
+                        <span class="meeting-number">03</span>
+                        <span>PERTEMUAN 3</span>
+                    </div>
+                    <p class="cover-topic">Membangun Fondasi Project Web dengan HTML Semantik dan CSS Modern</p>
+                    <div class="cover-info-cards">
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128218;</div>
+                            <div class="card-label">Program Studi</div>
+                            <div class="card-value">S1 Teknologi Informasi</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128101;</div>
+                            <div class="card-label">Mode</div>
+                            <div class="card-value">Project Kelompok</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128197;</div>
+                            <div class="card-label">Tahun Akademik</div>
+                            <div class="card-value">Genap 2024/2025</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 1: INFO MODUL -->
+            <div class="page-content">
+                <div style="text-align: center; padding: 40px 0; background: linear-gradient(135deg, #1d976c 0%, #0c3b2e 100%); color: white; border-radius: 15px; margin-bottom: 40px;">
+                    <div style="font-size: 50px; margin-bottom: 15px;">&lt;/&gt;</div>
+                    <h1 style="font-size: 2.2em; font-weight: 700; margin-bottom: 10px;">PERTEMUAN 3</h1>
+                    <h2 style="font-size: 1.3em; opacity: 0.9;">Struktur HTML & Styling CSS</h2>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                    <h3 style="color: #1d976c; margin-bottom: 15px; text-align: center;">&#128203; Informasi Mata Kuliah</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #1d976c;">
+                            <p><strong style="color: #1d976c;">Mata Kuliah:</strong> Praktikum Aplikasi Web</p>
+                            <p><strong style="color: #1d976c;">Kode:</strong> TFC355</p>
+                            <p><strong style="color: #1d976c;">SKS:</strong> 1 SKS</p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #38ef7d;">
+                            <p><strong style="color: #1d976c;">Dosen:</strong> Ikhwan Alfath N.F., S.Kom., M.Kom.</p>
+                            <p><strong style="color: #1d976c;">Durasi:</strong> 1 x 150 menit</p>
+                            <p><strong style="color: #1d976c;">Metode:</strong> Discovery Learning + Project Based</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="learning-outcomes">
+                    <h3 class="subsection-title" style="color: #1d976c;">&#127919; Capaian Pembelajaran</h3>
+                    <ul class="objective-list">
+                        <li><strong>Kemampuan Akhir:</strong> Mahasiswa mampu membuat struktur dasar halaman web menggunakan HTML dan CSS</li>
+                        <li>Memahami struktur dokumen HTML5 dan tag-tag semantik</li>
+                        <li>Mampu menerapkan styling CSS untuk mengatur tampilan halaman web</li>
+                        <li>Memahami Box Model, Flexbox, dan dasar layout CSS</li>
+                        <li>Mampu membuat halaman web statis yang siap dikembangkan menjadi aplikasi PHP</li>
+                    </ul>
+                </div>
+
+                <div class="project-card">
+                    <h3>&#128101; Project Kelompok - Dimulai!</h3>
+                    <p style="margin-bottom: 15px;">Mulai pertemuan ini, mahasiswa bekerja dalam <strong>kelompok (3-4 orang)</strong> untuk membangun project web berdasarkan:</p>
+                    <ul style="margin-left: 20px; line-height: 2;">
+                        <li>&#9989; <strong>Flowchart</strong> yang sudah dibuat di Pertemuan 1</li>
+                        <li>&#9989; <strong>Wireframe/Mockup</strong> yang sudah didesain di Pertemuan 2</li>
+                        <li>&#9989; Project akan dikembangkan hingga menjadi aplikasi <strong>CRUD dengan PHP & MySQL</strong></li>
+                    </ul>
+                    <p style="margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px;"><strong>Tema Project:</strong> Sistem Informasi Akademik (Data Mahasiswa, Mata Kuliah, dll.) atau sesuai persetujuan dosen.</p>
+                </div>
+
+                <div class="page-number">Halaman 1</div>
+            </div>
+
+            <!-- PAGE 2: PENGANTAR HTML -->
+            <div class="page-content">
+                <h2 class="section-title">&#128196; BAGIAN 1: PENGANTAR HTML</h2>
+
+                <h3 class="subsection-title">Apa itu HTML?</h3>
+                <p><strong>HTML (HyperText Markup Language)</strong> adalah bahasa markup standar untuk membuat struktur halaman web. HTML bukanlah bahasa pemrograman, melainkan bahasa yang memberikan "tanda" (markup) pada konten agar browser tahu cara menampilkannya.</p>
+
+                <div class="lab-setup">
+                    <h4 style="color: #0c3b2e; margin-bottom: 12px;">Konsep Dasar HTML:</h4>
+                    <ul class="content-list">
+                        <li><strong>Tag:</strong> Penanda yang mengapit konten, contoh: <code>&lt;p&gt;...&lt;/p&gt;</code></li>
+                        <li><strong>Element:</strong> Tag pembuka + konten + tag penutup</li>
+                        <li><strong>Attribute:</strong> Informasi tambahan pada tag, contoh: <code>class="nama"</code></li>
+                        <li><strong>Nesting:</strong> Tag di dalam tag (bersarang)</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Struktur Dasar Dokumen HTML5</h3>
+                <p>Setiap halaman HTML memiliki struktur dasar yang harus diikuti:</p>
+
+                <div class="code-block">
+                    <span class="code-label">index.html</span>
+                    <code><span class="comment">&lt;!-- Deklarasi tipe dokumen HTML5 --&gt;</span>
+<span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="value">"id"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+    <span class="comment">&lt;!-- Meta informasi halaman --&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="value">"UTF-8"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="value">"viewport"</span> <span class="attr">content</span>=<span class="value">"width=device-width, initial-scale=1.0"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;title&gt;</span>Judul Halaman<span class="tag">&lt;/title&gt;</span>
+    <span class="comment">&lt;!-- Link ke file CSS --&gt;</span>
+    <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"stylesheet"</span> <span class="attr">href</span>=<span class="value">"style.css"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+    <span class="comment">&lt;!-- Konten halaman di sini --&gt;</span>
+    <span class="tag">&lt;h1&gt;</span>Selamat Datang<span class="tag">&lt;/h1&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Ini adalah paragraf pertama.<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></code>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Bagian</th><th>Fungsi</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>&lt;!DOCTYPE html&gt;</code></td><td>Deklarasi bahwa dokumen ini adalah HTML5</td></tr>
+                            <tr><td><code>&lt;html&gt;</code></td><td>Elemen root yang membungkus seluruh halaman</td></tr>
+                            <tr><td><code>&lt;head&gt;</code></td><td>Informasi meta, title, link CSS (tidak tampil di halaman)</td></tr>
+                            <tr><td><code>&lt;body&gt;</code></td><td>Konten yang tampil di browser</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="page-number">Halaman 2</div>
+            </div>
+
+            <!-- PAGE 3: TAG HTML UMUM -->
+            <div class="page-content">
+                <h3 class="subsection-title">Tag HTML yang Sering Digunakan</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th style="width:25%;">Tag</th><th>Fungsi</th><th>Contoh</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>&lt;h1&gt;</code> - <code>&lt;h6&gt;</code></td><td>Heading (judul) level 1-6</td><td><code>&lt;h1&gt;Judul Utama&lt;/h1&gt;</code></td></tr>
+                            <tr><td><code>&lt;p&gt;</code></td><td>Paragraf teks</td><td><code>&lt;p&gt;Ini paragraf.&lt;/p&gt;</code></td></tr>
+                            <tr><td><code>&lt;a&gt;</code></td><td>Link/anchor</td><td><code>&lt;a href="url"&gt;Klik&lt;/a&gt;</code></td></tr>
+                            <tr><td><code>&lt;img&gt;</code></td><td>Gambar</td><td><code>&lt;img src="foto.jpg" alt="Foto"&gt;</code></td></tr>
+                            <tr><td><code>&lt;div&gt;</code></td><td>Container/pembungkus (block)</td><td><code>&lt;div class="box"&gt;...&lt;/div&gt;</code></td></tr>
+                            <tr><td><code>&lt;span&gt;</code></td><td>Container inline</td><td><code>&lt;span class="highlight"&gt;teks&lt;/span&gt;</code></td></tr>
+                            <tr><td><code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>, <code>&lt;li&gt;</code></td><td>List (unordered/ordered)</td><td><code>&lt;ul&gt;&lt;li&gt;Item&lt;/li&gt;&lt;/ul&gt;</code></td></tr>
+                            <tr><td><code>&lt;table&gt;</code>, <code>&lt;tr&gt;</code>, <code>&lt;td&gt;</code></td><td>Tabel, baris, sel</td><td>Lihat contoh di bawah</td></tr>
+                            <tr><td><code>&lt;form&gt;</code></td><td>Form untuk input data</td><td><code>&lt;form action="" method="post"&gt;</code></td></tr>
+                            <tr><td><code>&lt;input&gt;</code></td><td>Input field</td><td><code>&lt;input type="text" name="nama"&gt;</code></td></tr>
+                            <tr><td><code>&lt;button&gt;</code></td><td>Tombol</td><td><code>&lt;button type="submit"&gt;Kirim&lt;/button&gt;</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="subsection-title">HTML Semantik</h3>
+                <p>HTML5 memperkenalkan tag semantik yang memberikan makna pada struktur halaman:</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div class="code-block" style="margin: 0;">
+                        <span class="code-label">Non-Semantik (Lama)</span>
+                        <code><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="value">"header"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="value">"nav"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="value">"main"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="value">"footer"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span></code>
+                    </div>
+                    <div class="code-block" style="margin: 0;">
+                        <span class="code-label">Semantik (Modern) &#9989;</span>
+                        <code><span class="tag">&lt;header&gt;</span>...<span class="tag">&lt;/header&gt;</span>
+<span class="tag">&lt;nav&gt;</span>...<span class="tag">&lt;/nav&gt;</span>
+<span class="tag">&lt;main&gt;</span>...<span class="tag">&lt;/main&gt;</span>
+<span class="tag">&lt;footer&gt;</span>...<span class="tag">&lt;/footer&gt;</span></code>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Tag Semantik</th><th>Fungsi</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>&lt;header&gt;</code></td><td>Bagian header halaman/section</td></tr>
+                            <tr><td><code>&lt;nav&gt;</code></td><td>Navigasi utama</td></tr>
+                            <tr><td><code>&lt;main&gt;</code></td><td>Konten utama halaman</td></tr>
+                            <tr><td><code>&lt;section&gt;</code></td><td>Section/bagian konten</td></tr>
+                            <tr><td><code>&lt;article&gt;</code></td><td>Konten independen (artikel, post)</td></tr>
+                            <tr><td><code>&lt;aside&gt;</code></td><td>Sidebar atau konten sampingan</td></tr>
+                            <tr><td><code>&lt;footer&gt;</code></td><td>Bagian footer</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-box">
+                    <strong>Mengapa Semantik Penting?</strong> Tag semantik membantu: 1) SEO lebih baik, 2) Aksesibilitas (screen reader), 3) Kode lebih mudah dibaca dan dimaintain.
+                </div>
+
+                <div class="page-number">Halaman 3</div>
+            </div>
+
+            <!-- PAGE 4: FORM HTML -->
+            <div class="page-content">
+                <h3 class="subsection-title">Form HTML - Penting untuk CRUD!</h3>
+                <p>Form adalah elemen krusial dalam aplikasi web karena digunakan untuk menerima input dari pengguna. Nantinya form ini akan memproses data ke PHP.</p>
+
+                <div class="code-block">
+                    <span class="code-label">Contoh Form Lengkap</span>
+                    <code><span class="tag">&lt;form</span> <span class="attr">action</span>=<span class="value">"proses.php"</span> <span class="attr">method</span>=<span class="value">"POST"</span><span class="tag">&gt;</span>
+    <span class="comment">&lt;!-- Input Text --&gt;</span>
+    <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="value">"nama"</span><span class="tag">&gt;</span>Nama:<span class="tag">&lt;/label&gt;</span>
+    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"text"</span> <span class="attr">id</span>=<span class="value">"nama"</span> <span class="attr">name</span>=<span class="value">"nama"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+
+    <span class="comment">&lt;!-- Input Email --&gt;</span>
+    <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="value">"email"</span><span class="tag">&gt;</span>Email:<span class="tag">&lt;/label&gt;</span>
+    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"email"</span> <span class="attr">id</span>=<span class="value">"email"</span> <span class="attr">name</span>=<span class="value">"email"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+
+    <span class="comment">&lt;!-- Input Password --&gt;</span>
+    <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="value">"password"</span><span class="tag">&gt;</span>Password:<span class="tag">&lt;/label&gt;</span>
+    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"password"</span> <span class="attr">id</span>=<span class="value">"password"</span> <span class="attr">name</span>=<span class="value">"password"</span><span class="tag">&gt;</span>
+
+    <span class="comment">&lt;!-- Select/Dropdown --&gt;</span>
+    <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="value">"prodi"</span><span class="tag">&gt;</span>Program Studi:<span class="tag">&lt;/label&gt;</span>
+    <span class="tag">&lt;select</span> <span class="attr">id</span>=<span class="value">"prodi"</span> <span class="attr">name</span>=<span class="value">"prodi"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="value">""</span><span class="tag">&gt;</span>-- Pilih --<span class="tag">&lt;/option&gt;</span>
+        <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="value">"TI"</span><span class="tag">&gt;</span>Teknologi Informasi<span class="tag">&lt;/option&gt;</span>
+        <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="value">"SI"</span><span class="tag">&gt;</span>Sistem Informasi<span class="tag">&lt;/option&gt;</span>
+    <span class="tag">&lt;/select&gt;</span>
+
+    <span class="comment">&lt;!-- Textarea --&gt;</span>
+    <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="value">"alamat"</span><span class="tag">&gt;</span>Alamat:<span class="tag">&lt;/label&gt;</span>
+    <span class="tag">&lt;textarea</span> <span class="attr">id</span>=<span class="value">"alamat"</span> <span class="attr">name</span>=<span class="value">"alamat"</span> <span class="attr">rows</span>=<span class="value">"3"</span><span class="tag">&gt;&lt;/textarea&gt;</span>
+
+    <span class="comment">&lt;!-- Tombol Submit --&gt;</span>
+    <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="value">"submit"</span><span class="tag">&gt;</span>Simpan Data<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span></code>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Atribut Form</th><th>Fungsi</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>action</code></td><td>URL tujuan pengiriman data (file PHP yang akan memproses)</td></tr>
+                            <tr><td><code>method</code></td><td><code>GET</code> (data di URL) atau <code>POST</code> (data tersembunyi)</td></tr>
+                            <tr><td><code>name</code></td><td>Nama field, akan menjadi key di PHP (<code>$_POST['nama']</code>)</td></tr>
+                            <tr><td><code>id</code></td><td>Identifier unik, digunakan untuk label dan CSS/JS</td></tr>
+                            <tr><td><code>required</code></td><td>Field wajib diisi</td></tr>
+                            <tr><td><code>placeholder</code></td><td>Teks petunjuk di dalam input</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Penting untuk Project:</strong> Atribut <code>name</code> pada setiap input HARUS ada karena akan digunakan untuk mengambil data di PHP dengan <code>$_POST['nama_field']</code> atau <code>$_GET['nama_field']</code>.
+                </div>
+
+                <div class="page-number">Halaman 4</div>
+            </div>
+
+            <!-- PAGE 5: PENGANTAR CSS -->
+            <div class="page-content">
+                <h2 class="section-title">&#127912; BAGIAN 2: PENGANTAR CSS</h2>
+
+                <h3 class="subsection-title">Apa itu CSS?</h3>
+                <p><strong>CSS (Cascading Style Sheets)</strong> adalah bahasa yang digunakan untuk mengatur tampilan visual elemen HTML. CSS memisahkan konten (HTML) dari presentasi (tampilan).</p>
+
+                <div class="lab-setup">
+                    <h4 style="color: #0c3b2e; margin-bottom: 12px;">3 Cara Menambahkan CSS:</h4>
+                    <div style="display: grid; gap: 15px; margin-top: 10px;">
+                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <strong>1. Inline CSS</strong> - langsung di atribut style tag<br>
+                            <code>&lt;p style="color: red;"&gt;Teks merah&lt;/p&gt;</code>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px;">
+                            <strong>2. Internal CSS</strong> - di dalam tag &lt;style&gt; di head<br>
+                            <code>&lt;style&gt; p { color: red; } &lt;/style&gt;</code>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #38ef7d;">
+                            <strong>3. External CSS &#9989; (Rekomendasi)</strong> - file terpisah<br>
+                            <code>&lt;link rel="stylesheet" href="style.css"&gt;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Sintaks CSS</h3>
+                <div class="code-block">
+                    <span class="code-label">Struktur Dasar CSS</span>
+                    <code><span class="selector">selector</span> {
+    <span class="property">property</span>: <span class="css-value">value</span>;
+    <span class="property">property</span>: <span class="css-value">value</span>;
+}
+
+<span class="comment">/* Contoh: */</span>
+<span class="selector">h1</span> {
+    <span class="property">color</span>: <span class="css-value">#1d976c</span>;
+    <span class="property">font-size</span>: <span class="css-value">24px</span>;
+    <span class="property">margin-bottom</span>: <span class="css-value">15px</span>;
+}
+
+<span class="selector">p</span> {
+    <span class="property">color</span>: <span class="css-value">#333</span>;
+    <span class="property">line-height</span>: <span class="css-value">1.6</span>;
+}</code>
+                </div>
+
+                <h3 class="subsection-title">CSS Selector</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Selector</th><th>Contoh</th><th>Memilih</th></tr></thead>
+                        <tbody>
+                            <tr><td>Element</td><td><code>p { }</code></td><td>Semua elemen &lt;p&gt;</td></tr>
+                            <tr><td>Class</td><td><code>.box { }</code></td><td>Elemen dengan class="box"</td></tr>
+                            <tr><td>ID</td><td><code>#header { }</code></td><td>Elemen dengan id="header"</td></tr>
+                            <tr><td>Descendant</td><td><code>nav a { }</code></td><td>Semua &lt;a&gt; di dalam &lt;nav&gt;</td></tr>
+                            <tr><td>Child</td><td><code>ul > li { }</code></td><td>&lt;li&gt; yang langsung di dalam &lt;ul&gt;</td></tr>
+                            <tr><td>Pseudo-class</td><td><code>a:hover { }</code></td><td>&lt;a&gt; saat mouse di atasnya</td></tr>
+                            <tr><td>Multiple</td><td><code>h1, h2, h3 { }</code></td><td>h1, h2, dan h3 sekaligus</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-box">
+                    <strong>Best Practice:</strong> Gunakan <code>class</code> untuk styling yang bisa dipakai ulang. Gunakan <code>id</code> hanya untuk elemen unik (biasanya untuk JavaScript). Hindari inline CSS.
+                </div>
+
+                <div class="page-number">Halaman 5</div>
+            </div>
+
+            <!-- PAGE 6: CSS PROPERTY -->
+            <div class="page-content">
+                <h3 class="subsection-title">CSS Property yang Sering Digunakan</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th style="width: 30%;">Property</th><th>Fungsi</th><th>Contoh Value</th></tr></thead>
+                        <tbody>
+                            <tr><td colspan="3" style="background: #e6ffed; font-weight: 600;">&#128395; Teks & Font</td></tr>
+                            <tr><td><code>color</code></td><td>Warna teks</td><td><code>#333</code>, <code>red</code>, <code>rgb(0,0,0)</code></td></tr>
+                            <tr><td><code>font-size</code></td><td>Ukuran font</td><td><code>16px</code>, <code>1.2em</code>, <code>1rem</code></td></tr>
+                            <tr><td><code>font-weight</code></td><td>Ketebalan font</td><td><code>normal</code>, <code>bold</code>, <code>600</code></td></tr>
+                            <tr><td><code>font-family</code></td><td>Jenis font</td><td><code>'Segoe UI', sans-serif</code></td></tr>
+                            <tr><td><code>text-align</code></td><td>Perataan teks</td><td><code>left</code>, <code>center</code>, <code>right</code></td></tr>
+                            <tr><td><code>line-height</code></td><td>Jarak antar baris</td><td><code>1.5</code>, <code>24px</code></td></tr>
+                            <tr><td colspan="3" style="background: #e6ffed; font-weight: 600;">&#127912; Background & Warna</td></tr>
+                            <tr><td><code>background-color</code></td><td>Warna latar</td><td><code>#f8f9fa</code>, <code>white</code></td></tr>
+                            <tr><td><code>background-image</code></td><td>Gambar latar</td><td><code>url('bg.jpg')</code></td></tr>
+                            <tr><td colspan="3" style="background: #e6ffed; font-weight: 600;">&#128207; Ukuran & Spacing</td></tr>
+                            <tr><td><code>width</code>, <code>height</code></td><td>Lebar & tinggi</td><td><code>100%</code>, <code>300px</code>, <code>auto</code></td></tr>
+                            <tr><td><code>padding</code></td><td>Jarak dalam (isi ke border)</td><td><code>10px</code>, <code>10px 20px</code></td></tr>
+                            <tr><td><code>margin</code></td><td>Jarak luar (border ke elemen lain)</td><td><code>0 auto</code>, <code>20px 0</code></td></tr>
+                            <tr><td colspan="3" style="background: #e6ffed; font-weight: 600;">&#128230; Border & Shadow</td></tr>
+                            <tr><td><code>border</code></td><td>Garis tepi</td><td><code>1px solid #ddd</code></td></tr>
+                            <tr><td><code>border-radius</code></td><td>Sudut melengkung</td><td><code>8px</code>, <code>50%</code></td></tr>
+                            <tr><td><code>box-shadow</code></td><td>Bayangan</td><td><code>0 2px 10px rgba(0,0,0,0.1)</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="subsection-title">Box Model</h3>
+                <p>Setiap elemen HTML adalah sebuah "box" yang terdiri dari: Content, Padding, Border, dan Margin.</p>
+
+                <div style="max-width: 450px; margin: 20px auto; text-align: center;">
+                    <div style="background: #ffcccb; padding: 20px; border-radius: 8px;">
+                        <span style="font-size: 12px; color: #c0392b;">MARGIN</span>
+                        <div style="background: #ffe4b5; padding: 20px; border-radius: 6px; margin-top: 8px;">
+                            <span style="font-size: 12px; color: #e67e22;">BORDER</span>
+                            <div style="background: #90ee90; padding: 20px; border-radius: 4px; margin-top: 8px;">
+                                <span style="font-size: 12px; color: #27ae60;">PADDING</span>
+                                <div style="background: #87ceeb; padding: 25px; border-radius: 4px; margin-top: 8px;">
+                                    <span style="font-size: 13px; font-weight: 600; color: #2980b9;">CONTENT</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">Box Model CSS</span>
+                    <code><span class="selector">.card</span> {
+    <span class="property">width</span>: <span class="css-value">300px</span>;            <span class="comment">/* Lebar content */</span>
+    <span class="property">padding</span>: <span class="css-value">20px</span>;           <span class="comment">/* Jarak dalam */</span>
+    <span class="property">border</span>: <span class="css-value">1px solid #ddd</span>;  <span class="comment">/* Garis tepi */</span>
+    <span class="property">margin</span>: <span class="css-value">15px</span>;            <span class="comment">/* Jarak luar */</span>
+    <span class="property">box-sizing</span>: <span class="css-value">border-box</span>;  <span class="comment">/* Width termasuk padding+border */</span>
+}</code>
+                </div>
+
+                <div class="page-number">Halaman 6</div>
+            </div>
+
+            <!-- PAGE 7: FLEXBOX -->
+            <div class="page-content">
+                <h3 class="subsection-title">Layout dengan Flexbox</h3>
+                <p><strong>Flexbox</strong> adalah metode layout CSS modern yang memudahkan pengaturan posisi dan ukuran elemen dalam satu baris atau kolom.</p>
+
+                <div class="code-block">
+                    <span class="code-label">Flexbox Dasar</span>
+                    <code><span class="comment">/* Container flex */</span>
+<span class="selector">.container</span> {
+    <span class="property">display</span>: <span class="css-value">flex</span>;
+    <span class="property">justify-content</span>: <span class="css-value">space-between</span>;  <span class="comment">/* Horizontal */</span>
+    <span class="property">align-items</span>: <span class="css-value">center</span>;         <span class="comment">/* Vertical */</span>
+    <span class="property">gap</span>: <span class="css-value">20px</span>;                    <span class="comment">/* Jarak antar item */</span>
+}
+
+<span class="comment">/* Item di dalam flex container */</span>
+<span class="selector">.item</span> {
+    <span class="property">flex</span>: <span class="css-value">1</span>;  <span class="comment">/* Semua item ukuran sama */</span>
+}</code>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Property</th><th>Value</th><th>Fungsi</th></tr></thead>
+                        <tbody>
+                            <tr><td rowspan="2"><code>justify-content</code></td><td><code>flex-start</code>, <code>flex-end</code>, <code>center</code></td><td>Posisi horizontal</td></tr>
+                            <tr><td><code>space-between</code>, <code>space-around</code></td><td>Distribusi ruang</td></tr>
+                            <tr><td><code>align-items</code></td><td><code>flex-start</code>, <code>center</code>, <code>flex-end</code>, <code>stretch</code></td><td>Posisi vertikal</td></tr>
+                            <tr><td><code>flex-direction</code></td><td><code>row</code>, <code>column</code></td><td>Arah item (baris/kolom)</td></tr>
+                            <tr><td><code>flex-wrap</code></td><td><code>nowrap</code>, <code>wrap</code></td><td>Wrap ke baris baru</td></tr>
+                            <tr><td><code>gap</code></td><td><code>10px</code>, <code>20px</code></td><td>Jarak antar item</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 style="margin-top: 25px; color: #0c3b2e;">Contoh Visual Flexbox:</h4>
+                <div class="ui-demo">
+                    <div class="ui-demo-bar">
+                        <div class="ui-demo-dot red"></div>
+                        <div class="ui-demo-dot yellow"></div>
+                        <div class="ui-demo-dot green"></div>
+                        <span style="margin-left: 10px; font-size: 11px; color: #666;">justify-content: space-between</span>
+                    </div>
+                    <div class="ui-demo-body" style="display: flex; justify-content: space-between; gap: 10px; background: #f0f0f0;">
+                        <div style="background: #1d976c; color: white; padding: 15px 25px; border-radius: 6px;">Item 1</div>
+                        <div style="background: #1d976c; color: white; padding: 15px 25px; border-radius: 6px;">Item 2</div>
+                        <div style="background: #1d976c; color: white; padding: 15px 25px; border-radius: 6px;">Item 3</div>
+                    </div>
+                </div>
+
+                <div class="ui-demo">
+                    <div class="ui-demo-bar">
+                        <div class="ui-demo-dot red"></div>
+                        <div class="ui-demo-dot yellow"></div>
+                        <div class="ui-demo-dot green"></div>
+                        <span style="margin-left: 10px; font-size: 11px; color: #666;">justify-content: center; align-items: center</span>
+                    </div>
+                    <div class="ui-demo-body" style="display: flex; justify-content: center; align-items: center; gap: 15px; background: #f0f0f0; min-height: 100px;">
+                        <div style="background: #38ef7d; color: #0c3b2e; padding: 15px 25px; border-radius: 6px; font-weight: 600;">Centered!</div>
+                    </div>
+                </div>
+
+                <div class="page-number">Halaman 7</div>
+            </div>
+
+            <!-- PAGE 8: PRAKTIK MEMBUAT HALAMAN -->
+            <div class="page-content">
+                <h2 class="section-title">&#128187; BAGIAN 3: PRAKTIK PROJECT</h2>
+
+                <h3 class="subsection-title">Struktur Folder Project</h3>
+                <p>Buat struktur folder berikut di <code>C:\xampp\htdocs\</code>:</p>
+
+                <div class="code-block">
+                    <code>sistem-akademik/
+&#9500;&#9472;&#9472; index.html          <span class="comment"># Halaman utama / login</span>
+&#9500;&#9472;&#9472; dashboard.html      <span class="comment"># Halaman dashboard</span>
+&#9500;&#9472;&#9472; mahasiswa.html      <span class="comment"># Halaman daftar mahasiswa</span>
+&#9500;&#9472;&#9472; tambah.html         <span class="comment"># Form tambah mahasiswa</span>
+&#9500;&#9472;&#9472; css/
+&#9474;   &#9492;&#9472;&#9472; style.css       <span class="comment"># File CSS utama</span>
+&#9492;&#9472;&#9472; img/                <span class="comment"># Folder gambar (opsional)</span></code>
+                </div>
+
+                <h3 class="subsection-title">Halaman Login (index.html)</h3>
+                <p>Mari buat halaman login berdasarkan wireframe di Pertemuan 2:</p>
+
+                <div class="code-block">
+                    <span class="code-label">index.html</span>
+                    <code><span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="value">"id"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="value">"UTF-8"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="value">"viewport"</span> <span class="attr">content</span>=<span class="value">"width=device-width, initial-scale=1.0"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;title&gt;</span>Login - Sistem Akademik<span class="tag">&lt;/title&gt;</span>
+    <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"stylesheet"</span> <span class="attr">href</span>=<span class="value">"css/style.css"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body</span> <span class="attr">class</span>=<span class="value">"login-page"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"login-container"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"login-card"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"login-header"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;h1&gt;</span>&#127891; Sistem Akademik<span class="tag">&lt;/h1&gt;</span>
+                <span class="tag">&lt;p&gt;</span>Silakan login untuk melanjutkan<span class="tag">&lt;/p&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+            <span class="tag">&lt;form</span> <span class="attr">action</span>=<span class="value">"proses_login.php"</span> <span class="attr">method</span>=<span class="value">"POST"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"form-group"</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="value">"email"</span><span class="tag">&gt;</span>Email<span class="tag">&lt;/label&gt;</span>
+                    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"email"</span> <span class="attr">id</span>=<span class="value">"email"</span> <span class="attr">name</span>=<span class="value">"email"</span>
+                           <span class="attr">placeholder</span>=<span class="value">"Masukkan email..."</span> <span class="attr">required</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;/div&gt;</span>
+                <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"form-group"</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="value">"password"</span><span class="tag">&gt;</span>Password<span class="tag">&lt;/label&gt;</span>
+                    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"password"</span> <span class="attr">id</span>=<span class="value">"password"</span> <span class="attr">name</span>=<span class="value">"password"</span>
+                           <span class="attr">placeholder</span>=<span class="value">"Masukkan password..."</span> <span class="attr">required</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;/div&gt;</span>
+                <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="value">"submit"</span> <span class="attr">class</span>=<span class="value">"btn btn-primary"</span><span class="tag">&gt;</span>Masuk<span class="tag">&lt;/button&gt;</span>
+            <span class="tag">&lt;/form&gt;</span>
+            <span class="tag">&lt;p</span> <span class="attr">class</span>=<span class="value">"register-link"</span><span class="tag">&gt;</span>
+                Belum punya akun? <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"register.html"</span><span class="tag">&gt;</span>Daftar di sini<span class="tag">&lt;/a&gt;</span>
+            <span class="tag">&lt;/p&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 8</div>
+            </div>
+
+            <!-- PAGE 9: CSS UNTUK LOGIN -->
+            <div class="page-content">
+                <h3 class="subsection-title">CSS untuk Halaman Login (style.css)</h3>
+
+                <div class="code-block">
+                    <span class="code-label">css/style.css - Bagian 1: Reset & Variabel</span>
+                    <code><span class="comment">/* ===== RESET & VARIABEL ===== */</span>
+<span class="selector">*</span> {
+    <span class="property">margin</span>: <span class="css-value">0</span>;
+    <span class="property">padding</span>: <span class="css-value">0</span>;
+    <span class="property">box-sizing</span>: <span class="css-value">border-box</span>;
+}
+
+<span class="selector">:root</span> {
+    <span class="property">--primary</span>: <span class="css-value">#1d976c</span>;
+    <span class="property">--primary-dark</span>: <span class="css-value">#0c3b2e</span>;
+    <span class="property">--accent</span>: <span class="css-value">#38ef7d</span>;
+    <span class="property">--text</span>: <span class="css-value">#333</span>;
+    <span class="property">--text-light</span>: <span class="css-value">#666</span>;
+    <span class="property">--bg</span>: <span class="css-value">#f8f9fa</span>;
+    <span class="property">--white</span>: <span class="css-value">#ffffff</span>;
+    <span class="property">--border</span>: <span class="css-value">#e0e0e0</span>;
+    <span class="property">--danger</span>: <span class="css-value">#e74c3c</span>;
+    <span class="property">--success</span>: <span class="css-value">#27ae60</span>;
+}
+
+<span class="selector">body</span> {
+    <span class="property">font-family</span>: <span class="css-value">'Segoe UI', Tahoma, sans-serif</span>;
+    <span class="property">background</span>: <span class="css-value">var(--bg)</span>;
+    <span class="property">color</span>: <span class="css-value">var(--text)</span>;
+    <span class="property">line-height</span>: <span class="css-value">1.6</span>;
+}</code>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">css/style.css - Bagian 2: Halaman Login</span>
+                    <code><span class="comment">/* ===== LOGIN PAGE ===== */</span>
+<span class="selector">.login-page</span> {
+    <span class="property">min-height</span>: <span class="css-value">100vh</span>;
+    <span class="property">display</span>: <span class="css-value">flex</span>;
+    <span class="property">align-items</span>: <span class="css-value">center</span>;
+    <span class="property">justify-content</span>: <span class="css-value">center</span>;
+    <span class="property">background</span>: <span class="css-value">linear-gradient(135deg, var(--primary-dark), var(--primary))</span>;
+}
+
+<span class="selector">.login-card</span> {
+    <span class="property">background</span>: <span class="css-value">var(--white)</span>;
+    <span class="property">padding</span>: <span class="css-value">40px</span>;
+    <span class="property">border-radius</span>: <span class="css-value">16px</span>;
+    <span class="property">box-shadow</span>: <span class="css-value">0 10px 40px rgba(0,0,0,0.2)</span>;
+    <span class="property">width</span>: <span class="css-value">100%</span>;
+    <span class="property">max-width</span>: <span class="css-value">400px</span>;
+}
+
+<span class="selector">.login-header</span> {
+    <span class="property">text-align</span>: <span class="css-value">center</span>;
+    <span class="property">margin-bottom</span>: <span class="css-value">30px</span>;
+}
+
+<span class="selector">.login-header h1</span> {
+    <span class="property">color</span>: <span class="css-value">var(--primary)</span>;
+    <span class="property">font-size</span>: <span class="css-value">1.8em</span>;
+    <span class="property">margin-bottom</span>: <span class="css-value">8px</span>;
+}
+
+<span class="selector">.login-header p</span> {
+    <span class="property">color</span>: <span class="css-value">var(--text-light)</span>;
+    <span class="property">font-size</span>: <span class="css-value">14px</span>;
+}</code>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">css/style.css - Bagian 3: Form Elements</span>
+                    <code><span class="comment">/* ===== FORM ELEMENTS ===== */</span>
+<span class="selector">.form-group</span> {
+    <span class="property">margin-bottom</span>: <span class="css-value">20px</span>;
+}
+
+<span class="selector">.form-group label</span> {
+    <span class="property">display</span>: <span class="css-value">block</span>;
+    <span class="property">margin-bottom</span>: <span class="css-value">6px</span>;
+    <span class="property">font-weight</span>: <span class="css-value">600</span>;
+    <span class="property">color</span>: <span class="css-value">var(--text)</span>;
+    <span class="property">font-size</span>: <span class="css-value">14px</span>;
+}
+
+<span class="selector">.form-group input,
+.form-group select,
+.form-group textarea</span> {
+    <span class="property">width</span>: <span class="css-value">100%</span>;
+    <span class="property">padding</span>: <span class="css-value">12px 15px</span>;
+    <span class="property">border</span>: <span class="css-value">1px solid var(--border)</span>;
+    <span class="property">border-radius</span>: <span class="css-value">8px</span>;
+    <span class="property">font-size</span>: <span class="css-value">14px</span>;
+    <span class="property">transition</span>: <span class="css-value">border-color 0.3s, box-shadow 0.3s</span>;
+}
+
+<span class="selector">.form-group input:focus</span> {
+    <span class="property">outline</span>: <span class="css-value">none</span>;
+    <span class="property">border-color</span>: <span class="css-value">var(--primary)</span>;
+    <span class="property">box-shadow</span>: <span class="css-value">0 0 0 3px rgba(29, 151, 108, 0.1)</span>;
+}
+
+<span class="comment">/* ===== BUTTON ===== */</span>
+<span class="selector">.btn</span> {
+    <span class="property">display</span>: <span class="css-value">inline-block</span>;
+    <span class="property">padding</span>: <span class="css-value">12px 24px</span>;
+    <span class="property">border</span>: <span class="css-value">none</span>;
+    <span class="property">border-radius</span>: <span class="css-value">8px</span>;
+    <span class="property">font-size</span>: <span class="css-value">14px</span>;
+    <span class="property">font-weight</span>: <span class="css-value">600</span>;
+    <span class="property">cursor</span>: <span class="css-value">pointer</span>;
+    <span class="property">transition</span>: <span class="css-value">all 0.3s</span>;
+}
+
+<span class="selector">.btn-primary</span> {
+    <span class="property">width</span>: <span class="css-value">100%</span>;
+    <span class="property">background</span>: <span class="css-value">var(--primary)</span>;
+    <span class="property">color</span>: <span class="css-value">white</span>;
+}
+
+<span class="selector">.btn-primary:hover</span> {
+    <span class="property">background</span>: <span class="css-value">var(--primary-dark)</span>;
+}
+
+<span class="selector">.register-link</span> {
+    <span class="property">text-align</span>: <span class="css-value">center</span>;
+    <span class="property">margin-top</span>: <span class="css-value">20px</span>;
+    <span class="property">font-size</span>: <span class="css-value">14px</span>;
+    <span class="property">color</span>: <span class="css-value">var(--text-light)</span>;
+}
+
+<span class="selector">.register-link a</span> {
+    <span class="property">color</span>: <span class="css-value">var(--primary)</span>;
+    <span class="property">text-decoration</span>: <span class="css-value">none</span>;
+    <span class="property">font-weight</span>: <span class="css-value">600</span>;
+}</code>
+                </div>
+
+                <div class="page-number">Halaman 9</div>
+            </div>
+
+            <!-- PAGE 10: HASIL LOGIN -->
+            <div class="page-content">
+                <h3 class="subsection-title">Hasil Halaman Login</h3>
+                <p>Jika kode HTML dan CSS sudah benar, tampilan halaman login akan seperti ini:</p>
+
+                <div class="ui-demo" style="max-width: 500px; margin: 20px auto;">
+                    <div class="ui-demo-bar">
+                        <div class="ui-demo-dot red"></div>
+                        <div class="ui-demo-dot yellow"></div>
+                        <div class="ui-demo-dot green"></div>
+                        <span style="margin-left: 10px; font-size: 11px;">localhost/sistem-akademik/index.html</span>
+                    </div>
+                    <div class="ui-demo-body" style="background: linear-gradient(135deg, #0c3b2e, #1d976c); padding: 40px 30px;">
+                        <div style="background: white; padding: 35px 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                            <div style="text-align: center; margin-bottom: 25px;">
+                                <h2 style="color: #1d976c; font-size: 1.5em; margin-bottom: 5px;">&#127891; Sistem Akademik</h2>
+                                <p style="color: #666; font-size: 13px;">Silakan login untuk melanjutkan</p>
+                            </div>
+                            <div style="margin-bottom: 18px;">
+                                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Email</label>
+                                <div style="background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 11px 14px; font-size: 13px; color: #aaa;">Masukkan email...</div>
+                            </div>
+                            <div style="margin-bottom: 22px;">
+                                <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Password</label>
+                                <div style="background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 11px 14px; font-size: 13px; color: #aaa;">Masukkan password...</div>
+                            </div>
+                            <div style="background: #1d976c; color: white; padding: 12px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 14px;">Masuk</div>
+                            <p style="text-align: center; margin-top: 18px; font-size: 13px; color: #666;">Belum punya akun? <span style="color: #1d976c; font-weight: 600;">Daftar di sini</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>Checkpoint!</strong> Pastikan halaman login sudah bisa diakses di browser melalui <code>http://localhost/sistem-akademik/index.html</code>. Tampilan harus sesuai wireframe yang dibuat di Pertemuan 2.
+                </div>
+
+                <h3 class="subsection-title">Komponen CSS Tambahan untuk Project</h3>
+                <p>Tambahkan CSS berikut ke <code>style.css</code> untuk digunakan di halaman lain:</p>
+
+                <div class="code-block">
+                    <span class="code-label">css/style.css - Navbar & Layout</span>
+                    <code><span class="comment">/* ===== NAVBAR ===== */</span>
+<span class="selector">.navbar</span> {
+    <span class="property">background</span>: <span class="css-value">var(--primary)</span>;
+    <span class="property">padding</span>: <span class="css-value">15px 30px</span>;
+    <span class="property">display</span>: <span class="css-value">flex</span>;
+    <span class="property">justify-content</span>: <span class="css-value">space-between</span>;
+    <span class="property">align-items</span>: <span class="css-value">center</span>;
+}
+
+<span class="selector">.navbar .logo</span> {
+    <span class="property">color</span>: <span class="css-value">white</span>;
+    <span class="property">font-size</span>: <span class="css-value">1.3em</span>;
+    <span class="property">font-weight</span>: <span class="css-value">700</span>;
+    <span class="property">text-decoration</span>: <span class="css-value">none</span>;
+}
+
+<span class="selector">.navbar .nav-links</span> {
+    <span class="property">display</span>: <span class="css-value">flex</span>;
+    <span class="property">gap</span>: <span class="css-value">25px</span>;
+}
+
+<span class="selector">.navbar .nav-links a</span> {
+    <span class="property">color</span>: <span class="css-value">rgba(255,255,255,0.85)</span>;
+    <span class="property">text-decoration</span>: <span class="css-value">none</span>;
+    <span class="property">font-size</span>: <span class="css-value">14px</span>;
+    <span class="property">transition</span>: <span class="css-value">color 0.3s</span>;
+}
+
+<span class="selector">.navbar .nav-links a:hover,
+.navbar .nav-links a.active</span> {
+    <span class="property">color</span>: <span class="css-value">white</span>;
+}
+
+<span class="comment">/* ===== MAIN LAYOUT ===== */</span>
+<span class="selector">.main-content</span> {
+    <span class="property">max-width</span>: <span class="css-value">1200px</span>;
+    <span class="property">margin</span>: <span class="css-value">30px auto</span>;
+    <span class="property">padding</span>: <span class="css-value">0 20px</span>;
+}</code>
+                </div>
+
+                <div class="page-number">Halaman 10</div>
+            </div>
+
+            <!-- PAGE 11: TUGAS -->
+            <div class="page-content">
+                <h2 class="section-title">&#128203; EVALUASI & TUGAS KELOMPOK</h2>
+
+                <div class="project-card">
+                    <h3>&#128101; Tugas Project Kelompok - Pertemuan 3</h3>
+                    <p style="margin-bottom: 15px;">Setiap kelompok (3-4 orang) harus membuat halaman-halaman HTML + CSS berikut untuk project Sistem Informasi:</p>
+                    <ol style="margin-left: 20px; line-height: 2.2;">
+                        <li><strong>index.html</strong> - Halaman Login (sudah dikerjakan bersama)</li>
+                        <li><strong>dashboard.html</strong> - Halaman Dashboard setelah login</li>
+                        <li><strong>mahasiswa.html</strong> - Halaman Daftar Data (tabel + tombol aksi)</li>
+                        <li><strong>tambah.html</strong> - Form Tambah Data baru</li>
+                        <li><strong>edit.html</strong> - Form Edit Data (mirip tambah)</li>
+                        <li><strong>css/style.css</strong> - File CSS lengkap untuk semua halaman</li>
+                    </ol>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Ketentuan Tugas:</strong>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Desain <strong>HARUS</strong> mengikuti wireframe yang dibuat di Pertemuan 2</li>
+                        <li>Gunakan <strong>HTML semantik</strong> (header, nav, main, footer)</li>
+                        <li>Gunakan <strong>External CSS</strong> (file terpisah)</li>
+                        <li>Setiap form harus memiliki atribut <code>name</code> pada setiap input</li>
+                        <li>Tampilan harus <strong>konsisten</strong> di semua halaman (navbar, warna, font sama)</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Kriteria Penilaian</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Aspek</th><th>Bobot</th><th>Kriteria</th></tr></thead>
+                        <tbody>
+                            <tr><td>Struktur HTML</td><td>25%</td><td>Semantik, valid, terstruktur dengan baik</td></tr>
+                            <tr><td>Styling CSS</td><td>25%</td><td>Konsisten, rapi, sesuai wireframe</td></tr>
+                            <tr><td>Kelengkapan Halaman</td><td>25%</td><td>Semua halaman yang diminta tersedia</td></tr>
+                            <tr><td>Form Elements</td><td>15%</td><td>Input lengkap dengan name, label, placeholder</td></tr>
+                            <tr><td>Kerjasama Tim</td><td>10%</td><td>Pembagian tugas dan koordinasi kelompok</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="subsection-title">Format Pengumpulan</h3>
+                <div class="lab-setup">
+                    <ul class="content-list">
+                        <li>Kumpulkan folder project dalam format <strong>ZIP</strong></li>
+                        <li>Nama file: <code>Kelompok[No]_SistemAkademik.zip</code></li>
+                        <li>Upload ke platform yang ditentukan sebelum pertemuan selanjutnya</li>
+                        <li>Sertakan file <code>README.txt</code> berisi nama anggota kelompok dan pembagian tugas</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <strong>Pertemuan Selanjutnya:</strong> Kita akan mulai mempelajari PHP dan mengubah halaman HTML statis ini menjadi aplikasi dinamis yang bisa memproses data!
+                </div>
+
+                <div class="page-number">Halaman 11</div>
+            </div>
+
+            <!-- FINAL PAGE -->
+            <div class="page-content" style="text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 50vh;">
+                <h2 class="section-title" style="text-align: center;">&#127919; SELAMAT PRAKTIKUM!</h2>
+                <p style="font-size: 1.2em; margin: 30px 0; color: #666;">
+                    "First, solve the problem. Then, write the code."<br>
+                    <em>- John Johnson</em>
+                </p>
+                <div style="margin-top: 50px; padding: 30px; background: #f8f9fa; border-radius: 15px; border-left: 5px solid #1d976c;">
+                    <h3 style="color: #1d976c; margin-bottom: 20px;">Contact Information</h3>
+                    <p><strong>Dosen:</strong> Ikhwan Alfath Nurul Fathony, S.Kom., M.Kom.</p>
+                    <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b0d9dbd8c7d1de9ed1dcd6d1c4d8f0c5dec4d9d4d1c29ed1d39ed9d4">[email&#160;protected]</a></p>
+                </div>
+                <div style="margin-top: 30px; font-size: 0.9em; color: #888;">
+                    <p>&copy; 2025 Program Studi Teknologi Informasi - Universitas Tidar</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+        function toggleFullscreen() {
+            var btn = document.getElementById('fullscreenBtn');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(function() { btn.textContent = '\u274C Exit'; });
+            } else {
+                document.exitFullscreen().then(function() { btn.textContent = '\uD83D\uDD0D Fullscreen'; });
+            }
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Home') { e.preventDefault(); scrollToTop(); }
+            if (e.key === 'End') { e.preventDefault(); scrollToBottom(); }
+        });
+    </script>
+</body>
+</html>

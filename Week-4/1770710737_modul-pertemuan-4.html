@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul Praktikum Pertemuan 4 - JavaScript Dasar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; overflow-x: hidden; }
+        .book-container { max-width: 900px; margin: 50px auto; }
+        .book { background: #fff; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden; }
+        .controls { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; }
+        .control-btn { background: rgba(255,255,255,0.9); border: none; padding: 10px 15px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s ease; }
+        .control-btn:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* Cover - JavaScript Yellow Theme */
+        .cover-page { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+        .cover-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 30% 20%, rgba(240,219,79,0.15) 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, rgba(247,223,30,0.1) 0%, transparent 50%); z-index: 1; }
+        .cover-page::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(1px 1px at 10% 15%, rgba(240,219,79,0.2) 50%, transparent 50%), radial-gradient(1px 1px at 45% 10%, rgba(247,223,30,0.15) 50%, transparent 50%), radial-gradient(1px 1px at 75% 25%, rgba(240,219,79,0.2) 50%, transparent 50%), radial-gradient(1px 1px at 55% 65%, rgba(255,255,255,0.08) 50%, transparent 50%); z-index: 1; animation: twinkle 4s ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(240,219,79,0.4); } 50% { box-shadow: 0 0 20px 10px rgba(240,219,79,0.1); } }
+        .cover-content { position: relative; z-index: 2; padding: 50px 40px; }
+        .cover-top-bar { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 35px; animation: fadeInUp 0.8s ease-out; }
+        .cover-top-bar .bar-line { flex: 1; max-width: 120px; height: 1px; background: linear-gradient(90deg, transparent, rgba(240,219,79,0.6), transparent); }
+        .cover-university-badge { display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 10px 24px; border-radius: 50px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+        .cover-code-icons { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; animation: fadeInUp 0.9s ease-out; }
+        .cover-code-icons .code-icon { background: rgba(240,219,79,0.15); border: 1px solid rgba(240,219,79,0.3); border-radius: 12px; padding: 14px 18px; font-size: 26px; animation: float 3s ease-in-out infinite; }
+        .cover-code-icons .code-icon:nth-child(2) { animation-delay: 0.5s; }
+        .cover-code-icons .code-icon:nth-child(3) { animation-delay: 1s; }
+        .cover-label { display: inline-block; background: linear-gradient(135deg, rgba(240,219,79,0.2), rgba(240,219,79,0.05)); border: 1px solid rgba(240,219,79,0.4); padding: 8px 28px; border-radius: 6px; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #f0db4f; margin-bottom: 25px; animation: fadeInUp 1s ease-out; }
+        .cover-main-title { font-size: 3em; font-weight: 800; margin-bottom: 8px; text-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: 2px; line-height: 1.2; animation: fadeInUp 1.1s ease-out; }
+        .cover-main-title span { color: #f0db4f; }
+        .cover-course-name { font-size: 1.5em; font-weight: 300; margin-bottom: 35px; opacity: 0.85; animation: fadeInUp 1.2s ease-out; }
+        .cover-meeting-badge { display: inline-flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #f0db4f, #f7df1e); color: #1a1a2e; padding: 14px 40px; border-radius: 50px; font-size: 1.3em; font-weight: 700; margin-bottom: 15px; box-shadow: 0 8px 30px rgba(240,219,79,0.35); animation: fadeInUp 1.3s ease-out, pulse 2s infinite; }
+        .cover-meeting-badge .meeting-number { background: rgba(0,0,0,0.15); width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+        .cover-topic { font-size: 1.1em; color: rgba(255,255,255,0.85); margin-bottom: 40px; max-width: 550px; margin-left: auto; margin-right: auto; line-height: 1.6; animation: fadeInUp 1.4s ease-out; }
+        .cover-info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 650px; margin: 0 auto; animation: fadeInUp 1.5s ease-out; }
+        .cover-info-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 18px 12px; transition: all 0.3s ease; }
+        .cover-info-card:hover { background: rgba(255,255,255,0.12); border-color: rgba(240,219,79,0.4); transform: translateY(-4px); }
+        .cover-info-card .card-icon { font-size: 24px; margin-bottom: 8px; }
+        .cover-info-card .card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #f0db4f; margin-bottom: 4px; }
+        .cover-info-card .card-value { font-size: 13px; font-weight: 500; }
+        .cover-js-logo { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); font-family: 'Courier New', monospace; font-size: 14px; color: rgba(240,219,79,0.6); animation: fadeInUp 1.6s ease-out; }
+
+        /* Page Styles */
+        .page-content { padding: 60px 50px; line-height: 1.8; font-size: 16px; color: #333; }
+        .page-number { text-align: right; font-size: 14px; color: #999; margin-top: 40px; padding-top: 15px; border-top: 1px solid #eee; }
+        .section-title { color: #1a1a2e; font-size: 1.9em; font-weight: 700; margin: 40px 0 20px 0; position: relative; }
+        .section-title::before { content: ''; position: absolute; left: 0; bottom: -5px; width: 60px; height: 3px; background: #f0db4f; }
+        .subsection-title { color: #16213e; font-size: 1.35em; font-weight: 600; margin: 30px 0 15px 0; }
+        .objective-list, .content-list { margin: 20px 0; padding-left: 20px; }
+        .objective-list li, .content-list li { margin: 10px 0; position: relative; }
+        .objective-list li::before { content: '\1F3AF'; position: absolute; left: -25px; }
+        .content-list li::before { content: '\1F4CB'; position: absolute; left: -25px; }
+        .learning-outcomes { background: linear-gradient(135deg, #fffef0 0%, #fff 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #f0db4f; box-shadow: 0 5px 15px rgba(240,219,79,0.1); }
+        .lab-setup { background: linear-gradient(135deg, #fffef0 0%, #fffdf5 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #f7df1e; }
+        .warning-box { background: #fff3cd; border-left: 5px solid #f39c12; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .warning-box::before { content: '\26A0\FE0F'; margin-right: 10px; }
+        .info-box { background: #d1ecf1; border-left: 5px solid #17a2b8; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .info-box::before { content: '\2139\FE0F'; margin-right: 10px; }
+        .success-box { background: #d4edda; border-left: 5px solid #28a745; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .success-box::before { content: '\2705'; margin-right: 10px; }
+        .step-item { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 25px; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.08); transition: all 0.3s ease; }
+        .step-item:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+        .step-number { background: #f0db4f; color: #1a1a2e; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 15px; }
+        .step-title { color: #1a1a2e; font-weight: 600; font-size: 1.1em; margin-bottom: 10px; }
+
+        /* Code Block - JavaScript Theme */
+        .code-block { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 20px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; margin: 20px 0; overflow-x: auto; color: #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; }
+        .code-block::before { content: ''; position: absolute; top: 12px; left: 15px; width: 10px; height: 10px; background: #ff5f57; border-radius: 50%; box-shadow: 16px 0 0 #ffbd2e, 32px 0 0 #28ca42; }
+        .code-block code { display: block; margin-top: 10px; white-space: pre; line-height: 1.6; }
+        .code-label { display: inline-block; background: #f0db4f; color: #1a1a2e; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-bottom: 8px; }
+
+        /* Syntax Highlighting - JavaScript */
+        .keyword { color: #ff79c6; }
+        .string { color: #50fa7b; }
+        .number { color: #bd93f9; }
+        .comment { color: #6272a4; font-style: italic; }
+        .function { color: #8be9fd; }
+        .variable { color: #f8f8f2; }
+        .operator { color: #ff79c6; }
+        .console { color: #f0db4f; }
+        .method { color: #50fa7b; }
+        .param { color: #ffb86c; }
+        .tag { color: #ff79c6; }
+        .attr { color: #50fa7b; }
+        .value { color: #f1fa8c; }
+
+        /* Table */
+        .table-container { overflow-x: auto; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #1a1a2e; color: white; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+
+        /* UI Demo */
+        .ui-demo { border: 2px solid #ddd; border-radius: 10px; overflow: hidden; margin: 15px 0; background: white; }
+        .ui-demo-bar { background: #e0e0e0; padding: 8px 15px; display: flex; align-items: center; gap: 6px; }
+        .ui-demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .ui-demo-dot.red { background: #ff5f57; }
+        .ui-demo-dot.yellow { background: #ffbd2e; }
+        .ui-demo-dot.green { background: #28ca42; }
+        .ui-demo-body { padding: 20px; }
+
+        /* Project Card */
+        .project-card { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; border-radius: 16px; padding: 30px; margin: 25px 0; }
+        .project-card h3 { color: #f0db4f; margin-bottom: 15px; }
+
+        /* Connection Flow */
+        .connection-flow { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin: 30px 0; padding: 25px; background: linear-gradient(135deg, #f8f9fa, #fff); border-radius: 15px; }
+        .flow-item { text-align: center; padding: 15px 20px; border-radius: 10px; background: white; box-shadow: 0 3px 10px rgba(0,0,0,0.1); min-width: 100px; }
+        .flow-item.active { background: linear-gradient(135deg, #f0db4f, #f7df1e); color: #1a1a2e; }
+        .flow-item .flow-icon { font-size: 24px; margin-bottom: 5px; }
+        .flow-item .flow-label { font-size: 12px; font-weight: 600; }
+        .flow-arrow { font-size: 24px; color: #ccc; }
+
+        /* Console Output */
+        .console-output { background: #1a1a2e; border-radius: 8px; padding: 15px; margin: 15px 0; font-family: 'Consolas', monospace; font-size: 13px; }
+        .console-output .prompt { color: #50fa7b; }
+        .console-output .output { color: #f8f8f2; }
+        .console-output .error { color: #ff5555; }
+
+        /* Comparison Box */
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .comparison-box { border-radius: 12px; padding: 20px; }
+        .comparison-box.good { background: linear-gradient(135deg, #d4edda, #f0fff4); border: 2px solid #28a745; }
+        .comparison-box.bad { background: linear-gradient(135deg, #f8d7da, #fff5f5); border: 2px solid #dc3545; }
+        .comparison-box h4 { margin-bottom: 12px; }
+        .comparison-box.good h4 { color: #28a745; }
+        .comparison-box.bad h4 { color: #dc3545; }
+
+        @media (max-width: 768px) {
+            .book-container { margin: 15px; }
+            .page-content { padding: 30px 20px; }
+            .cover-main-title { font-size: 2em; }
+            .cover-info-cards { grid-template-columns: 1fr; max-width: 280px; }
+            .code-block { font-size: 11px; padding: 15px; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .connection-flow { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+        .smooth-scroll { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="smooth-scroll">
+    <div class="controls">
+        <button class="control-btn" onclick="scrollToTop()">&#11014;&#65039; Top</button>
+        <button class="control-btn" onclick="scrollToBottom()">&#11015;&#65039; Bottom</button>
+        <button class="control-btn" onclick="toggleFullscreen()" id="fullscreenBtn">&#128269; Fullscreen</button>
+    </div>
+
+    <div class="book-container">
+        <div class="book">
+
+            <!-- COVER PAGE -->
+            <div class="cover-page">
+                <div class="cover-content">
+                    <div class="cover-top-bar">
+                        <div class="bar-line"></div>
+                        <div class="cover-university-badge">
+                            <span>&#127891;</span>
+                            <span>Universitas Tidar</span>
+                        </div>
+                        <div class="bar-line"></div>
+                    </div>
+                    <div class="cover-code-icons">
+                        <div class="code-icon">{ }</div>
+                        <div class="code-icon">( )</div>
+                        <div class="code-icon">JS</div>
+                    </div>
+                    <div class="cover-label">Modul Praktikum</div>
+                    <h1 class="cover-main-title"><span>JavaScript</span><br>DASAR</h1>
+                    <p class="cover-course-name">Variabel &amp; Fungsi</p>
+                    <div class="cover-meeting-badge">
+                        <span class="meeting-number">04</span>
+                        <span>PERTEMUAN 4</span>
+                    </div>
+                    <p class="cover-topic">Memahami Logika Pemrograman Dasar untuk Membangun Interaktivitas Web</p>
+                    <div class="cover-info-cards">
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128218;</div>
+                            <div class="card-label">Program Studi</div>
+                            <div class="card-value">S1 Teknologi Informasi</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128101;</div>
+                            <div class="card-label">Mode</div>
+                            <div class="card-value">Project Kelompok</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128197;</div>
+                            <div class="card-label">Tahun Akademik</div>
+                            <div class="card-value">Genap 2024/2025</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="cover-js-logo">console.log("Hello, JavaScript!");</div>
+            </div>
+
+            <!-- PAGE 1: INFO MODUL -->
+            <div class="page-content">
+                <div style="text-align: center; padding: 40px 0; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; border-radius: 15px; margin-bottom: 40px;">
+                    <div style="font-size: 50px; margin-bottom: 15px;">JS</div>
+                    <h1 style="font-size: 2.2em; font-weight: 700; margin-bottom: 10px;">PERTEMUAN 4</h1>
+                    <h2 style="font-size: 1.3em; opacity: 0.9;">JavaScript Dasar - Variabel & Fungsi</h2>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                    <h3 style="color: #1a1a2e; margin-bottom: 15px; text-align: center;">&#128203; Informasi Mata Kuliah</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #f0db4f;">
+                            <p><strong style="color: #1a1a2e;">Mata Kuliah:</strong> Praktikum Aplikasi Web</p>
+                            <p><strong style="color: #1a1a2e;">Kode:</strong> TFC355</p>
+                            <p><strong style="color: #1a1a2e;">SKS:</strong> 1 SKS</p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #f7df1e;">
+                            <p><strong style="color: #1a1a2e;">Dosen:</strong> Ikhwan Alfath N.F., S.Kom., M.Kom.</p>
+                            <p><strong style="color: #1a1a2e;">Durasi:</strong> 1 x 150 menit</p>
+                            <p><strong style="color: #1a1a2e;">Metode:</strong> Discovery Learning + Project Based</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="learning-outcomes">
+                    <h3 class="subsection-title" style="color: #1a1a2e;">&#127919; Capaian Pembelajaran</h3>
+                    <ul class="objective-list">
+                        <li><strong>Kemampuan Akhir:</strong> Mahasiswa memahami logika pemrograman dasar dengan JavaScript</li>
+                        <li>Memahami konsep variabel dan tipe data di JavaScript</li>
+                        <li>Mampu membuat dan menggunakan fungsi (function)</li>
+                        <li>Memahami hubungan flowchart dengan kode JavaScript</li>
+                        <li>Mampu menerapkan JavaScript untuk validasi form pada project</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">&#128279; Koneksi Antar Pertemuan</h3>
+                <p>Materi JavaScript ini merupakan kelanjutan dari pertemuan-pertemuan sebelumnya:</p>
+
+                <div class="connection-flow">
+                    <div class="flow-item">
+                        <div class="flow-icon">&#128290;</div>
+                        <div class="flow-label">Flowchart</div>
+                        <div style="font-size: 10px; color: #666;">Pertemuan 1</div>
+                    </div>
+                    <div class="flow-arrow">&#10145;</div>
+                    <div class="flow-item">
+                        <div class="flow-icon">&#127912;</div>
+                        <div class="flow-label">Wireframe</div>
+                        <div style="font-size: 10px; color: #666;">Pertemuan 2</div>
+                    </div>
+                    <div class="flow-arrow">&#10145;</div>
+                    <div class="flow-item">
+                        <div class="flow-icon">&lt;/&gt;</div>
+                        <div class="flow-label">HTML & CSS</div>
+                        <div style="font-size: 10px; color: #666;">Pertemuan 3</div>
+                    </div>
+                    <div class="flow-arrow">&#10145;</div>
+                    <div class="flow-item active">
+                        <div class="flow-icon">{ }</div>
+                        <div class="flow-label">JavaScript</div>
+                        <div style="font-size: 10px; color: #1a1a2e;">Pertemuan 4</div>
+                    </div>
+                    <div class="flow-arrow">&#10145;</div>
+                    <div class="flow-item">
+                        <div class="flow-icon">&#128024;</div>
+                        <div class="flow-label">PHP</div>
+                        <div style="font-size: 10px; color: #666;">Pertemuan 5+</div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Mengapa JavaScript Penting?</strong> JavaScript akan membuat halaman HTML menjadi interaktif. Validasi form sebelum dikirim ke PHP, efek visual, dan manipulasi halaman secara dinamis semua bisa dilakukan dengan JavaScript.
+                </div>
+
+                <div class="page-number">Halaman 1</div>
+            </div>
+
+            <!-- PAGE 2: PENGANTAR JAVASCRIPT -->
+            <div class="page-content">
+                <h2 class="section-title">&#9889; BAGIAN 1: PENGANTAR JAVASCRIPT</h2>
+
+                <h3 class="subsection-title">Apa itu JavaScript?</h3>
+                <p><strong>JavaScript</strong> adalah bahasa pemrograman yang berjalan di browser web. Berbeda dengan HTML (struktur) dan CSS (tampilan), JavaScript memberikan <strong>perilaku dan interaktivitas</strong> pada halaman web.</p>
+
+                <div class="lab-setup">
+                    <h4 style="color: #1a1a2e; margin-bottom: 12px;">Peran JavaScript dalam Web Development:</h4>
+                    <ul class="content-list">
+                        <li><strong>Validasi Form:</strong> Memeriksa input sebelum dikirim ke server</li>
+                        <li><strong>Manipulasi DOM:</strong> Mengubah konten halaman secara dinamis</li>
+                        <li><strong>Event Handling:</strong> Merespons aksi pengguna (klik, hover, ketik)</li>
+                        <li><strong>Animasi:</strong> Membuat efek visual yang menarik</li>
+                        <li><strong>Komunikasi Server:</strong> Mengirim/menerima data tanpa reload (AJAX)</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Cara Menambahkan JavaScript</h3>
+                <p>Ada 3 cara untuk menambahkan JavaScript ke halaman HTML:</p>
+
+                <div class="step-item">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Inline JavaScript (Tidak Direkomendasikan)</span>
+                    <div class="code-block" style="margin-top: 10px;">
+                        <code><span class="tag">&lt;button</span> <span class="attr">onclick</span>=<span class="value">"alert('Halo!')"</span><span class="tag">&gt;</span>Klik Saya<span class="tag">&lt;/button&gt;</span></code>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Internal JavaScript</span>
+                    <div class="code-block" style="margin-top: 10px;">
+                        <code><span class="tag">&lt;script&gt;</span>
+    <span class="function">alert</span>(<span class="string">'Halo dari Internal JS!'</span>);
+<span class="tag">&lt;/script&gt;</span></code>
+                    </div>
+                </div>
+
+                <div class="step-item" style="border: 2px solid #f0db4f;">
+                    <span class="step-number">3</span>
+                    <span class="step-title">External JavaScript &#9989; (Rekomendasi)</span>
+                    <div class="code-block" style="margin-top: 10px;">
+                        <span class="code-label">index.html</span>
+                        <code><span class="comment">&lt;!-- Letakkan sebelum &lt;/body&gt; --&gt;</span>
+<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="value">"js/script.js"</span><span class="tag">&gt;&lt;/script&gt;</span></code>
+                    </div>
+                    <div class="code-block" style="margin-top: 10px;">
+                        <span class="code-label">js/script.js</span>
+                        <code><span class="function">alert</span>(<span class="string">'Halo dari External JS!'</span>);</code>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Best Practice:</strong> Selalu letakkan tag <code>&lt;script&gt;</code> sebelum <code>&lt;/body&gt;</code> agar HTML selesai dimuat sebelum JavaScript dijalankan.
+                </div>
+
+                <div class="page-number">Halaman 2</div>
+            </div>
+
+            <!-- PAGE 3: VARIABEL -->
+            <div class="page-content">
+                <h2 class="section-title">&#128230; BAGIAN 2: VARIABEL</h2>
+
+                <h3 class="subsection-title">Apa itu Variabel?</h3>
+                <p><strong>Variabel</strong> adalah "wadah" untuk menyimpan data. Seperti kotak berlabel yang bisa kita isi dengan nilai tertentu dan gunakan berkali-kali dalam program.</p>
+
+                <div class="info-box">
+                    <strong>Analogi:</strong> Bayangkan variabel seperti laci berlabel di lemari. Laci "nama" berisi "Budi", laci "umur" berisi 20. Kita bisa buka laci tersebut kapan saja untuk mengambil atau mengubah isinya.
+                </div>
+
+                <h3 class="subsection-title">Mendeklarasikan Variabel</h3>
+                <p>Di JavaScript modern, ada 3 cara mendeklarasikan variabel:</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Keyword</th><th>Fungsi</th><th>Bisa Diubah?</th><th>Rekomendasi</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>let</code></td><td>Variabel yang nilainya bisa berubah</td><td>&#9989; Ya</td><td>&#11088; Gunakan ini!</td></tr>
+                            <tr><td><code>const</code></td><td>Konstanta (nilai tetap)</td><td>&#10060; Tidak</td><td>&#11088; Untuk nilai tetap</td></tr>
+                            <tr><td><code>var</code></td><td>Cara lama (ES5)</td><td>&#9989; Ya</td><td>&#9888; Hindari</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">Mendeklarasikan Variabel</span>
+                    <code><span class="comment">// Menggunakan let (nilai bisa berubah)</span>
+<span class="keyword">let</span> <span class="variable">nama</span> <span class="operator">=</span> <span class="string">"Budi Santoso"</span>;
+<span class="keyword">let</span> <span class="variable">umur</span> <span class="operator">=</span> <span class="number">20</span>;
+<span class="keyword">let</span> <span class="variable">ipk</span> <span class="operator">=</span> <span class="number">3.75</span>;
+
+<span class="comment">// Menggunakan const (nilai tetap)</span>
+<span class="keyword">const</span> <span class="variable">NAMA_KAMPUS</span> <span class="operator">=</span> <span class="string">"Universitas Tidar"</span>;
+<span class="keyword">const</span> <span class="variable">MAX_SKS</span> <span class="operator">=</span> <span class="number">24</span>;
+
+<span class="comment">// Mengubah nilai variabel let</span>
+<span class="variable">umur</span> <span class="operator">=</span> <span class="number">21</span>;  <span class="comment">// OK - let bisa diubah</span>
+<span class="comment">// NAMA_KAMPUS = "Kampus Lain";  // ERROR! const tidak bisa diubah</span></code>
+                </div>
+
+                <h3 class="subsection-title">Aturan Penamaan Variabel</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-box good">
+                        <h4>&#9989; Benar</h4>
+                        <ul style="margin-left: 15px; line-height: 2;">
+                            <li><code>namaLengkap</code> (camelCase)</li>
+                            <li><code>nama_lengkap</code> (snake_case)</li>
+                            <li><code>totalHarga</code></li>
+                            <li><code>_private</code></li>
+                            <li><code>$element</code></li>
+                        </ul>
+                    </div>
+                    <div class="comparison-box bad">
+                        <h4>&#10060; Salah</h4>
+                        <ul style="margin-left: 15px; line-height: 2;">
+                            <li><code>2nama</code> (diawali angka)</li>
+                            <li><code>nama-lengkap</code> (pakai strip)</li>
+                            <li><code>nama lengkap</code> (pakai spasi)</li>
+                            <li><code>let</code> (reserved keyword)</li>
+                            <li><code>class</code> (reserved keyword)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="page-number">Halaman 3</div>
+            </div>
+
+            <!-- PAGE 4: TIPE DATA -->
+            <div class="page-content">
+                <h3 class="subsection-title">Tipe Data di JavaScript</h3>
+                <p>JavaScript memiliki beberapa tipe data dasar yang perlu dipahami:</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Tipe Data</th><th>Contoh</th><th>Keterangan</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>String</strong></td><td><code>"Halo"</code>, <code>'Dunia'</code>, <code>`Template`</code></td><td>Teks, diapit tanda kutip</td></tr>
+                            <tr><td><strong>Number</strong></td><td><code>42</code>, <code>3.14</code>, <code>-10</code></td><td>Bilangan (bulat/desimal)</td></tr>
+                            <tr><td><strong>Boolean</strong></td><td><code>true</code>, <code>false</code></td><td>Nilai benar/salah</td></tr>
+                            <tr><td><strong>Undefined</strong></td><td><code>undefined</code></td><td>Variabel belum diberi nilai</td></tr>
+                            <tr><td><strong>Null</strong></td><td><code>null</code></td><td>Nilai kosong (disengaja)</td></tr>
+                            <tr><td><strong>Array</strong></td><td><code>[1, 2, 3]</code></td><td>Kumpulan nilai</td></tr>
+                            <tr><td><strong>Object</strong></td><td><code>{nama: "Budi"}</code></td><td>Kumpulan key-value</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">Contoh Tipe Data - Project Sistem Akademik</span>
+                    <code><span class="comment">// === DATA MAHASISWA ===</span>
+
+<span class="comment">// String - untuk teks</span>
+<span class="keyword">let</span> <span class="variable">nim</span> <span class="operator">=</span> <span class="string">"2024001"</span>;
+<span class="keyword">let</span> <span class="variable">nama</span> <span class="operator">=</span> <span class="string">"Ahmad Rizki"</span>;
+<span class="keyword">let</span> <span class="variable">email</span> <span class="operator">=</span> <span class="string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="26474e4b47426655525342434852085348524f424754084745084f42">[email&#160;protected]</a>"</span>;
+<span class="keyword">let</span> <span class="variable">prodi</span> <span class="operator">=</span> <span class="string">"Teknologi Informasi"</span>;
+
+<span class="comment">// Number - untuk angka</span>
+<span class="keyword">let</span> <span class="variable">semester</span> <span class="operator">=</span> <span class="number">4</span>;
+<span class="keyword">let</span> <span class="variable">ipk</span> <span class="operator">=</span> <span class="number">3.85</span>;
+<span class="keyword">let</span> <span class="variable">sksLulus</span> <span class="operator">=</span> <span class="number">72</span>;
+
+<span class="comment">// Boolean - untuk kondisi true/false</span>
+<span class="keyword">let</span> <span class="variable">statusAktif</span> <span class="operator">=</span> <span class="keyword">true</span>;
+<span class="keyword">let</span> <span class="variable">sudahBayarUKT</span> <span class="operator">=</span> <span class="keyword">true</span>;
+<span class="keyword">let</span> <span class="variable">sedangCuti</span> <span class="operator">=</span> <span class="keyword">false</span>;
+
+<span class="comment">// Array - kumpulan data</span>
+<span class="keyword">let</span> <span class="variable">mataKuliah</span> <span class="operator">=</span> [<span class="string">"Pemrograman Web"</span>, <span class="string">"Basis Data"</span>, <span class="string">"Algoritma"</span>];
+<span class="keyword">let</span> <span class="variable">nilaiSemester</span> <span class="operator">=</span> [<span class="number">85</span>, <span class="number">90</span>, <span class="number">78</span>, <span class="number">88</span>];
+
+<span class="comment">// Object - data terstruktur</span>
+<span class="keyword">let</span> <span class="variable">mahasiswa</span> <span class="operator">=</span> {
+    <span class="attr">nim</span>: <span class="string">"2024001"</span>,
+    <span class="attr">nama</span>: <span class="string">"Ahmad Rizki"</span>,
+    <span class="attr">prodi</span>: <span class="string">"Teknologi Informasi"</span>,
+    <span class="attr">ipk</span>: <span class="number">3.85</span>,
+    <span class="attr">aktif</span>: <span class="keyword">true</span>
+};</code>
+                </div>
+
+                <div class="success-box">
+                    <strong>Koneksi dengan PHP:</strong> Konsep variabel dan tipe data di JavaScript sangat mirip dengan PHP! Nanti di PHP: <code>$nama = "Budi";</code> mirip dengan <code>let nama = "Budi";</code>
+                </div>
+
+                <div class="page-number">Halaman 4</div>
+            </div>
+
+            <!-- PAGE 5: OPERATOR -->
+            <div class="page-content">
+                <h3 class="subsection-title">Operator di JavaScript</h3>
+                <p>Operator digunakan untuk melakukan operasi pada variabel dan nilai.</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Kategori</th><th>Operator</th><th>Contoh</th><th>Hasil</th></tr></thead>
+                        <tbody>
+                            <tr><td rowspan="5"><strong>Aritmatika</strong></td><td><code>+</code></td><td><code>5 + 3</code></td><td><code>8</code></td></tr>
+                            <tr><td><code>-</code></td><td><code>10 - 4</code></td><td><code>6</code></td></tr>
+                            <tr><td><code>*</code></td><td><code>3 * 4</code></td><td><code>12</code></td></tr>
+                            <tr><td><code>/</code></td><td><code>15 / 3</code></td><td><code>5</code></td></tr>
+                            <tr><td><code>%</code></td><td><code>10 % 3</code></td><td><code>1</code> (sisa bagi)</td></tr>
+                            <tr><td rowspan="4"><strong>Perbandingan</strong></td><td><code>==</code></td><td><code>5 == "5"</code></td><td><code>true</code></td></tr>
+                            <tr><td><code>===</code></td><td><code>5 === "5"</code></td><td><code>false</code> (strict)</td></tr>
+                            <tr><td><code>&gt;</code>, <code>&lt;</code></td><td><code>10 &gt; 5</code></td><td><code>true</code></td></tr>
+                            <tr><td><code>&gt;=</code>, <code>&lt;=</code></td><td><code>5 &gt;= 5</code></td><td><code>true</code></td></tr>
+                            <tr><td rowspan="3"><strong>Logika</strong></td><td><code>&&</code></td><td><code>true && false</code></td><td><code>false</code> (AND)</td></tr>
+                            <tr><td><code>||</code></td><td><code>true || false</code></td><td><code>true</code> (OR)</td></tr>
+                            <tr><td><code>!</code></td><td><code>!true</code></td><td><code>false</code> (NOT)</td></tr>
+                            <tr><td><strong>String</strong></td><td><code>+</code></td><td><code>"Halo " + "Dunia"</code></td><td><code>"Halo Dunia"</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">Contoh Penggunaan Operator - Sistem Akademik</span>
+                    <code><span class="comment">// Data mahasiswa</span>
+<span class="keyword">let</span> <span class="variable">nama</span> <span class="operator">=</span> <span class="string">"Ahmad"</span>;
+<span class="keyword">let</span> <span class="variable">nilai1</span> <span class="operator">=</span> <span class="number">85</span>;
+<span class="keyword">let</span> <span class="variable">nilai2</span> <span class="operator">=</span> <span class="number">90</span>;
+<span class="keyword">let</span> <span class="variable">nilai3</span> <span class="operator">=</span> <span class="number">78</span>;
+
+<span class="comment">// Aritmatika - Hitung rata-rata</span>
+<span class="keyword">let</span> <span class="variable">total</span> <span class="operator">=</span> <span class="variable">nilai1</span> <span class="operator">+</span> <span class="variable">nilai2</span> <span class="operator">+</span> <span class="variable">nilai3</span>;  <span class="comment">// 253</span>
+<span class="keyword">let</span> <span class="variable">rataRata</span> <span class="operator">=</span> <span class="variable">total</span> <span class="operator">/</span> <span class="number">3</span>;              <span class="comment">// 84.33</span>
+
+<span class="comment">// Perbandingan - Cek kelulusan</span>
+<span class="keyword">let</span> <span class="variable">lulus</span> <span class="operator">=</span> <span class="variable">rataRata</span> <span class="operator">&gt;=</span> <span class="number">60</span>;              <span class="comment">// true</span>
+
+<span class="comment">// String concatenation</span>
+<span class="keyword">let</span> <span class="variable">pesan</span> <span class="operator">=</span> <span class="string">"Halo, "</span> <span class="operator">+</span> <span class="variable">nama</span> <span class="operator">+</span> <span class="string">"! Nilai rata-rata: "</span> <span class="operator">+</span> <span class="variable">rataRata</span>;
+<span class="comment">// "Halo, Ahmad! Nilai rata-rata: 84.33"</span>
+
+<span class="comment">// Template literal (cara modern)</span>
+<span class="keyword">let</span> <span class="variable">pesanModern</span> <span class="operator">=</span> <span class="string">`Halo, ${<span class="variable">nama</span>}! Nilai rata-rata: ${<span class="variable">rataRata</span>}`</span>;
+
+<span class="comment">// Logika - Validasi</span>
+<span class="keyword">let</span> <span class="variable">sudahBayar</span> <span class="operator">=</span> <span class="keyword">true</span>;
+<span class="keyword">let</span> <span class="variable">bolehUjian</span> <span class="operator">=</span> <span class="variable">lulus</span> <span class="operator">&&</span> <span class="variable">sudahBayar</span>;  <span class="comment">// true (keduanya harus true)</span></code>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Tips Penting:</strong> Selalu gunakan <code>===</code> (strict equality) daripada <code>==</code> untuk perbandingan. <code>===</code> membandingkan nilai DAN tipe data, lebih aman!
+                </div>
+
+                <div class="page-number">Halaman 5</div>
+            </div>
+
+            <!-- PAGE 6: CONSOLE.LOG -->
+            <div class="page-content">
+                <h3 class="subsection-title">Menampilkan Output dengan console.log()</h3>
+                <p><code>console.log()</code> adalah cara paling umum untuk menampilkan output dan debugging di JavaScript. Output akan tampil di Console browser (tekan F12).</p>
+
+                <div class="code-block">
+                    <span class="code-label">Menggunakan console.log()</span>
+                    <code><span class="comment">// Menampilkan teks</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="string">"Selamat datang di Sistem Akademik!"</span>);
+
+<span class="comment">// Menampilkan variabel</span>
+<span class="keyword">let</span> <span class="variable">nama</span> <span class="operator">=</span> <span class="string">"Ahmad Rizki"</span>;
+<span class="keyword">let</span> <span class="variable">ipk</span> <span class="operator">=</span> <span class="number">3.85</span>;
+<span class="console">console</span>.<span class="method">log</span>(<span class="variable">nama</span>);        <span class="comment">// Ahmad Rizki</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="variable">ipk</span>);         <span class="comment">// 3.85</span>
+
+<span class="comment">// Menggabungkan teks dan variabel</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="string">"Nama: "</span> <span class="operator">+</span> <span class="variable">nama</span>);
+<span class="console">console</span>.<span class="method">log</span>(<span class="string">`IPK: ${<span class="variable">ipk</span>}`</span>);  <span class="comment">// Template literal (lebih rapi)</span>
+
+<span class="comment">// Menampilkan beberapa nilai sekaligus</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="string">"Data:"</span>, <span class="variable">nama</span>, <span class="variable">ipk</span>);
+
+<span class="comment">// Menampilkan object/array</span>
+<span class="keyword">let</span> <span class="variable">mahasiswa</span> <span class="operator">=</span> { <span class="attr">nama</span>: <span class="string">"Ahmad"</span>, <span class="attr">ipk</span>: <span class="number">3.85</span> };
+<span class="console">console</span>.<span class="method">log</span>(<span class="variable">mahasiswa</span>);  <span class="comment">// {nama: "Ahmad", ipk: 3.85}</span>
+
+<span class="comment">// Jenis console lainnya</span>
+<span class="console">console</span>.<span class="method">warn</span>(<span class="string">"Ini peringatan!"</span>);   <span class="comment">// Warna kuning</span>
+<span class="console">console</span>.<span class="method">error</span>(<span class="string">"Ini error!"</span>);       <span class="comment">// Warna merah</span>
+<span class="console">console</span>.<span class="method">table</span>([<span class="string">"Budi"</span>, <span class="string">"Ani"</span>, <span class="string">"Citra"</span>]);  <span class="comment">// Format tabel</span></code>
+                </div>
+
+                <h4 style="margin-top: 25px; color: #1a1a2e;">Cara Membuka Console Browser:</h4>
+                <div class="ui-demo">
+                    <div class="ui-demo-bar">
+                        <div class="ui-demo-dot red"></div>
+                        <div class="ui-demo-dot yellow"></div>
+                        <div class="ui-demo-dot green"></div>
+                        <span style="margin-left: 10px; font-size: 11px;">Developer Tools (F12)</span>
+                    </div>
+                    <div class="ui-demo-body" style="background: #1a1a2e; color: #f8f8f2; font-family: 'Consolas', monospace; font-size: 13px;">
+                        <div style="border-bottom: 1px solid #333; padding: 8px; margin-bottom: 10px;">
+                            <span style="padding: 5px 12px; background: #333; border-radius: 4px; color: #f0db4f;">Console</span>
+                            <span style="padding: 5px 12px; color: #888;">Elements</span>
+                            <span style="padding: 5px 12px; color: #888;">Network</span>
+                        </div>
+                        <div style="padding: 5px 0;">
+                            <span style="color: #50fa7b;">&gt;</span> <span style="color: #888;">Selamat datang di Sistem Akademik!</span>
+                        </div>
+                        <div style="padding: 5px 0;">
+                            <span style="color: #50fa7b;">&gt;</span> <span style="color: #888;">Ahmad Rizki</span>
+                        </div>
+                        <div style="padding: 5px 0;">
+                            <span style="color: #50fa7b;">&gt;</span> <span style="color: #888;">3.85</span>
+                        </div>
+                        <div style="padding: 5px 0;">
+                            <span style="color: #ffb86c;">&#9888;</span> <span style="color: #ffb86c;">Ini peringatan!</span>
+                        </div>
+                        <div style="padding: 5px 0;">
+                            <span style="color: #ff5555;">&#10005;</span> <span style="color: #ff5555;">Ini error!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Tips Debugging:</strong> Gunakan <code>console.log()</code> untuk memeriksa nilai variabel saat program berjalan. Ini sangat membantu saat mencari bug!
+                </div>
+
+                <div class="page-number">Halaman 6</div>
+            </div>
+
+            <!-- PAGE 7: FUNGSI DASAR -->
+            <div class="page-content">
+                <h2 class="section-title">&#9881;&#65039; BAGIAN 3: FUNGSI (FUNCTION)</h2>
+
+                <h3 class="subsection-title">Apa itu Fungsi?</h3>
+                <p><strong>Fungsi</strong> adalah blok kode yang dirancang untuk melakukan tugas tertentu. Fungsi bisa dipanggil (dijalankan) kapan saja dan berapa kali pun diperlukan.</p>
+
+                <div class="info-box">
+                    <strong>Analogi:</strong> Fungsi seperti resep masakan. Sekali ditulis, bisa dipakai berkali-kali untuk membuat masakan yang sama. Kita tidak perlu menulis ulang langkah-langkahnya setiap kali.
+                </div>
+
+                <h3 class="subsection-title">Koneksi dengan Flowchart</h3>
+                <p>Ingat flowchart di Pertemuan 1? Fungsi adalah implementasi dari <strong>proses</strong> dan <strong>sub-proses</strong> dalam flowchart!</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center;">
+                        <h4 style="color: #1a1a2e; margin-bottom: 15px;">&#128290; Flowchart</h4>
+                        <div style="display: inline-block; padding: 15px 30px; background: #fff; border: 2px solid #1a1a2e; border-radius: 8px; margin: 5px 0;">Mulai</div>
+                        <div style="font-size: 24px;">&#8595;</div>
+                        <div style="display: inline-block; padding: 15px 30px; background: #fffef0; border: 2px solid #f0db4f; margin: 5px 0;">Input: nama, nilai</div>
+                        <div style="font-size: 24px;">&#8595;</div>
+                        <div style="display: inline-block; padding: 15px 30px; background: #fffef0; border: 2px solid #f0db4f; margin: 5px 0;">Hitung rata-rata</div>
+                        <div style="font-size: 24px;">&#8595;</div>
+                        <div style="display: inline-block; padding: 15px 30px; background: #fffef0; border: 2px solid #f0db4f; margin: 5px 0;">Tampilkan hasil</div>
+                        <div style="font-size: 24px;">&#8595;</div>
+                        <div style="display: inline-block; padding: 15px 30px; background: #fff; border: 2px solid #1a1a2e; border-radius: 8px; margin: 5px 0;">Selesai</div>
+                    </div>
+                    <div style="background: #1a1a2e; padding: 20px; border-radius: 10px; color: #f8f8f2; font-family: 'Consolas', monospace; font-size: 12px;">
+                        <h4 style="color: #f0db4f; margin-bottom: 15px; font-family: 'Segoe UI', sans-serif;">&#128187; Kode JavaScript</h4>
+                        <pre style="margin: 0; line-height: 1.5;"><span style="color: #6272a4;">// Fungsi untuk proses</span>
+<span style="color: #ff79c6;">function</span> <span style="color: #8be9fd;">hitungRataRata</span>(<span style="color: #ffb86c;">nilai1, nilai2, nilai3</span>) {
+    <span style="color: #ff79c6;">let</span> total = nilai1 + nilai2 + nilai3;
+    <span style="color: #ff79c6;">let</span> rata = total / <span style="color: #bd93f9;">3</span>;
+    <span style="color: #ff79c6;">return</span> rata;
+}
+
+<span style="color: #6272a4;">// Memanggil fungsi</span>
+<span style="color: #ff79c6;">let</span> hasil = <span style="color: #8be9fd;">hitungRataRata</span>(<span style="color: #bd93f9;">85</span>, <span style="color: #bd93f9;">90</span>, <span style="color: #bd93f9;">78</span>);
+<span style="color: #f0db4f;">console</span>.log(hasil); <span style="color: #6272a4;">// 84.33</span></pre>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Sintaks Fungsi</h3>
+                <div class="code-block">
+                    <span class="code-label">Struktur Dasar Fungsi</span>
+                    <code><span class="comment">// 1. Function Declaration (cara klasik)</span>
+<span class="keyword">function</span> <span class="function">namaFungsi</span>(<span class="param">parameter1</span>, <span class="param">parameter2</span>) {
+    <span class="comment">// Kode yang akan dijalankan</span>
+    <span class="keyword">return</span> hasil;  <span class="comment">// Mengembalikan nilai (opsional)</span>
+}
+
+<span class="comment">// 2. Function Expression</span>
+<span class="keyword">const</span> <span class="function">namaFungsi</span> <span class="operator">=</span> <span class="keyword">function</span>(<span class="param">parameter</span>) {
+    <span class="keyword">return</span> hasil;
+};
+
+<span class="comment">// 3. Arrow Function (ES6 - cara modern)</span>
+<span class="keyword">const</span> <span class="function">namaFungsi</span> <span class="operator">=</span> (<span class="param">parameter</span>) <span class="operator">=&gt;</span> {
+    <span class="keyword">return</span> hasil;
+};
+
+<span class="comment">// Arrow function singkat (satu baris)</span>
+<span class="keyword">const</span> <span class="function">kaliDua</span> <span class="operator">=</span> (<span class="param">x</span>) <span class="operator">=&gt;</span> <span class="variable">x</span> <span class="operator">*</span> <span class="number">2</span>;</code>
+                </div>
+
+                <div class="page-number">Halaman 7</div>
+            </div>
+
+            <!-- PAGE 8: FUNGSI PRAKTIS -->
+            <div class="page-content">
+                <h3 class="subsection-title">Contoh Fungsi untuk Project Sistem Akademik</h3>
+
+                <div class="code-block">
+                    <span class="code-label">js/script.js - Fungsi-fungsi Sistem Akademik</span>
+                    <code><span class="comment">// ========================================</span>
+<span class="comment">// FUNGSI UNTUK SISTEM AKADEMIK</span>
+<span class="comment">// ========================================</span>
+
+<span class="comment">// 1. Fungsi untuk menghitung IPK</span>
+<span class="keyword">function</span> <span class="function">hitungIPK</span>(<span class="param">totalNilai</span>, <span class="param">totalSKS</span>) {
+    <span class="keyword">if</span> (<span class="variable">totalSKS</span> <span class="operator">===</span> <span class="number">0</span>) {
+        <span class="keyword">return</span> <span class="number">0</span>;
+    }
+    <span class="keyword">let</span> <span class="variable">ipk</span> <span class="operator">=</span> <span class="variable">totalNilai</span> <span class="operator">/</span> <span class="variable">totalSKS</span>;
+    <span class="keyword">return</span> <span class="variable">ipk</span>.<span class="method">toFixed</span>(<span class="number">2</span>);  <span class="comment">// 2 angka desimal</span>
+}
+
+<span class="comment">// Contoh penggunaan</span>
+<span class="keyword">let</span> <span class="variable">ipkMahasiswa</span> <span class="operator">=</span> <span class="function">hitungIPK</span>(<span class="number">288</span>, <span class="number">80</span>);
+<span class="console">console</span>.<span class="method">log</span>(<span class="string">`IPK: ${<span class="variable">ipkMahasiswa</span>}`</span>);  <span class="comment">// IPK: 3.60</span>
+
+
+<span class="comment">// 2. Fungsi untuk konversi nilai angka ke huruf</span>
+<span class="keyword">function</span> <span class="function">konversiNilai</span>(<span class="param">nilai</span>) {
+    <span class="keyword">if</span> (<span class="variable">nilai</span> <span class="operator">&gt;=</span> <span class="number">85</span>) <span class="keyword">return</span> <span class="string">"A"</span>;
+    <span class="keyword">if</span> (<span class="variable">nilai</span> <span class="operator">&gt;=</span> <span class="number">70</span>) <span class="keyword">return</span> <span class="string">"B"</span>;
+    <span class="keyword">if</span> (<span class="variable">nilai</span> <span class="operator">&gt;=</span> <span class="number">55</span>) <span class="keyword">return</span> <span class="string">"C"</span>;
+    <span class="keyword">if</span> (<span class="variable">nilai</span> <span class="operator">&gt;=</span> <span class="number">40</span>) <span class="keyword">return</span> <span class="string">"D"</span>;
+    <span class="keyword">return</span> <span class="string">"E"</span>;
+}
+
+<span class="comment">// Contoh penggunaan</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">konversiNilai</span>(<span class="number">85</span>));  <span class="comment">// A</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">konversiNilai</span>(<span class="number">72</span>));  <span class="comment">// B</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">konversiNilai</span>(<span class="number">45</span>));  <span class="comment">// D</span>
+
+
+<span class="comment">// 3. Fungsi untuk format nama (capitalize)</span>
+<span class="keyword">function</span> <span class="function">formatNama</span>(<span class="param">nama</span>) {
+    <span class="keyword">return</span> <span class="variable">nama</span>
+        .<span class="method">toLowerCase</span>()
+        .<span class="method">split</span>(<span class="string">' '</span>)
+        .<span class="method">map</span>(<span class="param">kata</span> <span class="operator">=&gt;</span> <span class="variable">kata</span>.<span class="method">charAt</span>(<span class="number">0</span>).<span class="method">toUpperCase</span>() <span class="operator">+</span> <span class="variable">kata</span>.<span class="method">slice</span>(<span class="number">1</span>))
+        .<span class="method">join</span>(<span class="string">' '</span>);
+}
+
+<span class="comment">// Contoh penggunaan</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">formatNama</span>(<span class="string">"AHMAD RIZKI"</span>));      <span class="comment">// Ahmad Rizki</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">formatNama</span>(<span class="string">"budi santoso"</span>));   <span class="comment">// Budi Santoso</span></code>
+                </div>
+
+                <div class="page-number">Halaman 8</div>
+            </div>
+
+            <!-- PAGE 9: FUNGSI VALIDASI FORM -->
+            <div class="page-content">
+                <h3 class="subsection-title">Fungsi Validasi Form (Sangat Penting!)</h3>
+                <p>Validasi form adalah penggunaan JavaScript yang paling umum. Berikut fungsi-fungsi validasi untuk form login dan registrasi:</p>
+
+                <div class="code-block">
+                    <span class="code-label">js/validasi.js - Fungsi Validasi Form</span>
+                    <code><span class="comment">// ========================================</span>
+<span class="comment">// FUNGSI VALIDASI FORM</span>
+<span class="comment">// ========================================</span>
+
+<span class="comment">// 1. Validasi field tidak boleh kosong</span>
+<span class="keyword">function</span> <span class="function">tidakKosong</span>(<span class="param">nilai</span>) {
+    <span class="keyword">return</span> <span class="variable">nilai</span>.<span class="method">trim</span>() <span class="operator">!==</span> <span class="string">""</span>;
+}
+
+<span class="comment">// 2. Validasi format email</span>
+<span class="keyword">function</span> <span class="function">validasiEmail</span>(<span class="param">email</span>) {
+    <span class="keyword">const</span> <span class="variable">pattern</span> <span class="operator">=</span> <span class="string">/^[^\s@]+@[^\s@]+\.[^\s@]+$/</span>;
+    <span class="keyword">return</span> <span class="variable">pattern</span>.<span class="method">test</span>(<span class="variable">email</span>);
+}
+
+<span class="comment">// 3. Validasi panjang minimal password</span>
+<span class="keyword">function</span> <span class="function">validasiPassword</span>(<span class="param">password</span>) {
+    <span class="keyword">return</span> <span class="variable">password</span>.<span class="method">length</span> <span class="operator">&gt;=</span> <span class="number">6</span>;
+}
+
+<span class="comment">// 4. Validasi konfirmasi password</span>
+<span class="keyword">function</span> <span class="function">passwordCocok</span>(<span class="param">password</span>, <span class="param">konfirmasi</span>) {
+    <span class="keyword">return</span> <span class="variable">password</span> <span class="operator">===</span> <span class="variable">konfirmasi</span>;
+}
+
+<span class="comment">// 5. Validasi NIM (hanya angka, 7-10 digit)</span>
+<span class="keyword">function</span> <span class="function">validasiNIM</span>(<span class="param">nim</span>) {
+    <span class="keyword">const</span> <span class="variable">pattern</span> <span class="operator">=</span> <span class="string">/^\d{7,10}$/</span>;
+    <span class="keyword">return</span> <span class="variable">pattern</span>.<span class="method">test</span>(<span class="variable">nim</span>);
+}
+
+<span class="comment">// 6. Validasi nomor HP Indonesia</span>
+<span class="keyword">function</span> <span class="function">validasiHP</span>(<span class="param">nomorHP</span>) {
+    <span class="keyword">const</span> <span class="variable">pattern</span> <span class="operator">=</span> <span class="string">/^(08|62)\d{8,11}$/</span>;
+    <span class="keyword">return</span> <span class="variable">pattern</span>.<span class="method">test</span>(<span class="variable">nomorHP</span>);
+}</code>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">Contoh Penggunaan Fungsi Validasi</span>
+                    <code><span class="comment">// Test validasi</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">tidakKosong</span>(<span class="string">"Ahmad"</span>));           <span class="comment">// true</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">tidakKosong</span>(<span class="string">"   "</span>));             <span class="comment">// false</span>
+
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">validasiEmail</span>(<span class="string">"<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ed8c85808c89ad8a808c8481c38e8280">[email&#160;protected]</a>"</span>));  <span class="comment">// true</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">validasiEmail</span>(<span class="string">"ahmad@"</span>));          <span class="comment">// false</span>
+
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">validasiPassword</span>(<span class="string">"123456"</span>));       <span class="comment">// true</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">validasiPassword</span>(<span class="string">"123"</span>));          <span class="comment">// false</span>
+
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">validasiNIM</span>(<span class="string">"2024001"</span>));           <span class="comment">// true</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">validasiNIM</span>(<span class="string">"ABC123"</span>));            <span class="comment">// false</span>
+
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">validasiHP</span>(<span class="string">"081234567890"</span>));       <span class="comment">// true</span>
+<span class="console">console</span>.<span class="method">log</span>(<span class="function">validasiHP</span>(<span class="string">"12345"</span>));              <span class="comment">// false</span></code>
+                </div>
+
+                <div class="success-box">
+                    <strong>Mengapa Validasi Penting?</strong> Validasi di JavaScript (client-side) memberikan feedback instan kepada user sebelum data dikirim ke server. Namun tetap harus ada validasi di PHP (server-side) untuk keamanan!
+                </div>
+
+                <div class="page-number">Halaman 9</div>
+            </div>
+
+            <!-- PAGE 10: PRAKTIK VALIDASI FORM LOGIN -->
+            <div class="page-content">
+                <h2 class="section-title">&#128187; BAGIAN 4: PRAKTIK PROJECT</h2>
+
+                <h3 class="subsection-title">Menambahkan Validasi ke Form Login</h3>
+                <p>Mari integrasikan JavaScript ke halaman login yang sudah dibuat di Pertemuan 3:</p>
+
+                <div class="code-block">
+                    <span class="code-label">index.html - Update Form Login</span>
+                    <code><span class="comment">&lt;!-- Tambahkan id="loginForm" pada form --&gt;</span>
+<span class="tag">&lt;form</span> <span class="attr">id</span>=<span class="value">"loginForm"</span> <span class="attr">action</span>=<span class="value">"proses_login.php"</span> <span class="attr">method</span>=<span class="value">"POST"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"form-group"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="value">"email"</span><span class="tag">&gt;</span>Email<span class="tag">&lt;/label&gt;</span>
+        <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"email"</span> <span class="attr">id</span>=<span class="value">"email"</span> <span class="attr">name</span>=<span class="value">"email"</span>
+               <span class="attr">placeholder</span>=<span class="value">"Masukkan email..."</span><span class="tag">&gt;</span>
+        <span class="comment">&lt;!-- Tempat pesan error --&gt;</span>
+        <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"error-message"</span> <span class="attr">id</span>=<span class="value">"emailError"</span><span class="tag">&gt;&lt;/span&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"form-group"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;label</span> <span class="attr">for</span>=<span class="value">"password"</span><span class="tag">&gt;</span>Password<span class="tag">&lt;/label&gt;</span>
+        <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"password"</span> <span class="attr">id</span>=<span class="value">"password"</span> <span class="attr">name</span>=<span class="value">"password"</span>
+               <span class="attr">placeholder</span>=<span class="value">"Masukkan password..."</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"error-message"</span> <span class="attr">id</span>=<span class="value">"passwordError"</span><span class="tag">&gt;&lt;/span&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="value">"submit"</span> <span class="attr">class</span>=<span class="value">"btn btn-primary"</span><span class="tag">&gt;</span>Masuk<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span>
+
+<span class="comment">&lt;!-- Tambahkan sebelum &lt;/body&gt; --&gt;</span>
+<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="value">"js/validasi.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="value">"js/login.js"</span><span class="tag">&gt;&lt;/script&gt;</span></code>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">css/style.css - Tambahkan CSS untuk Error</span>
+                    <code><span class="comment">/* Error Message */</span>
+<span class="selector">.error-message</span> {
+    <span class="property">color</span>: <span class="css-value">#e74c3c</span>;
+    <span class="property">font-size</span>: <span class="css-value">12px</span>;
+    <span class="property">margin-top</span>: <span class="css-value">5px</span>;
+    <span class="property">display</span>: <span class="css-value">block</span>;
+}
+
+<span class="selector">.form-group input.error</span> {
+    <span class="property">border-color</span>: <span class="css-value">#e74c3c</span>;
+}
+
+<span class="selector">.form-group input.success</span> {
+    <span class="property">border-color</span>: <span class="css-value">#27ae60</span>;
+}</code>
+                </div>
+
+                <div class="page-number">Halaman 10</div>
+            </div>
+
+            <!-- PAGE 11: SCRIPT LOGIN -->
+            <div class="page-content">
+                <h3 class="subsection-title">Script Validasi Login</h3>
+
+                <div class="code-block">
+                    <span class="code-label">js/login.js - Script Validasi Form Login</span>
+                    <code><span class="comment">// ========================================</span>
+<span class="comment">// VALIDASI FORM LOGIN</span>
+<span class="comment">// ========================================</span>
+
+<span class="comment">// Ambil elemen form</span>
+<span class="keyword">const</span> <span class="variable">loginForm</span> <span class="operator">=</span> document.<span class="method">getElementById</span>(<span class="string">'loginForm'</span>);
+<span class="keyword">const</span> <span class="variable">emailInput</span> <span class="operator">=</span> document.<span class="method">getElementById</span>(<span class="string">'email'</span>);
+<span class="keyword">const</span> <span class="variable">passwordInput</span> <span class="operator">=</span> document.<span class="method">getElementById</span>(<span class="string">'password'</span>);
+<span class="keyword">const</span> <span class="variable">emailError</span> <span class="operator">=</span> document.<span class="method">getElementById</span>(<span class="string">'emailError'</span>);
+<span class="keyword">const</span> <span class="variable">passwordError</span> <span class="operator">=</span> document.<span class="method">getElementById</span>(<span class="string">'passwordError'</span>);
+
+<span class="comment">// Fungsi untuk menampilkan error</span>
+<span class="keyword">function</span> <span class="function">tampilkanError</span>(<span class="param">input</span>, <span class="param">errorSpan</span>, <span class="param">pesan</span>) {
+    <span class="variable">input</span>.<span class="method">classList</span>.<span class="method">add</span>(<span class="string">'error'</span>);
+    <span class="variable">input</span>.<span class="method">classList</span>.<span class="method">remove</span>(<span class="string">'success'</span>);
+    <span class="variable">errorSpan</span>.<span class="method">textContent</span> <span class="operator">=</span> <span class="variable">pesan</span>;
+}
+
+<span class="comment">// Fungsi untuk menghapus error</span>
+<span class="keyword">function</span> <span class="function">hapusError</span>(<span class="param">input</span>, <span class="param">errorSpan</span>) {
+    <span class="variable">input</span>.<span class="method">classList</span>.<span class="method">remove</span>(<span class="string">'error'</span>);
+    <span class="variable">input</span>.<span class="method">classList</span>.<span class="method">add</span>(<span class="string">'success'</span>);
+    <span class="variable">errorSpan</span>.<span class="method">textContent</span> <span class="operator">=</span> <span class="string">''</span>;
+}
+
+<span class="comment">// Event listener saat form di-submit</span>
+<span class="variable">loginForm</span>.<span class="method">addEventListener</span>(<span class="string">'submit'</span>, <span class="keyword">function</span>(<span class="param">event</span>) {
+    <span class="keyword">let</span> <span class="variable">isValid</span> <span class="operator">=</span> <span class="keyword">true</span>;
+
+    <span class="comment">// Validasi email</span>
+    <span class="keyword">if</span> (<span class="operator">!</span><span class="function">tidakKosong</span>(<span class="variable">emailInput</span>.<span class="method">value</span>)) {
+        <span class="function">tampilkanError</span>(<span class="variable">emailInput</span>, <span class="variable">emailError</span>, <span class="string">'Email tidak boleh kosong!'</span>);
+        <span class="variable">isValid</span> <span class="operator">=</span> <span class="keyword">false</span>;
+    } <span class="keyword">else if</span> (<span class="operator">!</span><span class="function">validasiEmail</span>(<span class="variable">emailInput</span>.<span class="method">value</span>)) {
+        <span class="function">tampilkanError</span>(<span class="variable">emailInput</span>, <span class="variable">emailError</span>, <span class="string">'Format email tidak valid!'</span>);
+        <span class="variable">isValid</span> <span class="operator">=</span> <span class="keyword">false</span>;
+    } <span class="keyword">else</span> {
+        <span class="function">hapusError</span>(<span class="variable">emailInput</span>, <span class="variable">emailError</span>);
+    }
+
+    <span class="comment">// Validasi password</span>
+    <span class="keyword">if</span> (<span class="operator">!</span><span class="function">tidakKosong</span>(<span class="variable">passwordInput</span>.<span class="method">value</span>)) {
+        <span class="function">tampilkanError</span>(<span class="variable">passwordInput</span>, <span class="variable">passwordError</span>, <span class="string">'Password tidak boleh kosong!'</span>);
+        <span class="variable">isValid</span> <span class="operator">=</span> <span class="keyword">false</span>;
+    } <span class="keyword">else if</span> (<span class="operator">!</span><span class="function">validasiPassword</span>(<span class="variable">passwordInput</span>.<span class="method">value</span>)) {
+        <span class="function">tampilkanError</span>(<span class="variable">passwordInput</span>, <span class="variable">passwordError</span>, <span class="string">'Password minimal 6 karakter!'</span>);
+        <span class="variable">isValid</span> <span class="operator">=</span> <span class="keyword">false</span>;
+    } <span class="keyword">else</span> {
+        <span class="function">hapusError</span>(<span class="variable">passwordInput</span>, <span class="variable">passwordError</span>);
+    }
+
+    <span class="comment">// Jika tidak valid, cegah submit</span>
+    <span class="keyword">if</span> (<span class="operator">!</span><span class="variable">isValid</span>) {
+        <span class="variable">event</span>.<span class="method">preventDefault</span>();
+    }
+});</code>
+                </div>
+
+                <div class="page-number">Halaman 11</div>
+            </div>
+
+            <!-- PAGE 12: DEMO HASIL -->
+            <div class="page-content">
+                <h3 class="subsection-title">Demo Hasil Validasi</h3>
+                <p>Berikut tampilan form login dengan validasi JavaScript:</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div class="ui-demo">
+                        <div class="ui-demo-bar">
+                            <div class="ui-demo-dot red"></div>
+                            <div class="ui-demo-dot yellow"></div>
+                            <div class="ui-demo-dot green"></div>
+                            <span style="margin-left: 10px; font-size: 10px;">Validasi Error</span>
+                        </div>
+                        <div class="ui-demo-body" style="background: #f8f9fa; padding: 25px;">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px;">Email</label>
+                                <div style="background: #fff; border: 2px solid #e74c3c; border-radius: 6px; padding: 10px; font-size: 12px; color: #333;">ahmad@</div>
+                                <span style="color: #e74c3c; font-size: 11px;">Format email tidak valid!</span>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px;">Password</label>
+                                <div style="background: #fff; border: 2px solid #e74c3c; border-radius: 6px; padding: 10px; font-size: 12px; color: #333;">&#8226;&#8226;&#8226;</div>
+                                <span style="color: #e74c3c; font-size: 11px;">Password minimal 6 karakter!</span>
+                            </div>
+                            <div style="background: #1a1a2e; color: white; padding: 10px; border-radius: 6px; text-align: center; font-size: 13px; font-weight: 600; opacity: 0.7;">Masuk</div>
+                        </div>
+                    </div>
+                    <div class="ui-demo">
+                        <div class="ui-demo-bar">
+                            <div class="ui-demo-dot red"></div>
+                            <div class="ui-demo-dot yellow"></div>
+                            <div class="ui-demo-dot green"></div>
+                            <span style="margin-left: 10px; font-size: 10px;">Validasi Sukses</span>
+                        </div>
+                        <div class="ui-demo-body" style="background: #f8f9fa; padding: 25px;">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px;">Email</label>
+                                <div style="background: #fff; border: 2px solid #27ae60; border-radius: 6px; padding: 10px; font-size: 12px; color: #333;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1a7b72777b7e5a7d777b737634797577">[email&#160;protected]</a></div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px;">Password</label>
+                                <div style="background: #fff; border: 2px solid #27ae60; border-radius: 6px; padding: 10px; font-size: 12px; color: #333;">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;</div>
+                            </div>
+                            <div style="background: #f0db4f; color: #1a1a2e; padding: 10px; border-radius: 6px; text-align: center; font-size: 13px; font-weight: 600;">Masuk</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Struktur Folder Project (Update)</h3>
+                <div class="code-block">
+                    <code>sistem-akademik/
+&#9500;&#9472;&#9472; index.html          <span class="comment"># Halaman login</span>
+&#9500;&#9472;&#9472; dashboard.html      <span class="comment"># Dashboard</span>
+&#9500;&#9472;&#9472; mahasiswa.html      <span class="comment"># Daftar mahasiswa</span>
+&#9500;&#9472;&#9472; tambah.html         <span class="comment"># Form tambah</span>
+&#9500;&#9472;&#9472; edit.html           <span class="comment"># Form edit</span>
+&#9500;&#9472;&#9472; css/
+&#9474;   &#9492;&#9472;&#9472; style.css       <span class="comment"># CSS utama</span>
+&#9500;&#9472;&#9472; js/                 <span class="comment"># &lt;-- FOLDER BARU</span>
+&#9474;   &#9500;&#9472;&#9472; validasi.js     <span class="comment"># Fungsi validasi</span>
+&#9474;   &#9500;&#9472;&#9472; login.js        <span class="comment"># Script halaman login</span>
+&#9474;   &#9492;&#9472;&#9472; script.js       <span class="comment"># Script umum</span>
+&#9492;&#9472;&#9472; img/                <span class="comment"># Folder gambar</span></code>
+                </div>
+
+                <div class="page-number">Halaman 12</div>
+            </div>
+
+            <!-- PAGE 13: TUGAS -->
+            <div class="page-content">
+                <h2 class="section-title">&#128203; EVALUASI & TUGAS KELOMPOK</h2>
+
+                <div class="project-card">
+                    <h3>&#128101; Tugas Project Kelompok - Pertemuan 4</h3>
+                    <p style="margin-bottom: 15px;">Setiap kelompok harus menambahkan JavaScript ke project yang sudah dibuat:</p>
+                    <ol style="margin-left: 20px; line-height: 2.2;">
+                        <li><strong>js/validasi.js</strong> - Berisi fungsi-fungsi validasi (minimal 5 fungsi)</li>
+                        <li><strong>js/login.js</strong> - Validasi form login (email & password)</li>
+                        <li><strong>js/tambah.js</strong> - Validasi form tambah mahasiswa (semua field wajib diisi, NIM hanya angka, dll)</li>
+                        <li><strong>js/script.js</strong> - Fungsi umum (hitungIPK, konversiNilai, formatNama, dll)</li>
+                    </ol>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Ketentuan Tugas:</strong>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Minimal <strong>5 fungsi validasi</strong> yang berbeda</li>
+                        <li>Minimal <strong>3 fungsi utilitas</strong> (seperti hitungIPK, formatNama, dll)</li>
+                        <li>Setiap form harus memiliki validasi JavaScript</li>
+                        <li>Tampilkan pesan error yang informatif kepada user</li>
+                        <li>Gunakan <code>console.log()</code> untuk debugging</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Contoh Fungsi yang Harus Dibuat</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Fungsi</th><th>Deskripsi</th><th>Contoh</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>tidakKosong(nilai)</code></td><td>Cek field tidak kosong</td><td><code>tidakKosong("Ahmad")</code> → true</td></tr>
+                            <tr><td><code>validasiEmail(email)</code></td><td>Cek format email</td><td><code>validasiEmail("<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="254465470b46">[email&#160;protected]</a>")</code> → true</td></tr>
+                            <tr><td><code>validasiPassword(pw)</code></td><td>Cek minimal 6 karakter</td><td><code>validasiPassword("123456")</code> → true</td></tr>
+                            <tr><td><code>validasiNIM(nim)</code></td><td>Cek NIM (7-10 digit angka)</td><td><code>validasiNIM("2024001")</code> → true</td></tr>
+                            <tr><td><code>validasiHP(hp)</code></td><td>Cek nomor HP Indonesia</td><td><code>validasiHP("08123...")</code> → true</td></tr>
+                            <tr><td><code>hitungIPK(nilai, sks)</code></td><td>Menghitung IPK</td><td><code>hitungIPK(288, 80)</code> → 3.60</td></tr>
+                            <tr><td><code>konversiNilai(angka)</code></td><td>Konversi nilai ke huruf</td><td><code>konversiNilai(85)</code> → "A"</td></tr>
+                            <tr><td><code>formatNama(nama)</code></td><td>Format nama (capitalize)</td><td><code>formatNama("budi")</code> → "Budi"</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="page-number">Halaman 13</div>
+            </div>
+
+            <!-- PAGE 14: KRITERIA PENILAIAN -->
+            <div class="page-content">
+                <h3 class="subsection-title">Kriteria Penilaian</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Aspek</th><th>Bobot</th><th>Kriteria</th></tr></thead>
+                        <tbody>
+                            <tr><td>Fungsi Validasi</td><td>30%</td><td>Minimal 5 fungsi, berjalan dengan benar</td></tr>
+                            <tr><td>Fungsi Utilitas</td><td>20%</td><td>Minimal 3 fungsi, output sesuai</td></tr>
+                            <tr><td>Integrasi Form</td><td>25%</td><td>Validasi terintegrasi dengan form HTML</td></tr>
+                            <tr><td>User Experience</td><td>15%</td><td>Pesan error jelas, feedback visual</td></tr>
+                            <tr><td>Kode & Dokumentasi</td><td>10%</td><td>Kode rapi, ada komentar penjelasan</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="subsection-title">Format Pengumpulan</h3>
+                <div class="lab-setup">
+                    <ul class="content-list">
+                        <li>Kumpulkan folder project dalam format <strong>ZIP</strong></li>
+                        <li>Nama file: <code>Kelompok[No]_Pertemuan4_JavaScript.zip</code></li>
+                        <li>Pastikan semua file JS ada di folder <code>js/</code></li>
+                        <li>Test semua fungsi sebelum mengumpulkan</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <strong>Tips Sukses:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>Selalu test fungsi dengan <code>console.log()</code> sebelum diintegrasikan</li>
+                        <li>Buka Developer Tools (F12) untuk melihat error JavaScript</li>
+                        <li>Buat fungsi kecil yang fokus pada satu tugas</li>
+                        <li>Gunakan nama variabel dan fungsi yang deskriptif</li>
+                    </ul>
+                </div>
+
+                <div class="success-box">
+                    <strong>Pertemuan Selanjutnya:</strong> Kita akan mulai mempelajari <strong>PHP Dasar</strong> - variabel, tipe data, operator, dan struktur kontrol. JavaScript yang sudah dipelajari akan sangat membantu karena konsepnya mirip!
+                </div>
+
+                <div class="page-number">Halaman 14</div>
+            </div>
+
+            <!-- FINAL PAGE -->
+            <div class="page-content" style="text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 50vh;">
+                <h2 class="section-title" style="text-align: center;">&#127919; SELAMAT PRAKTIKUM!</h2>
+                <p style="font-size: 1.2em; margin: 30px 0; color: #666;">
+                    "Any fool can write code that a computer can understand.<br>Good programmers write code that humans can understand."<br>
+                    <em>- Martin Fowler</em>
+                </p>
+                <div style="margin-top: 30px; padding: 30px; background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; border-radius: 15px;">
+                    <h3 style="color: #f0db4f; margin-bottom: 20px;">Ringkasan Pertemuan 4</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; text-align: center;">
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">&#128230;</div>
+                            <div style="font-size: 12px;">Variabel & Tipe Data</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">&#9881;&#65039;</div>
+                            <div style="font-size: 12px;">Fungsi</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">&#9989;</div>
+                            <div style="font-size: 12px;">Validasi Form</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">&#128736;</div>
+                            <div style="font-size: 12px;">console.log()</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 40px; padding: 30px; background: #f8f9fa; border-radius: 15px; border-left: 5px solid #f0db4f;">
+                    <h3 style="color: #1a1a2e; margin-bottom: 20px;">Contact Information</h3>
+                    <p><strong>Dosen:</strong> Ikhwan Alfath Nurul Fathony, S.Kom., M.Kom.</p>
+                    <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="94fdfffce3f5fabaf5f8f2f5e0fcd4e1fae0fdf0f5e6baf5f7bafdf0">[email&#160;protected]</a></p>
+                </div>
+                <div style="margin-top: 30px; font-size: 0.9em; color: #888;">
+                    <p>&copy; 2025 Program Studi Teknologi Informasi - Universitas Tidar</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+        function toggleFullscreen() {
+            var btn = document.getElementById('fullscreenBtn');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(function() { btn.textContent = '\u274C Exit'; });
+            } else {
+                document.exitFullscreen().then(function() { btn.textContent = '\uD83D\uDD0D Fullscreen'; });
+            }
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Home') { e.preventDefault(); scrollToTop(); }
+            if (e.key === 'End') { e.preventDefault(); scrollToBottom(); }
+        });
+    </script>
+</body>
+</html>

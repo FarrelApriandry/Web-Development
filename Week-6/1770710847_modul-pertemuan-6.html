@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul Praktikum Pertemuan 6 - Koneksi PHP & MySQL</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; overflow-x: hidden; }
+        .book-container { max-width: 900px; margin: 50px auto; }
+        .book { background: #fff; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden; }
+        .controls { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; }
+        .control-btn { background: rgba(255,255,255,0.9); border: none; padding: 10px 15px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s ease; }
+        .control-btn:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* Cover - Connection Theme (Cyan/Teal) */
+        .cover-page { background: linear-gradient(135deg, #0d4f4f 0%, #128277 50%, #16a085 100%); color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+        .cover-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 30% 20%, rgba(22,160,133,0.2) 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, rgba(18,130,119,0.15) 0%, transparent 50%); z-index: 1; }
+        .cover-page::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(2px 2px at 10% 15%, rgba(255,255,255,0.15) 50%, transparent 50%), radial-gradient(2px 2px at 85% 25%, rgba(255,255,255,0.1) 50%, transparent 50%), radial-gradient(1px 1px at 55% 65%, rgba(255,255,255,0.12) 50%, transparent 50%); z-index: 1; animation: twinkle 4s ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(22,160,133,0.4); } 50% { box-shadow: 0 0 20px 10px rgba(22,160,133,0.1); } }
+        @keyframes connect { 0% { width: 0; } 100% { width: 100%; } }
+        .cover-content { position: relative; z-index: 2; padding: 50px 40px; }
+        .cover-top-bar { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 35px; animation: fadeInUp 0.8s ease-out; }
+        .cover-top-bar .bar-line { flex: 1; max-width: 120px; height: 1px; background: linear-gradient(90deg, transparent, rgba(22,160,133,0.6), transparent); }
+        .cover-university-badge { display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 10px 24px; border-radius: 50px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+        .cover-puzzle { display: flex; justify-content: center; align-items: center; gap: 5px; margin-bottom: 25px; animation: fadeInUp 0.9s ease-out; }
+        .cover-puzzle .puzzle-piece { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 10px 12px; font-size: 11px; font-weight: 600; transition: all 0.3s; }
+        .cover-puzzle .puzzle-piece.active { background: rgba(22,160,133,0.5); border-color: #1abc9c; transform: scale(1.1); }
+        .cover-puzzle .puzzle-connector { width: 20px; height: 3px; background: linear-gradient(90deg, rgba(255,255,255,0.3), #1abc9c); border-radius: 2px; }
+        .cover-label { display: inline-block; background: linear-gradient(135deg, rgba(26,188,156,0.3), rgba(26,188,156,0.1)); border: 1px solid rgba(26,188,156,0.5); padding: 8px 28px; border-radius: 6px; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #1abc9c; margin-bottom: 25px; animation: fadeInUp 1s ease-out; }
+        .cover-main-title { font-size: 2.6em; font-weight: 800; margin-bottom: 8px; text-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: 2px; line-height: 1.2; animation: fadeInUp 1.1s ease-out; }
+        .cover-main-title .highlight { color: #1abc9c; }
+        .cover-course-name { font-size: 1.4em; font-weight: 300; margin-bottom: 35px; opacity: 0.9; animation: fadeInUp 1.2s ease-out; }
+        .cover-meeting-badge { display: inline-flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #1abc9c, #16a085); color: white; padding: 14px 40px; border-radius: 50px; font-size: 1.3em; font-weight: 700; margin-bottom: 15px; box-shadow: 0 8px 30px rgba(26,188,156,0.4); animation: fadeInUp 1.3s ease-out, pulse 2s infinite; border: 2px solid rgba(255,255,255,0.2); }
+        .cover-meeting-badge .meeting-number { background: rgba(255,255,255,0.2); width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+        .cover-topic { font-size: 1.1em; color: rgba(255,255,255,0.85); margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6; animation: fadeInUp 1.4s ease-out; }
+        .cover-info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 650px; margin: 0 auto; animation: fadeInUp 1.5s ease-out; }
+        .cover-info-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 18px 12px; transition: all 0.3s ease; }
+        .cover-info-card:hover { background: rgba(255,255,255,0.12); border-color: rgba(26,188,156,0.5); transform: translateY(-4px); }
+        .cover-info-card .card-icon { font-size: 24px; margin-bottom: 8px; }
+        .cover-info-card .card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #1abc9c; margin-bottom: 4px; }
+        .cover-info-card .card-value { font-size: 13px; font-weight: 500; }
+
+        /* Page Styles */
+        .page-content { padding: 60px 50px; line-height: 1.8; font-size: 16px; color: #333; }
+        .page-number { text-align: right; font-size: 14px; color: #999; margin-top: 40px; padding-top: 15px; border-top: 1px solid #eee; }
+        .section-title { color: #0d4f4f; font-size: 1.9em; font-weight: 700; margin: 40px 0 20px 0; position: relative; }
+        .section-title::before { content: ''; position: absolute; left: 0; bottom: -5px; width: 60px; height: 3px; background: linear-gradient(90deg, #16a085, #1abc9c); }
+        .subsection-title { color: #128277; font-size: 1.35em; font-weight: 600; margin: 30px 0 15px 0; }
+        .objective-list, .content-list { margin: 20px 0; padding-left: 20px; }
+        .objective-list li, .content-list li { margin: 10px 0; position: relative; }
+        .objective-list li::before { content: '\1F3AF'; position: absolute; left: -25px; }
+        .content-list li::before { content: '\1F4CB'; position: absolute; left: -25px; }
+        .learning-outcomes { background: linear-gradient(135deg, #e8f8f5 0%, #fff 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #16a085; box-shadow: 0 5px 15px rgba(22,160,133,0.1); }
+        .lab-setup { background: linear-gradient(135deg, #e8f8f5 0%, #f0fdf9 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #1abc9c; }
+        .warning-box { background: #fff3cd; border-left: 5px solid #f39c12; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .warning-box::before { content: '\26A0\FE0F'; margin-right: 10px; }
+        .info-box { background: #d1ecf1; border-left: 5px solid #17a2b8; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .info-box::before { content: '\2139\FE0F'; margin-right: 10px; }
+        .success-box { background: #d4edda; border-left: 5px solid #28a745; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .success-box::before { content: '\2705'; margin-right: 10px; }
+        .step-item { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 25px; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .step-number { background: linear-gradient(135deg, #16a085, #1abc9c); color: white; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 15px; }
+        .step-title { color: #0d4f4f; font-weight: 600; font-size: 1.1em; margin-bottom: 10px; }
+
+        /* Code Block */
+        .code-block { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 20px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; margin: 20px 0; overflow-x: auto; color: #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; }
+        .code-block::before { content: ''; position: absolute; top: 12px; left: 15px; width: 10px; height: 10px; background: #ff5f57; border-radius: 50%; box-shadow: 16px 0 0 #ffbd2e, 32px 0 0 #28ca42; }
+        .code-block code { display: block; margin-top: 10px; white-space: pre; line-height: 1.6; }
+        .code-label { display: inline-block; background: linear-gradient(135deg, #16a085, #1abc9c); color: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-bottom: 8px; }
+
+        /* Syntax Highlighting */
+        .php-tag { color: #ff79c6; }
+        .keyword { color: #ff79c6; }
+        .string { color: #50fa7b; }
+        .number { color: #bd93f9; }
+        .comment { color: #6272a4; font-style: italic; }
+        .function { color: #8be9fd; }
+        .variable { color: #f8f8f2; }
+        .php-var { color: #ffb86c; }
+        .operator { color: #ff79c6; }
+        .class { color: #8be9fd; font-style: italic; }
+        .method { color: #50fa7b; }
+
+        /* Table */
+        .table-container { overflow-x: auto; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: linear-gradient(135deg, #0d4f4f, #128277); color: white; font-weight: 600; }
+        tr:hover { background: #e8f8f5; }
+
+        /* Puzzle Flow */
+        .puzzle-flow { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin: 30px 0; padding: 25px; background: linear-gradient(135deg, #f8f9fa, #fff); border-radius: 15px; border: 2px dashed #1abc9c; }
+        .puzzle-item { text-align: center; padding: 12px 15px; border-radius: 10px; background: white; box-shadow: 0 3px 10px rgba(0,0,0,0.1); min-width: 80px; border: 2px solid #e0e0e0; transition: all 0.3s; }
+        .puzzle-item.done { border-color: #27ae60; background: #e8f8f5; }
+        .puzzle-item.active { border-color: #1abc9c; background: linear-gradient(135deg, #16a085, #1abc9c); color: white; transform: scale(1.05); }
+        .puzzle-item .puzzle-icon { font-size: 20px; margin-bottom: 3px; }
+        .puzzle-item .puzzle-label { font-size: 10px; font-weight: 600; }
+        .puzzle-arrow { font-size: 18px; color: #1abc9c; }
+
+        /* File Structure */
+        .file-tree { background: #1a1a2e; border-radius: 12px; padding: 20px; font-family: 'Consolas', monospace; font-size: 13px; color: #e2e8f0; }
+        .file-tree code { display: block; white-space: pre; line-height: 1.6; overflow-x: auto; }
+        .file-tree .folder { color: #f0db4f; }
+        .file-tree .file-php { color: #8be9fd; }
+        .file-tree .file-new { color: #50fa7b; }
+        .file-tree .comment { color: #6272a4; }
+
+        /* Project Card */
+        .project-card { background: linear-gradient(135deg, #0d4f4f, #128277); color: white; border-radius: 16px; padding: 30px; margin: 25px 0; }
+        .project-card h3 { color: #1abc9c; margin-bottom: 15px; }
+
+        @media (max-width: 768px) {
+            .book-container { margin: 15px; }
+            .page-content { padding: 30px 20px; }
+            .cover-main-title { font-size: 2em; }
+            .cover-info-cards { grid-template-columns: 1fr; max-width: 280px; }
+            .code-block { font-size: 11px; padding: 15px; }
+            .puzzle-flow { flex-direction: column; }
+            .puzzle-arrow { transform: rotate(90deg); }
+        }
+        .smooth-scroll { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="smooth-scroll">
+    <div class="controls">
+        <button class="control-btn" onclick="scrollToTop()">&#11014;&#65039; Top</button>
+        <button class="control-btn" onclick="scrollToBottom()">&#11015;&#65039; Bottom</button>
+        <button class="control-btn" onclick="toggleFullscreen()" id="fullscreenBtn">&#128269; Fullscreen</button>
+    </div>
+
+    <div class="book-container">
+        <div class="book">
+
+            <!-- COVER PAGE -->
+            <div class="cover-page">
+                <div class="cover-content">
+                    <div class="cover-top-bar">
+                        <div class="bar-line"></div>
+                        <div class="cover-university-badge">
+                            <span>&#127891;</span>
+                            <span>Universitas Tidar</span>
+                        </div>
+                        <div class="bar-line"></div>
+                    </div>
+                    <div class="cover-puzzle">
+                        <div class="puzzle-piece">HTML</div>
+                        <div class="puzzle-connector"></div>
+                        <div class="puzzle-piece">CSS</div>
+                        <div class="puzzle-connector"></div>
+                        <div class="puzzle-piece">JS</div>
+                        <div class="puzzle-connector"></div>
+                        <div class="puzzle-piece">PHP</div>
+                        <div class="puzzle-connector"></div>
+                        <div class="puzzle-piece active">MySQL</div>
+                    </div>
+                    <div class="cover-label">Modul Praktikum</div>
+                    <h1 class="cover-main-title">Koneksi<br><span class="highlight">PHP & MySQL</span></h1>
+                    <p class="cover-course-name">Form Submission & Data Handling</p>
+                    <div class="cover-meeting-badge">
+                        <span class="meeting-number">06</span>
+                        <span>PERTEMUAN 6</span>
+                    </div>
+                    <p class="cover-topic">Menghubungkan Frontend dengan Backend - Puzzle Terakhir untuk Aplikasi Web yang Berfungsi!</p>
+                    <div class="cover-info-cards">
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128218;</div>
+                            <div class="card-label">Program Studi</div>
+                            <div class="card-value">S1 Teknologi Informasi</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#129513;</div>
+                            <div class="card-label">Mode</div>
+                            <div class="card-value">Integrasi Project</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128197;</div>
+                            <div class="card-label">Tahun Akademik</div>
+                            <div class="card-value">Genap 2024/2025</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 1: INFO MODUL -->
+            <div class="page-content">
+                <div style="text-align: center; padding: 40px 0; background: linear-gradient(135deg, #0d4f4f 0%, #128277 100%); color: white; border-radius: 15px; margin-bottom: 40px;">
+                    <div style="font-size: 50px; margin-bottom: 15px;">&#129513;</div>
+                    <h1 style="font-size: 2.2em; font-weight: 700; margin-bottom: 10px;">PERTEMUAN 6</h1>
+                    <h2 style="font-size: 1.3em; opacity: 0.9;">Menghubungkan Semua Puzzle</h2>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                    <h3 style="color: #0d4f4f; margin-bottom: 15px; text-align: center;">&#128203; Informasi Mata Kuliah</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #16a085;">
+                            <p><strong style="color: #0d4f4f;">Mata Kuliah:</strong> Praktikum Aplikasi Web</p>
+                            <p><strong style="color: #0d4f4f;">Kode:</strong> TFC355</p>
+                            <p><strong style="color: #0d4f4f;">SKS:</strong> 1 SKS</p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #1abc9c;">
+                            <p><strong style="color: #0d4f4f;">Dosen:</strong> Ikhwan Alfath N.F., S.Kom., M.Kom.</p>
+                            <p><strong style="color: #0d4f4f;">Durasi:</strong> 1 x 150 menit</p>
+                            <p><strong style="color: #0d4f4f;">Metode:</strong> Project Based Learning</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="learning-outcomes">
+                    <h3 class="subsection-title" style="color: #0d4f4f;">&#127919; Capaian Pembelajaran</h3>
+                    <ul class="objective-list">
+                        <li><strong>Kemampuan Akhir:</strong> Mahasiswa mampu menghubungkan frontend dengan backend menggunakan PHP dan MySQL</li>
+                        <li>Mampu membuat koneksi database dengan PDO</li>
+                        <li>Memahami form submission dan handling data ($_POST, $_GET)</li>
+                        <li>Mampu mengimplementasikan sistem login sederhana</li>
+                        <li>Mampu melakukan operasi Create dan Read dari database</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">&#129513; Menyatukan Semua Puzzle</h3>
+                <p>Pertemuan ini adalah momen di mana semua yang sudah dipelajari akan <strong>terhubung menjadi satu aplikasi yang berfungsi!</strong></p>
+
+                <div class="puzzle-flow">
+                    <div class="puzzle-item done">
+                        <div class="puzzle-icon">&#128290;</div>
+                        <div class="puzzle-label">Flowchart</div>
+                        <div style="font-size: 9px; color: #27ae60;">&#9989; P1</div>
+                    </div>
+                    <div class="puzzle-arrow">&#10145;</div>
+                    <div class="puzzle-item done">
+                        <div class="puzzle-icon">&#127912;</div>
+                        <div class="puzzle-label">Wireframe</div>
+                        <div style="font-size: 9px; color: #27ae60;">&#9989; P2</div>
+                    </div>
+                    <div class="puzzle-arrow">&#10145;</div>
+                    <div class="puzzle-item done">
+                        <div class="puzzle-icon">&lt;/&gt;</div>
+                        <div class="puzzle-label">HTML/CSS</div>
+                        <div style="font-size: 9px; color: #27ae60;">&#9989; P3</div>
+                    </div>
+                    <div class="puzzle-arrow">&#10145;</div>
+                    <div class="puzzle-item done">
+                        <div class="puzzle-icon">JS</div>
+                        <div class="puzzle-label">JavaScript</div>
+                        <div style="font-size: 9px; color: #27ae60;">&#9989; P4</div>
+                    </div>
+                    <div class="puzzle-arrow">&#10145;</div>
+                    <div class="puzzle-item done">
+                        <div class="puzzle-icon">&#128024;</div>
+                        <div class="puzzle-label">PHP+SQL</div>
+                        <div style="font-size: 9px; color: #27ae60;">&#9989; P5</div>
+                    </div>
+                    <div class="puzzle-arrow">&#10145;</div>
+                    <div class="puzzle-item active">
+                        <div class="puzzle-icon">&#128279;</div>
+                        <div class="puzzle-label">CONNECT!</div>
+                        <div style="font-size: 9px;">&#11088; P6</div>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>Hari Ini:</strong> Aplikasi Sistem Akademik yang sudah dibuat akan bisa: Login, menampilkan data dari database, dan menambah data baru!
+                </div>
+
+                <div class="page-number">Halaman 1</div>
+            </div>
+
+            <!-- PAGE 2: TRANSISI DARI PERTEMUAN 5 -->
+            <div class="page-content">
+                <h2 class="section-title">&#128260; TRANSISI DARI PERTEMUAN 5</h2>
+
+                <h3 class="subsection-title">Recap: Apa yang Sudah Dikerjakan?</h3>
+                <p>Di <strong>Pertemuan 5</strong>, kalian sudah mempelajari dasar PHP dan SQL. Sekarang saatnya <strong>menghubungkan semuanya</strong>!</p>
+
+                <div class="info-box">
+                    <strong>&#128203; Checklist dari Pertemuan 5:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>&#9745; Memahami sintaks dasar PHP (variabel, echo, array)</li>
+                        <li>&#9745; Memahami struktur kontrol (if-else, loop)</li>
+                        <li>&#9745; Mengenal query SQL (SELECT, INSERT, UPDATE, DELETE)</li>
+                        <li>&#9745; Mengubah file .html menjadi .php</li>
+                        <li>&#9744; <strong>Belum:</strong> Menghubungkan PHP dengan Database &rarr; <em>Hari ini!</em></li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Perubahan Struktur Project</h3>
+                <p>Berikut perbandingan struktur folder dari pertemuan sebelumnya:</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div style="background: #fff3cd; padding: 20px; border-radius: 12px; border-left: 4px solid #f39c12;">
+                        <h4 style="color: #856404; margin-bottom: 15px;">&#128193; Pertemuan 3-4 (HTML/JS)</h4>
+                        <div style="font-family: monospace; font-size: 12px; line-height: 1.8;">
+                            sistem-akademik/<br>
+                            ├── css/style.css<br>
+                            ├── js/validasi.js<br>
+                            ├── <strong style="color: #e74c3c;">index.html</strong><br>
+                            ├── <strong style="color: #e74c3c;">dashboard.html</strong><br>
+                            └── <strong style="color: #e74c3c;">mahasiswa.html</strong>
+                        </div>
+                    </div>
+                    <div style="background: #d4edda; padding: 20px; border-radius: 12px; border-left: 4px solid #28a745;">
+                        <h4 style="color: #155724; margin-bottom: 15px;">&#128193; Pertemuan 6 (PHP+MySQL)</h4>
+                        <div style="font-family: monospace; font-size: 12px; line-height: 1.8;">
+                            sistem-akademik/<br>
+                            ├── <strong style="color: #28a745;">config/database.php</strong> &#10024;<br>
+                            ├── <strong style="color: #28a745;">includes/auth.php</strong> &#10024;<br>
+                            ├── css/style.css<br>
+                            ├── js/validasi.js<br>
+                            ├── <strong style="color: #28a745;">index.php</strong> &#128260;<br>
+                            ├── <strong style="color: #28a745;">dashboard.php</strong> &#128260;<br>
+                            └── <strong style="color: #28a745;">mahasiswa.php</strong> &#128260;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Penting!</strong> File <code>.html</code> diubah menjadi <code>.php</code> agar bisa:
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>Menggunakan kode PHP di dalamnya</li>
+                        <li>Mengakses session untuk menyimpan data login</li>
+                        <li>Mengambil data dari database</li>
+                        <li>Memproses form submission</li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 2</div>
+            </div>
+
+            <!-- PAGE 3: PERSIAPAN DATABASE -->
+            <div class="page-content">
+                <h2 class="section-title">&#128451; PERSIAPAN DATABASE</h2>
+
+                <h3 class="subsection-title">Langkah 1: Buka phpMyAdmin</h3>
+                <div class="step-item">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Pastikan XAMPP sudah berjalan</span>
+                    <p>Buka XAMPP Control Panel, lalu <strong>Start</strong> Apache dan MySQL.</p>
+                </div>
+
+                <div class="step-item">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Akses phpMyAdmin</span>
+                    <p>Buka browser dan ketik: <code style="background: #e8f8f5; padding: 3px 8px; border-radius: 4px;">http://localhost/phpmyadmin</code></p>
+                </div>
+
+                <h3 class="subsection-title">Langkah 2: Buat Database Baru</h3>
+                <div class="step-item">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Klik tab "Databases" atau "Basis Data"</span>
+                    <p>Di bagian "Create database", ketik nama database: <code>db_akademik</code></p>
+                    <p>Pilih collation: <code>utf8mb4_general_ci</code>, lalu klik <strong>Create</strong>.</p>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
+                    <div style="display: inline-flex; align-items: center; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                        <div style="padding: 12px 20px; background: #fff; border-radius: 8px; border: 2px solid #ddd;">
+                            <div style="font-size: 24px;">&#128187;</div>
+                            <div style="font-size: 11px;">phpMyAdmin</div>
+                        </div>
+                        <div style="font-size: 20px; color: #16a085;">&#10145;</div>
+                        <div style="padding: 12px 20px; background: #fff; border-radius: 8px; border: 2px solid #ddd;">
+                            <div style="font-size: 24px;">&#128451;</div>
+                            <div style="font-size: 11px;">Databases</div>
+                        </div>
+                        <div style="font-size: 20px; color: #16a085;">&#10145;</div>
+                        <div style="padding: 12px 20px; background: #d4edda; border-radius: 8px; border: 2px solid #28a745;">
+                            <div style="font-size: 24px;">&#10133;</div>
+                            <div style="font-size: 11px;">Create</div>
+                        </div>
+                        <div style="font-size: 20px; color: #16a085;">&#10145;</div>
+                        <div style="padding: 12px 20px; background: #e8f8f5; border-radius: 8px; border: 2px solid #16a085;">
+                            <div style="font-size: 24px;">&#9989;</div>
+                            <div style="font-size: 11px;">db_akademik</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Langkah 3: Jalankan Query SQL</h3>
+                <p>Setelah database <code>db_akademik</code> terbuat, klik nama database tersebut, lalu pilih tab <strong>"SQL"</strong> untuk menjalankan query.</p>
+
+                <div class="page-number">Halaman 3</div>
+            </div>
+
+            <!-- PAGE 4: QUERY DATABASE -->
+            <div class="page-content">
+                <h3 class="subsection-title">Query Membuat Tabel Users</h3>
+                <p>Tabel <code>users</code> digunakan untuk menyimpan data login (email, password, role).</p>
+
+                <div class="code-block">
+                    <span class="code-label">SQL - Tabel Users</span>
+                    <code><span class="comment">-- Tabel untuk menyimpan data user login</span>
+<span class="keyword">CREATE TABLE</span> <span class="function">users</span> (
+    <span class="php-var">id</span> <span class="keyword">INT AUTO_INCREMENT PRIMARY KEY</span>,
+    <span class="php-var">email</span> <span class="keyword">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT NULL UNIQUE</span>,
+    <span class="php-var">password</span> <span class="keyword">VARCHAR</span>(<span class="number">255</span>) <span class="keyword">NOT NULL</span>,
+    <span class="php-var">nama</span> <span class="keyword">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT NULL</span>,
+    <span class="php-var">role</span> <span class="keyword">ENUM</span>(<span class="string">'admin'</span>, <span class="string">'user'</span>) <span class="keyword">DEFAULT</span> <span class="string">'user'</span>,
+    <span class="php-var">created_at</span> <span class="keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);</code>
+                </div>
+
+                <h3 class="subsection-title">Query Membuat Tabel Mahasiswa</h3>
+                <p>Tabel <code>mahasiswa</code> menyimpan data mahasiswa yang akan ditampilkan dan dikelola.</p>
+
+                <div class="code-block">
+                    <span class="code-label">SQL - Tabel Mahasiswa</span>
+                    <code><span class="comment">-- Tabel untuk menyimpan data mahasiswa</span>
+<span class="keyword">CREATE TABLE</span> <span class="function">mahasiswa</span> (
+    <span class="php-var">nim</span> <span class="keyword">VARCHAR</span>(<span class="number">10</span>) <span class="keyword">PRIMARY KEY</span>,
+    <span class="php-var">nama</span> <span class="keyword">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">NOT NULL</span>,
+    <span class="php-var">email</span> <span class="keyword">VARCHAR</span>(<span class="number">100</span>) <span class="keyword">UNIQUE</span>,
+    <span class="php-var">prodi</span> <span class="keyword">VARCHAR</span>(<span class="number">50</span>),
+    <span class="php-var">semester</span> <span class="keyword">INT DEFAULT</span> <span class="number">1</span>,
+    <span class="php-var">alamat</span> <span class="keyword">TEXT</span>,
+    <span class="php-var">no_hp</span> <span class="keyword">VARCHAR</span>(<span class="number">15</span>),
+    <span class="php-var">created_at</span> <span class="keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);</code>
+                </div>
+
+                <div class="info-box">
+                    <strong>Penjelasan Tipe Data:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li><code>INT</code> - Bilangan bulat</li>
+                        <li><code>VARCHAR(n)</code> - Teks dengan panjang maksimal n karakter</li>
+                        <li><code>TEXT</code> - Teks panjang (untuk alamat)</li>
+                        <li><code>ENUM</code> - Pilihan terbatas (admin/user)</li>
+                        <li><code>TIMESTAMP</code> - Waktu otomatis saat data dibuat</li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 4</div>
+            </div>
+
+            <!-- PAGE 5: INSERT DATA SAMPLE -->
+            <div class="page-content">
+                <h3 class="subsection-title">Query Insert Data Sample</h3>
+                <p>Setelah tabel dibuat, masukkan data sample untuk testing:</p>
+
+                <div class="code-block">
+                    <span class="code-label">SQL - Insert Data Users</span>
+                    <code><span class="comment">-- Insert user admin untuk login</span>
+<span class="keyword">INSERT INTO</span> <span class="function">users</span> (<span class="php-var">email</span>, <span class="php-var">password</span>, <span class="php-var">nama</span>, <span class="php-var">role</span>) <span class="keyword">VALUES</span>
+(<span class="string">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2041444d494e60554e54494441520e41430e4944">[email&#160;protected]</a>'</span>, <span class="string">'admin123'</span>, <span class="string">'Administrator'</span>, <span class="string">'admin'</span>),
+(<span class="string">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="caaea5b9afa48abfa4bea3aeabb8e4aba9e4a3ae">[email&#160;protected]</a>'</span>, <span class="string">'dosen123'</span>, <span class="string">'Budi Santoso'</span>, <span class="string">'user'</span>);</code>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-label">SQL - Insert Data Mahasiswa</span>
+                    <code><span class="comment">-- Insert data mahasiswa sample</span>
+<span class="keyword">INSERT INTO</span> <span class="function">mahasiswa</span> (<span class="php-var">nim</span>, <span class="php-var">nama</span>, <span class="php-var">email</span>, <span class="php-var">prodi</span>, <span class="php-var">semester</span>, <span class="php-var">no_hp</span>, <span class="php-var">alamat</span>) <span class="keyword">VALUES</span>
+(<span class="string">'2024001'</span>, <span class="string">'Ahmad Rizki'</span>, <span class="string">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ec8d84818d88ac9f989988898298c299829885888d9ec28d8fc28588">[email&#160;protected]</a>'</span>, <span class="string">'Teknologi Informasi'</span>, <span class="number">4</span>, <span class="string">'081234567890'</span>, <span class="string">'Jl. Magelang No. 10'</span>),
+(<span class="string">'2024002'</span>, <span class="string">'Siti Nurhaliza'</span>, <span class="string">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="95e6fce1fcd5e6e1e0f1f0fbe1bbe0fbe1fcf1f4e7bbf4f6bbfcf1">[email&#160;protected]</a>'</span>, <span class="string">'Teknologi Informasi'</span>, <span class="number">4</span>, <span class="string">'081234567891'</span>, <span class="string">'Jl. Tidar No. 5'</span>),
+(<span class="string">'2024003'</span>, <span class="string">'Budi Prasetyo'</span>, <span class="string">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fb998e9f92bb888f8e9f9e958fd58e958f929f9a89d59a98d5929f">[email&#160;protected]</a>'</span>, <span class="string">'Sistem Informasi'</span>, <span class="number">2</span>, <span class="string">'081234567892'</span>, <span class="string">'Jl. Sudirman No. 20'</span>),
+(<span class="string">'2024004'</span>, <span class="string">'Dewi Lestari'</span>, <span class="string">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a9cdccdec0e9dadddccdccc7dd87dcc7ddc0cdc8db87c8ca87c0cd">[email&#160;protected]</a>'</span>, <span class="string">'Teknologi Informasi'</span>, <span class="number">6</span>, <span class="string">'081234567893'</span>, <span class="string">'Jl. Pemuda No. 15'</span>),
+(<span class="string">'2024005'</span>, <span class="string">'Eko Saputra'</span>, <span class="string">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6306080c2310171607060d174d160d170a0702114d02004d0a07">[email&#160;protected]</a>'</span>, <span class="string">'Sistem Informasi'</span>, <span class="number">4</span>, <span class="string">'081234567894'</span>, <span class="string">'Jl. Diponegoro No. 8'</span>);</code>
+                </div>
+
+                <div class="success-box">
+                    <strong>&#9989; Verifikasi Data:</strong> Setelah menjalankan semua query, klik tab <strong>"Browse"</strong> pada masing-masing tabel untuk memastikan data sudah masuk dengan benar.
+                </div>
+
+                <div class="warning-box">
+                    <strong>Akun Login untuk Testing:</strong>
+                    <table style="width: 100%; margin-top: 10px; background: white; border-radius: 8px; overflow: hidden;">
+                        <tr style="background: #f8f9fa;"><th style="padding: 10px; text-align: left;">Email</th><th style="padding: 10px; text-align: left;">Password</th><th style="padding: 10px; text-align: left;">Role</th></tr>
+                        <tr><td style="padding: 10px;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dfbebbb2b6b19faab1abb6bbbeadf1bebcf1b6bb">[email&#160;protected]</a></td><td style="padding: 10px;">admin123</td><td style="padding: 10px;">Admin</td></tr>
+                        <tr><td style="padding: 10px;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="60040f13050e20150e14090401124e01034e0904">[email&#160;protected]</a></td><td style="padding: 10px;">dosen123</td><td style="padding: 10px;">User</td></tr>
+                    </table>
+                </div>
+
+                <div class="page-number">Halaman 5</div>
+            </div>
+
+            <!-- PAGE 6: PERUBAHAN FILE -->
+            <div class="page-content">
+                <h2 class="section-title">&#128260; PERUBAHAN FILE HTML KE PHP</h2>
+
+                <h3 class="subsection-title">Mengapa Harus Berubah ke .php?</h3>
+                <p>File <code>.html</code> hanya bisa menampilkan konten statis. Dengan mengubah ke <code>.php</code>, kita bisa:</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                    <div style="background: #e8f8f5; padding: 20px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 30px; margin-bottom: 10px;">&#128274;</div>
+                        <div style="font-weight: 600; color: #0d4f4f;">Session</div>
+                        <div style="font-size: 12px; color: #666;">Menyimpan data login</div>
+                    </div>
+                    <div style="background: #e8f8f5; padding: 20px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 30px; margin-bottom: 10px;">&#128451;</div>
+                        <div style="font-weight: 600; color: #0d4f4f;">Database</div>
+                        <div style="font-size: 12px; color: #666;">Mengambil data dinamis</div>
+                    </div>
+                    <div style="background: #e8f8f5; padding: 20px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 30px; margin-bottom: 10px;">&#128228;</div>
+                        <div style="font-weight: 600; color: #0d4f4f;">Form Processing</div>
+                        <div style="font-size: 12px; color: #666;">$_POST / $_GET</div>
+                    </div>
+                    <div style="background: #e8f8f5; padding: 20px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 30px; margin-bottom: 10px;">&#128260;</div>
+                        <div style="font-weight: 600; color: #0d4f4f;">Include</div>
+                        <div style="font-size: 12px; color: #666;">Reuse kode PHP</div>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Contoh Perubahan: index.html &#10145; index.php</h3>
+                <p>Berikut perbandingan file login sebelum dan sesudah:</p>
+
+                <div class="code-block">
+                    <span class="code-label" style="background: #e74c3c;">index.html (SEBELUM - Pertemuan 3)</span>
+                    <code><span class="php-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="php-tag">&lt;html lang="id"&gt;</span>
+<span class="php-tag">&lt;head&gt;</span>
+    <span class="php-tag">&lt;title&gt;</span>Login - Sistem Akademik<span class="php-tag">&lt;/title&gt;</span>
+    <span class="php-tag">&lt;link rel="stylesheet" href="css/style.css"&gt;</span>
+<span class="php-tag">&lt;/head&gt;</span>
+<span class="php-tag">&lt;body&gt;</span>
+    <span class="php-tag">&lt;form</span> <span class="php-tag">id="loginForm"&gt;</span>   <span class="comment">&lt;!-- Tidak ada action! --&gt;</span>
+        <span class="php-tag">&lt;input type="email" id="email" required&gt;</span>
+        <span class="php-tag">&lt;input type="password" id="password" required&gt;</span>
+        <span class="php-tag">&lt;button type="submit"&gt;</span>Login<span class="php-tag">&lt;/button&gt;</span>
+    <span class="php-tag">&lt;/form&gt;</span>
+    <span class="php-tag">&lt;script src="js/validasi.js"&gt;&lt;/script&gt;</span>   <span class="comment">&lt;!-- Validasi JS saja --&gt;</span>
+<span class="php-tag">&lt;/body&gt;</span>
+<span class="php-tag">&lt;/html&gt;</span></code>
+                </div>
+
+                <div class="info-box">
+                    <strong>Masalah dengan index.html:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>&#10060; Form tidak dikirim ke server</li>
+                        <li>&#10060; Tidak bisa cek ke database</li>
+                        <li>&#10060; Validasi hanya di client (bisa di-bypass)</li>
+                        <li>&#10060; Tidak ada session untuk menyimpan status login</li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 6</div>
+            </div>
+
+            <!-- PAGE 7: INDEX.PHP BARU -->
+            <div class="page-content">
+                <h3 class="subsection-title">index.php (SESUDAH - Pertemuan 6)</h3>
+
+                <div class="code-block">
+                    <span class="code-label" style="background: #28a745;">index.php (BARU)</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">// BARIS 1: Mulai session - WAJIB di awal file PHP yang pakai session</span>
+<span class="keyword">session_start</span>();
+
+<span class="comment">// Cek jika sudah login, redirect ke dashboard</span>
+<span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>])) {
+    <span class="function">header</span>(<span class="string">"Location: dashboard.php"</span>);
+    <span class="keyword">exit</span>;
+}
+<span class="php-tag">?&gt;</span>
+<span class="php-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="php-tag">&lt;html lang="id"&gt;</span>
+<span class="php-tag">&lt;head&gt;</span>
+    <span class="php-tag">&lt;title&gt;</span>Login - Sistem Akademik<span class="php-tag">&lt;/title&gt;</span>
+    <span class="php-tag">&lt;link rel="stylesheet" href="css/style.css"&gt;</span>
+<span class="php-tag">&lt;/head&gt;</span>
+<span class="php-tag">&lt;body class="login-page"&gt;</span>
+    <span class="php-tag">&lt;div class="login-container"&gt;</span>
+        <span class="php-tag">&lt;div class="login-card"&gt;</span>
+            <span class="php-tag">&lt;h1&gt;</span>&#127891; Sistem Akademik<span class="php-tag">&lt;/h1&gt;</span>
+
+            <span class="comment">&lt;!-- BARU: Tampilkan pesan error/sukses dari URL --&gt;</span>
+            <span class="php-tag">&lt;?php</span> <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="php-var">$_GET</span>[<span class="string">'error'</span>])): <span class="php-tag">?&gt;</span>
+                <span class="php-tag">&lt;div class="alert alert-danger"&gt;</span>
+                    <span class="php-tag">&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$_GET</span>[<span class="string">'error'</span>]) <span class="php-tag">?&gt;</span>
+                <span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;?php</span> <span class="keyword">endif</span>; <span class="php-tag">?&gt;</span>
+
+            <span class="php-tag">&lt;?php</span> <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="php-var">$_GET</span>[<span class="string">'msg'</span>])): <span class="php-tag">?&gt;</span>
+                <span class="php-tag">&lt;div class="alert alert-success"&gt;</span>
+                    <span class="php-tag">&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$_GET</span>[<span class="string">'msg'</span>]) <span class="php-tag">?&gt;</span>
+                <span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;?php</span> <span class="keyword">endif</span>; <span class="php-tag">?&gt;</span>
+
+            <span class="comment">&lt;!-- BARU: Form mengirim ke proses_login.php --&gt;</span>
+            <span class="php-tag">&lt;form</span> <span class="php-tag">action="proses_login.php"</span> <span class="php-tag">method="POST"</span> <span class="php-tag">id="loginForm"&gt;</span>
+                <span class="php-tag">&lt;div class="form-group"&gt;</span>
+                    <span class="php-tag">&lt;label&gt;</span>Email<span class="php-tag">&lt;/label&gt;</span>
+                    <span class="comment">&lt;!-- BARU: Tambah atribut name --&gt;</span>
+                    <span class="php-tag">&lt;input type="email" <strong>name="email"</strong> id="email" required&gt;</span>
+                <span class="php-tag">&lt;/div&gt;</span>
+                <span class="php-tag">&lt;div class="form-group"&gt;</span>
+                    <span class="php-tag">&lt;label&gt;</span>Password<span class="php-tag">&lt;/label&gt;</span>
+                    <span class="php-tag">&lt;input type="password" <strong>name="password"</strong> id="password" required&gt;</span>
+                <span class="php-tag">&lt;/div&gt;</span>
+                <span class="php-tag">&lt;button type="submit" class="btn btn-primary"&gt;</span>Masuk<span class="php-tag">&lt;/button&gt;</span>
+            <span class="php-tag">&lt;/form&gt;</span>
+        <span class="php-tag">&lt;/div&gt;</span>
+    <span class="php-tag">&lt;/div&gt;</span>
+    <span class="php-tag">&lt;script src="js/validasi.js"&gt;&lt;/script&gt;</span>
+<span class="php-tag">&lt;/body&gt;</span>
+<span class="php-tag">&lt;/html&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 7</div>
+            </div>
+
+            <!-- PAGE 8: PERBEDAAN DETAIL -->
+            <div class="page-content">
+                <h3 class="subsection-title">Ringkasan Perbedaan Penting</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Aspek</th>
+                                <th style="width: 35%;">index.html (Lama)</th>
+                                <th style="width: 40%;">index.php (Baru)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Session</strong></td>
+                                <td>&#10060; Tidak ada</td>
+                                <td>&#9989; <code>session_start()</code> di awal</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Form Action</strong></td>
+                                <td>&#10060; Kosong / JS only</td>
+                                <td>&#9989; <code>action="proses_login.php"</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Form Method</strong></td>
+                                <td>&#10060; Tidak ada</td>
+                                <td>&#9989; <code>method="POST"</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Input Name</strong></td>
+                                <td>&#10060; Hanya <code>id</code></td>
+                                <td>&#9989; Ada <code>name="email"</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Error Message</strong></td>
+                                <td>&#10060; Alert JS</td>
+                                <td>&#9989; PHP dari <code>$_GET['error']</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cek Login</strong></td>
+                                <td>&#10060; Tidak ada</td>
+                                <td>&#9989; Redirect jika sudah login</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="success-box">
+                    <strong>&#128161; Penting untuk Diingat:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>Atribut <code>name</code> pada input <strong>WAJIB</strong> ada agar data bisa dikirim via POST/GET</li>
+                        <li>Atribut <code>id</code> tetap diperlukan untuk JavaScript (validasi client-side)</li>
+                        <li><code>session_start()</code> harus dipanggil <strong>sebelum</strong> output HTML apapun</li>
+                        <li>Gunakan <code>htmlspecialchars()</code> untuk mencegah XSS attack</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Validasi Tetap 2 Layer:</strong>
+                    <ol style="margin-top: 10px; margin-left: 20px;">
+                        <li><strong>Client-side (JavaScript):</strong> validasi.js tetap berjalan untuk UX yang baik</li>
+                        <li><strong>Server-side (PHP):</strong> proses_login.php validasi ulang untuk keamanan</li>
+                    </ol>
+                </div>
+
+                <div class="page-number">Halaman 8</div>
+            </div>
+
+            <!-- PAGE 9: KONEKSI DATABASE -->
+            <div class="page-content">
+                <h2 class="section-title">&#128279; BAGIAN 1: KONEKSI DATABASE</h2>
+
+                <h3 class="subsection-title">Membuat File Koneksi dengan PDO</h3>
+                <p><strong>PDO (PHP Data Objects)</strong> adalah cara modern dan aman untuk terhubung ke database. PDO mendukung prepared statements yang mencegah SQL Injection.</p>
+
+                <div class="code-block">
+                    <span class="code-label">config/database.php</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">/**
+ * Konfigurasi Koneksi Database
+ * File ini akan di-include di semua halaman yang butuh akses database
+ */</span>
+
+<span class="comment">// Konfigurasi Database</span>
+<span class="php-var">$host</span> = <span class="string">"localhost"</span>;      <span class="comment">// Server database</span>
+<span class="php-var">$dbname</span> = <span class="string">"db_akademik"</span>;   <span class="comment">// Nama database</span>
+<span class="php-var">$username</span> = <span class="string">"root"</span>;        <span class="comment">// Username (default XAMPP)</span>
+<span class="php-var">$password</span> = <span class="string">""</span>;            <span class="comment">// Password (default XAMPP kosong)</span>
+
+<span class="keyword">try</span> {
+    <span class="comment">// Membuat koneksi PDO</span>
+    <span class="php-var">$pdo</span> = <span class="keyword">new</span> <span class="class">PDO</span>(
+        <span class="string">"mysql:host=<span class="php-var">$host</span>;dbname=<span class="php-var">$dbname</span>;charset=utf8"</span>,
+        <span class="php-var">$username</span>,
+        <span class="php-var">$password</span>
+    );
+
+    <span class="comment">// Set error mode ke exception</span>
+    <span class="php-var">$pdo</span>-><span class="method">setAttribute</span>(<span class="class">PDO</span>::ATTR_ERRMODE, <span class="class">PDO</span>::ERRMODE_EXCEPTION);
+
+    <span class="comment">// Set default fetch mode ke associative array</span>
+    <span class="php-var">$pdo</span>-><span class="method">setAttribute</span>(<span class="class">PDO</span>::ATTR_DEFAULT_FETCH_MODE, <span class="class">PDO</span>::FETCH_ASSOC);
+
+} <span class="keyword">catch</span> (<span class="class">PDOException</span> <span class="php-var">$e</span>) {
+    <span class="comment">// Jika koneksi gagal</span>
+    <span class="keyword">die</span>(<span class="string">"Koneksi database gagal: "</span> . <span class="php-var">$e</span>-><span class="method">getMessage</span>());
+}
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <div class="info-box">
+                    <strong>Mengapa PDO?</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li><strong>Keamanan:</strong> Prepared statements mencegah SQL Injection</li>
+                        <li><strong>Fleksibel:</strong> Bisa digunakan untuk MySQL, PostgreSQL, SQLite, dll.</li>
+                        <li><strong>Modern:</strong> Standar yang direkomendasikan untuk PHP modern</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Cara Menggunakan Koneksi</h3>
+                <div class="code-block">
+                    <span class="code-label">Contoh: Menggunakan koneksi di halaman lain</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">// Include file koneksi di awal halaman</span>
+<span class="keyword">require_once</span> <span class="string">'config/database.php'</span>;
+
+<span class="comment">// Sekarang variabel $pdo bisa digunakan untuk query</span>
+<span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">query</span>(<span class="string">"SELECT * FROM mahasiswa"</span>);
+<span class="php-var">$data</span> = <span class="php-var">$stmt</span>-><span class="method">fetchAll</span>();
+
+<span class="keyword">foreach</span> (<span class="php-var">$data</span> <span class="keyword">as</span> <span class="php-var">$row</span>) {
+    <span class="keyword">echo</span> <span class="php-var">$row</span>[<span class="string">'nama'</span>] . <span class="string">"&lt;br&gt;"</span>;
+}
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 9</div>
+            </div>
+
+            <!-- PAGE 10: FORM SUBMISSION -->
+            <div class="page-content">
+                <h2 class="section-title">&#128228; BAGIAN 2: FORM SUBMISSION</h2>
+
+                <h3 class="subsection-title">Memahami $_POST dan $_GET</h3>
+                <p>Ketika form HTML di-submit, data dikirim ke server PHP. PHP menerima data melalui superglobal <code>$_POST</code> atau <code>$_GET</code>.</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Method</th><th>Superglobal</th><th>Karakteristik</th><th>Kapan Digunakan</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><code>POST</code></td>
+                                <td><code>$_POST</code></td>
+                                <td>Data tersembunyi, aman untuk data sensitif</td>
+                                <td>Login, registrasi, simpan data</td>
+                            </tr>
+                            <tr>
+                                <td><code>GET</code></td>
+                                <td><code>$_GET</code></td>
+                                <td>Data tampil di URL, bisa di-bookmark</td>
+                                <td>Pencarian, filter, pagination</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="subsection-title">Alur Form Submission</h3>
+                <div style="background: #f8f9fa; padding: 25px; border-radius: 12px; margin: 20px 0;">
+                    <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 15px; text-align: center;">
+                        <div style="padding: 15px; background: white; border-radius: 10px; border: 2px solid #3498db; min-width: 120px;">
+                            <div style="font-size: 30px;">&#128196;</div>
+                            <div style="font-weight: 600; font-size: 13px;">Form HTML</div>
+                            <div style="font-size: 11px; color: #666;">User mengisi form</div>
+                        </div>
+                        <div style="font-size: 24px; color: #16a085;">&#10145;</div>
+                        <div style="padding: 15px; background: white; border-radius: 10px; border: 2px solid #9b59b6; min-width: 120px;">
+                            <div style="font-size: 30px;">JS</div>
+                            <div style="font-weight: 600; font-size: 13px;">Validasi JS</div>
+                            <div style="font-size: 11px; color: #666;">Cek client-side</div>
+                        </div>
+                        <div style="font-size: 24px; color: #16a085;">&#10145;</div>
+                        <div style="padding: 15px; background: white; border-radius: 10px; border: 2px solid #e74c3c; min-width: 120px;">
+                            <div style="font-size: 30px;">&#128024;</div>
+                            <div style="font-weight: 600; font-size: 13px;">Proses PHP</div>
+                            <div style="font-size: 11px; color: #666;">$_POST / $_GET</div>
+                        </div>
+                        <div style="font-size: 24px; color: #16a085;">&#10145;</div>
+                        <div style="padding: 15px; background: white; border-radius: 10px; border: 2px solid #27ae60; min-width: 120px;">
+                            <div style="font-size: 30px;">&#128451;</div>
+                            <div style="font-weight: 600; font-size: 13px;">MySQL</div>
+                            <div style="font-size: 11px; color: #666;">Simpan ke DB</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Contoh: Form Login yang Terhubung</h3>
+                <div class="code-block">
+                    <span class="code-label">index.php - Form Login (Update)</span>
+                    <code><span class="php-tag">&lt;?php</span> <span class="keyword">session_start</span>(); <span class="php-tag">?&gt;</span>
+<span class="php-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="php-tag">&lt;html lang="id"&gt;</span>
+<span class="php-tag">&lt;head&gt;</span>
+    <span class="php-tag">&lt;meta charset="UTF-8"&gt;</span>
+    <span class="php-tag">&lt;title&gt;</span>Login - Sistem Akademik<span class="php-tag">&lt;/title&gt;</span>
+    <span class="php-tag">&lt;link rel="stylesheet" href="css/style.css"&gt;</span>
+<span class="php-tag">&lt;/head&gt;</span>
+<span class="php-tag">&lt;body class="login-page"&gt;</span>
+    <span class="php-tag">&lt;div class="login-container"&gt;</span>
+        <span class="php-tag">&lt;div class="login-card"&gt;</span>
+            <span class="php-tag">&lt;div class="login-header"&gt;</span>
+                <span class="php-tag">&lt;h1&gt;</span>&#127891; Sistem Akademik<span class="php-tag">&lt;/h1&gt;</span>
+            <span class="php-tag">&lt;/div&gt;</span>
+
+            <span class="comment">&lt;!-- Tampilkan pesan error jika ada --&gt;</span>
+            <span class="php-tag">&lt;?php</span> <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="php-var">$_GET</span>[<span class="string">'error'</span>])): <span class="php-tag">?&gt;</span>
+                <span class="php-tag">&lt;div class="alert alert-danger"&gt;</span>
+                    <span class="php-tag">&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$_GET</span>[<span class="string">'error'</span>]) <span class="php-tag">?&gt;</span>
+                <span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;?php</span> <span class="keyword">endif</span>; <span class="php-tag">?&gt;</span>
+
+            <span class="comment">&lt;!-- Form mengirim ke proses_login.php --&gt;</span>
+            <span class="php-tag">&lt;form</span> <span class="php-tag">action="proses_login.php"</span> <span class="php-tag">method="POST"</span> <span class="php-tag">id="loginForm"&gt;</span>
+                <span class="php-tag">&lt;div class="form-group"&gt;</span>
+                    <span class="php-tag">&lt;label&gt;</span>Email<span class="php-tag">&lt;/label&gt;</span>
+                    <span class="php-tag">&lt;input type="email" name="email" required&gt;</span>
+                <span class="php-tag">&lt;/div&gt;</span>
+                <span class="php-tag">&lt;div class="form-group"&gt;</span>
+                    <span class="php-tag">&lt;label&gt;</span>Password<span class="php-tag">&lt;/label&gt;</span>
+                    <span class="php-tag">&lt;input type="password" name="password" required&gt;</span>
+                <span class="php-tag">&lt;/div&gt;</span>
+                <span class="php-tag">&lt;button type="submit" class="btn btn-primary"&gt;</span>Masuk<span class="php-tag">&lt;/button&gt;</span>
+            <span class="php-tag">&lt;/form&gt;</span>
+        <span class="php-tag">&lt;/div&gt;</span>
+    <span class="php-tag">&lt;/div&gt;</span>
+    <span class="php-tag">&lt;script src="js/validasi.js"&gt;&lt;/script&gt;</span>
+<span class="php-tag">&lt;/body&gt;</span>
+<span class="php-tag">&lt;/html&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 10</div>
+            </div>
+
+            <!-- PAGE 11: PROSES LOGIN -->
+            <div class="page-content">
+                <h3 class="subsection-title">File Proses Login</h3>
+                <p>File ini menerima data dari form, memvalidasi, dan mengecek ke database.</p>
+
+                <div class="code-block">
+                    <span class="code-label">proses_login.php</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">// Mulai session untuk menyimpan data login</span>
+<span class="keyword">session_start</span>();
+
+<span class="comment">// Include koneksi database</span>
+<span class="keyword">require_once</span> <span class="string">'config/database.php'</span>;
+
+<span class="comment">// Cek apakah form di-submit dengan method POST</span>
+<span class="keyword">if</span> (<span class="php-var">$_SERVER</span>[<span class="string">'REQUEST_METHOD'</span>] === <span class="string">'POST'</span>) {
+
+    <span class="comment">// Ambil data dari form</span>
+    <span class="php-var">$email</span> = <span class="function">trim</span>(<span class="php-var">$_POST</span>[<span class="string">'email'</span>]);
+    <span class="php-var">$password</span> = <span class="php-var">$_POST</span>[<span class="string">'password'</span>];
+
+    <span class="comment">// Validasi: pastikan tidak kosong</span>
+    <span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="php-var">$email</span>) || <span class="keyword">empty</span>(<span class="php-var">$password</span>)) {
+        <span class="function">header</span>(<span class="string">"Location: index.php?error=Email dan password wajib diisi!"</span>);
+        <span class="keyword">exit</span>;
+    }
+
+    <span class="comment">// Query ke database dengan prepared statement</span>
+    <span class="php-var">$sql</span> = <span class="string">"SELECT * FROM users WHERE email = ?"</span>;
+    <span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+    <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$email</span>]);
+    <span class="php-var">$user</span> = <span class="php-var">$stmt</span>-><span class="method">fetch</span>();
+
+    <span class="comment">// Cek apakah user ditemukan dan password cocok</span>
+    <span class="keyword">if</span> (<span class="php-var">$user</span> && <span class="php-var">$password</span> === <span class="php-var">$user</span>[<span class="string">'password'</span>]) {
+        <span class="comment">// Login berhasil! Simpan data ke session</span>
+        <span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>] = <span class="php-var">$user</span>[<span class="string">'id'</span>];
+        <span class="php-var">$_SESSION</span>[<span class="string">'user_nama'</span>] = <span class="php-var">$user</span>[<span class="string">'nama'</span>];
+        <span class="php-var">$_SESSION</span>[<span class="string">'user_email'</span>] = <span class="php-var">$user</span>[<span class="string">'email'</span>];
+        <span class="php-var">$_SESSION</span>[<span class="string">'user_role'</span>] = <span class="php-var">$user</span>[<span class="string">'role'</span>];
+
+        <span class="comment">// Redirect ke dashboard</span>
+        <span class="function">header</span>(<span class="string">"Location: dashboard.php"</span>);
+        <span class="keyword">exit</span>;
+    } <span class="keyword">else</span> {
+        <span class="comment">// Login gagal</span>
+        <span class="function">header</span>(<span class="string">"Location: index.php?error=Email atau password salah!"</span>);
+        <span class="keyword">exit</span>;
+    }
+} <span class="keyword">else</span> {
+    <span class="comment">// Jika diakses langsung tanpa POST, redirect ke login</span>
+    <span class="function">header</span>(<span class="string">"Location: index.php"</span>);
+    <span class="keyword">exit</span>;
+}
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Catatan Keamanan:</strong> Dalam production, password harus di-hash dengan <code>password_hash()</code> dan diverifikasi dengan <code>password_verify()</code>. Contoh di atas disederhanakan untuk pembelajaran.
+                </div>
+
+                <div class="page-number">Halaman 11</div>
+            </div>
+
+            <!-- PAGE 12: SESSION -->
+            <div class="page-content">
+                <h3 class="subsection-title">Memahami Session</h3>
+                <p><strong>Session</strong> adalah cara untuk menyimpan data user antar halaman. Setelah login, data user disimpan di session sehingga kita tahu siapa yang sedang login.</p>
+
+                <div class="code-block">
+                    <span class="code-label">Cara Kerja Session</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">// WAJIB di awal setiap halaman yang pakai session</span>
+<span class="keyword">session_start</span>();
+
+<span class="comment">// Menyimpan data ke session</span>
+<span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>] = <span class="number">1</span>;
+<span class="php-var">$_SESSION</span>[<span class="string">'user_nama'</span>] = <span class="string">"Ahmad Rizki"</span>;
+
+<span class="comment">// Mengambil data dari session</span>
+<span class="keyword">echo</span> <span class="php-var">$_SESSION</span>[<span class="string">'user_nama'</span>];  <span class="comment">// Ahmad Rizki</span>
+
+<span class="comment">// Cek apakah session ada</span>
+<span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>])) {
+    <span class="keyword">echo</span> <span class="string">"User sudah login"</span>;
+}
+
+<span class="comment">// Menghapus session (logout)</span>
+<span class="keyword">session_destroy</span>();
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <h3 class="subsection-title">File Cek Login (Auth Guard)</h3>
+                <div class="code-block">
+                    <span class="code-label">includes/auth.php</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="comment">/**
+ * File ini di-include di halaman yang butuh login
+ * Jika belum login, redirect ke halaman login
+ */</span>
+
+<span class="keyword">session_start</span>();
+
+<span class="keyword">function</span> <span class="function">cekLogin</span>() {
+    <span class="keyword">if</span> (!<span class="keyword">isset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'user_id'</span>])) {
+        <span class="function">header</span>(<span class="string">"Location: index.php?error=Silakan login terlebih dahulu!"</span>);
+        <span class="keyword">exit</span>;
+    }
+}
+
+<span class="keyword">function</span> <span class="function">getUserNama</span>() {
+    <span class="keyword">return</span> <span class="php-var">$_SESSION</span>[<span class="string">'user_nama'</span>] ?? <span class="string">'Guest'</span>;
+}
+
+<span class="keyword">function</span> <span class="function">getUserRole</span>() {
+    <span class="keyword">return</span> <span class="php-var">$_SESSION</span>[<span class="string">'user_role'</span>] ?? <span class="string">'user'</span>;
+}
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <h3 class="subsection-title">File Logout</h3>
+                <div class="code-block">
+                    <span class="code-label">logout.php</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="keyword">session_start</span>();
+
+<span class="comment">// Hapus semua data session</span>
+<span class="php-var">$_SESSION</span> = [];
+
+<span class="comment">// Hancurkan session</span>
+<span class="keyword">session_destroy</span>();
+
+<span class="comment">// Redirect ke halaman login</span>
+<span class="function">header</span>(<span class="string">"Location: index.php?msg=Anda berhasil logout"</span>);
+<span class="keyword">exit</span>;
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 12</div>
+            </div>
+
+            <!-- PAGE 13: DASHBOARD -->
+            <div class="page-content">
+                <h2 class="section-title">&#128200; BAGIAN 3: MEMBUAT DASHBOARD</h2>
+
+                <h3 class="subsection-title">Halaman Dashboard dengan Data Dinamis</h3>
+
+                <div class="code-block">
+                    <span class="code-label">dashboard.php</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="keyword">require_once</span> <span class="string">'includes/auth.php'</span>;
+<span class="function">cekLogin</span>();  <span class="comment">// Pastikan sudah login</span>
+
+<span class="keyword">require_once</span> <span class="string">'config/database.php'</span>;
+
+<span class="comment">// Ambil statistik dari database</span>
+<span class="php-var">$totalMhs</span> = <span class="php-var">$pdo</span>-><span class="method">query</span>(<span class="string">"SELECT COUNT(*) FROM mahasiswa"</span>)-><span class="method">fetchColumn</span>();
+<span class="php-var">$totalProdi</span> = <span class="php-var">$pdo</span>-><span class="method">query</span>(<span class="string">"SELECT COUNT(DISTINCT prodi) FROM mahasiswa"</span>)-><span class="method">fetchColumn</span>();
+<span class="php-tag">?&gt;</span>
+<span class="php-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="php-tag">&lt;html&gt;</span>
+<span class="php-tag">&lt;head&gt;</span>
+    <span class="php-tag">&lt;title&gt;</span>Dashboard - Sistem Akademik<span class="php-tag">&lt;/title&gt;</span>
+    <span class="php-tag">&lt;link rel="stylesheet" href="css/style.css"&gt;</span>
+<span class="php-tag">&lt;/head&gt;</span>
+<span class="php-tag">&lt;body&gt;</span>
+    <span class="comment">&lt;!-- Navbar --&gt;</span>
+    <span class="php-tag">&lt;nav class="navbar"&gt;</span>
+        <span class="php-tag">&lt;a href="dashboard.php" class="logo"&gt;</span>&#127891; Sistem Akademik<span class="php-tag">&lt;/a&gt;</span>
+        <span class="php-tag">&lt;div class="nav-links"&gt;</span>
+            <span class="php-tag">&lt;a href="dashboard.php" class="active"&gt;</span>Dashboard<span class="php-tag">&lt;/a&gt;</span>
+            <span class="php-tag">&lt;a href="mahasiswa.php"&gt;</span>Data Mahasiswa<span class="php-tag">&lt;/a&gt;</span>
+            <span class="php-tag">&lt;a href="logout.php"&gt;</span>Logout<span class="php-tag">&lt;/a&gt;</span>
+        <span class="php-tag">&lt;/div&gt;</span>
+    <span class="php-tag">&lt;/nav&gt;</span>
+
+    <span class="php-tag">&lt;main class="main-content"&gt;</span>
+        <span class="php-tag">&lt;h1&gt;</span>Selamat Datang, <span class="php-tag">&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="function">getUserNama</span>()) <span class="php-tag">?&gt;</span>!<span class="php-tag">&lt;/h1&gt;</span>
+        <span class="php-tag">&lt;p&gt;</span>Role: <span class="php-tag">&lt;?=</span> <span class="function">getUserRole</span>() <span class="php-tag">?&gt;</span><span class="php-tag">&lt;/p&gt;</span>
+
+        <span class="comment">&lt;!-- Statistik Cards --&gt;</span>
+        <span class="php-tag">&lt;div class="stats-grid"&gt;</span>
+            <span class="php-tag">&lt;div class="stat-card"&gt;</span>
+                <span class="php-tag">&lt;div class="stat-icon"&gt;</span>&#127891;<span class="php-tag">&lt;/div&gt;</span>
+                <span class="php-tag">&lt;div class="stat-number"&gt;&lt;?=</span> <span class="php-var">$totalMhs</span> <span class="php-tag">?&gt;&lt;/div&gt;</span>
+                <span class="php-tag">&lt;div class="stat-label"&gt;</span>Total Mahasiswa<span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;div class="stat-card"&gt;</span>
+                <span class="php-tag">&lt;div class="stat-icon"&gt;</span>&#128218;<span class="php-tag">&lt;/div&gt;</span>
+                <span class="php-tag">&lt;div class="stat-number"&gt;&lt;?=</span> <span class="php-var">$totalProdi</span> <span class="php-tag">?&gt;&lt;/div&gt;</span>
+                <span class="php-tag">&lt;div class="stat-label"&gt;</span>Program Studi<span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;/div&gt;</span>
+        <span class="php-tag">&lt;/div&gt;</span>
+    <span class="php-tag">&lt;/main&gt;</span>
+<span class="php-tag">&lt;/body&gt;</span>
+<span class="php-tag">&lt;/html&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 13</div>
+            </div>
+
+            <!-- PAGE 14: READ DATA -->
+            <div class="page-content">
+                <h2 class="section-title">&#128196; BAGIAN 4: MENAMPILKAN DATA (READ)</h2>
+
+                <h3 class="subsection-title">Halaman Daftar Mahasiswa</h3>
+
+                <div class="code-block">
+                    <span class="code-label">mahasiswa.php</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="keyword">require_once</span> <span class="string">'includes/auth.php'</span>;
+<span class="function">cekLogin</span>();
+<span class="keyword">require_once</span> <span class="string">'config/database.php'</span>;
+
+<span class="comment">// Ambil semua data mahasiswa</span>
+<span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">query</span>(<span class="string">"SELECT * FROM mahasiswa ORDER BY nama ASC"</span>);
+<span class="php-var">$mahasiswa</span> = <span class="php-var">$stmt</span>-><span class="method">fetchAll</span>();
+<span class="php-tag">?&gt;</span>
+<span class="php-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="php-tag">&lt;html&gt;</span>
+<span class="php-tag">&lt;head&gt;</span>
+    <span class="php-tag">&lt;title&gt;</span>Data Mahasiswa<span class="php-tag">&lt;/title&gt;</span>
+    <span class="php-tag">&lt;link rel="stylesheet" href="css/style.css"&gt;</span>
+<span class="php-tag">&lt;/head&gt;</span>
+<span class="php-tag">&lt;body&gt;</span>
+    <span class="comment">&lt;!-- Navbar sama seperti dashboard --&gt;</span>
+    <span class="php-tag">&lt;nav class="navbar"&gt;</span>...<span class="php-tag">&lt;/nav&gt;</span>
+
+    <span class="php-tag">&lt;main class="main-content"&gt;</span>
+        <span class="php-tag">&lt;div class="page-header"&gt;</span>
+            <span class="php-tag">&lt;h1&gt;</span>Data Mahasiswa<span class="php-tag">&lt;/h1&gt;</span>
+            <span class="php-tag">&lt;a href="tambah.php" class="btn btn-primary"&gt;</span>+ Tambah Mahasiswa<span class="php-tag">&lt;/a&gt;</span>
+        <span class="php-tag">&lt;/div&gt;</span>
+
+        <span class="php-tag">&lt;table class="data-table"&gt;</span>
+            <span class="php-tag">&lt;thead&gt;</span>
+                <span class="php-tag">&lt;tr&gt;</span>
+                    <span class="php-tag">&lt;th&gt;</span>No<span class="php-tag">&lt;/th&gt;</span>
+                    <span class="php-tag">&lt;th&gt;</span>NIM<span class="php-tag">&lt;/th&gt;</span>
+                    <span class="php-tag">&lt;th&gt;</span>Nama<span class="php-tag">&lt;/th&gt;</span>
+                    <span class="php-tag">&lt;th&gt;</span>Email<span class="php-tag">&lt;/th&gt;</span>
+                    <span class="php-tag">&lt;th&gt;</span>Prodi<span class="php-tag">&lt;/th&gt;</span>
+                    <span class="php-tag">&lt;th&gt;</span>Aksi<span class="php-tag">&lt;/th&gt;</span>
+                <span class="php-tag">&lt;/tr&gt;</span>
+            <span class="php-tag">&lt;/thead&gt;</span>
+            <span class="php-tag">&lt;tbody&gt;</span>
+                <span class="php-tag">&lt;?php</span> <span class="php-var">$no</span> = <span class="number">1</span>; <span class="php-tag">?&gt;</span>
+                <span class="php-tag">&lt;?php</span> <span class="keyword">foreach</span> (<span class="php-var">$mahasiswa</span> <span class="keyword">as</span> <span class="php-var">$mhs</span>): <span class="php-tag">?&gt;</span>
+                <span class="php-tag">&lt;tr&gt;</span>
+                    <span class="php-tag">&lt;td&gt;&lt;?=</span> <span class="php-var">$no</span>++ <span class="php-tag">?&gt;&lt;/td&gt;</span>
+                    <span class="php-tag">&lt;td&gt;&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$mhs</span>[<span class="string">'nim'</span>]) <span class="php-tag">?&gt;&lt;/td&gt;</span>
+                    <span class="php-tag">&lt;td&gt;&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$mhs</span>[<span class="string">'nama'</span>]) <span class="php-tag">?&gt;&lt;/td&gt;</span>
+                    <span class="php-tag">&lt;td&gt;&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$mhs</span>[<span class="string">'email'</span>]) <span class="php-tag">?&gt;&lt;/td&gt;</span>
+                    <span class="php-tag">&lt;td&gt;&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$mhs</span>[<span class="string">'prodi'</span>]) <span class="php-tag">?&gt;&lt;/td&gt;</span>
+                    <span class="php-tag">&lt;td&gt;</span>
+                        <span class="php-tag">&lt;a href="edit.php?nim=&lt;?=</span> <span class="php-var">$mhs</span>[<span class="string">'nim'</span>] <span class="php-tag">?&gt;</span>" class="btn btn-sm"<span class="php-tag">&gt;</span>Edit<span class="php-tag">&lt;/a&gt;</span>
+                        <span class="php-tag">&lt;a href="hapus.php?nim=&lt;?=</span> <span class="php-var">$mhs</span>[<span class="string">'nim'</span>] <span class="php-tag">?&gt;</span>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus?')"<span class="php-tag">&gt;</span>Hapus<span class="php-tag">&lt;/a&gt;</span>
+                    <span class="php-tag">&lt;/td&gt;</span>
+                <span class="php-tag">&lt;/tr&gt;</span>
+                <span class="php-tag">&lt;?php</span> <span class="keyword">endforeach</span>; <span class="php-tag">?&gt;</span>
+            <span class="php-tag">&lt;/tbody&gt;</span>
+        <span class="php-tag">&lt;/table&gt;</span>
+    <span class="php-tag">&lt;/main&gt;</span>
+<span class="php-tag">&lt;/body&gt;</span>
+<span class="php-tag">&lt;/html&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 14</div>
+            </div>
+
+            <!-- PAGE 15: CREATE DATA -->
+            <div class="page-content">
+                <h2 class="section-title">&#10133; BAGIAN 5: MENAMBAH DATA (CREATE)</h2>
+
+                <h3 class="subsection-title">Form Tambah Mahasiswa</h3>
+
+                <div class="code-block">
+                    <span class="code-label">tambah.php</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="keyword">require_once</span> <span class="string">'includes/auth.php'</span>;
+<span class="function">cekLogin</span>();
+<span class="php-tag">?&gt;</span>
+<span class="php-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="php-tag">&lt;html&gt;</span>
+<span class="php-tag">&lt;head&gt;</span>
+    <span class="php-tag">&lt;title&gt;</span>Tambah Mahasiswa<span class="php-tag">&lt;/title&gt;</span>
+    <span class="php-tag">&lt;link rel="stylesheet" href="css/style.css"&gt;</span>
+<span class="php-tag">&lt;/head&gt;</span>
+<span class="php-tag">&lt;body&gt;</span>
+    <span class="php-tag">&lt;nav class="navbar"&gt;</span>...<span class="php-tag">&lt;/nav&gt;</span>
+
+    <span class="php-tag">&lt;main class="main-content"&gt;</span>
+        <span class="php-tag">&lt;h1&gt;</span>Tambah Mahasiswa Baru<span class="php-tag">&lt;/h1&gt;</span>
+
+        <span class="php-tag">&lt;form action="proses_tambah.php" method="POST" class="form-card"&gt;</span>
+            <span class="php-tag">&lt;div class="form-group"&gt;</span>
+                <span class="php-tag">&lt;label&gt;</span>NIM<span class="php-tag">&lt;/label&gt;</span>
+                <span class="php-tag">&lt;input type="text" name="nim" required maxlength="10"</span>
+                       <span class="php-tag">placeholder="Contoh: 2024001"&gt;</span>
+            <span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;div class="form-group"&gt;</span>
+                <span class="php-tag">&lt;label&gt;</span>Nama Lengkap<span class="php-tag">&lt;/label&gt;</span>
+                <span class="php-tag">&lt;input type="text" name="nama" required&gt;</span>
+            <span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;div class="form-group"&gt;</span>
+                <span class="php-tag">&lt;label&gt;</span>Email<span class="php-tag">&lt;/label&gt;</span>
+                <span class="php-tag">&lt;input type="email" name="email" required&gt;</span>
+            <span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;div class="form-group"&gt;</span>
+                <span class="php-tag">&lt;label&gt;</span>Program Studi<span class="php-tag">&lt;/label&gt;</span>
+                <span class="php-tag">&lt;select name="prodi" required&gt;</span>
+                    <span class="php-tag">&lt;option value=""&gt;</span>-- Pilih Prodi --<span class="php-tag">&lt;/option&gt;</span>
+                    <span class="php-tag">&lt;option value="Teknologi Informasi"&gt;</span>Teknologi Informasi<span class="php-tag">&lt;/option&gt;</span>
+                    <span class="php-tag">&lt;option value="Sistem Informasi"&gt;</span>Sistem Informasi<span class="php-tag">&lt;/option&gt;</span>
+                <span class="php-tag">&lt;/select&gt;</span>
+            <span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;div class="form-group"&gt;</span>
+                <span class="php-tag">&lt;label&gt;</span>Semester<span class="php-tag">&lt;/label&gt;</span>
+                <span class="php-tag">&lt;input type="number" name="semester" min="1" max="14" value="1"&gt;</span>
+            <span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;div class="form-group"&gt;</span>
+                <span class="php-tag">&lt;label&gt;</span>No. HP<span class="php-tag">&lt;/label&gt;</span>
+                <span class="php-tag">&lt;input type="text" name="no_hp" placeholder="08xxxxxxxxxx"&gt;</span>
+            <span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;div class="form-group"&gt;</span>
+                <span class="php-tag">&lt;label&gt;</span>Alamat<span class="php-tag">&lt;/label&gt;</span>
+                <span class="php-tag">&lt;textarea name="alamat" rows="3"&gt;&lt;/textarea&gt;</span>
+            <span class="php-tag">&lt;/div&gt;</span>
+            <span class="php-tag">&lt;div class="form-actions"&gt;</span>
+                <span class="php-tag">&lt;button type="submit" class="btn btn-primary"&gt;</span>Simpan<span class="php-tag">&lt;/button&gt;</span>
+                <span class="php-tag">&lt;a href="mahasiswa.php" class="btn btn-secondary"&gt;</span>Batal<span class="php-tag">&lt;/a&gt;</span>
+            <span class="php-tag">&lt;/div&gt;</span>
+        <span class="php-tag">&lt;/form&gt;</span>
+    <span class="php-tag">&lt;/main&gt;</span>
+    <span class="php-tag">&lt;script src="js/validasi.js"&gt;&lt;/script&gt;</span>
+<span class="php-tag">&lt;/body&gt;</span>
+<span class="php-tag">&lt;/html&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 15</div>
+            </div>
+
+            <!-- PAGE 16: PROSES TAMBAH -->
+            <div class="page-content">
+                <h3 class="subsection-title">File Proses Tambah Data</h3>
+
+                <div class="code-block">
+                    <span class="code-label">proses_tambah.php</span>
+                    <code><span class="php-tag">&lt;?php</span>
+<span class="keyword">require_once</span> <span class="string">'includes/auth.php'</span>;
+<span class="function">cekLogin</span>();
+<span class="keyword">require_once</span> <span class="string">'config/database.php'</span>;
+
+<span class="keyword">if</span> (<span class="php-var">$_SERVER</span>[<span class="string">'REQUEST_METHOD'</span>] === <span class="string">'POST'</span>) {
+    <span class="comment">// Ambil dan bersihkan data dari form</span>
+    <span class="php-var">$nim</span> = <span class="function">trim</span>(<span class="php-var">$_POST</span>[<span class="string">'nim'</span>]);
+    <span class="php-var">$nama</span> = <span class="function">trim</span>(<span class="php-var">$_POST</span>[<span class="string">'nama'</span>]);
+    <span class="php-var">$email</span> = <span class="function">trim</span>(<span class="php-var">$_POST</span>[<span class="string">'email'</span>]);
+    <span class="php-var">$prodi</span> = <span class="php-var">$_POST</span>[<span class="string">'prodi'</span>];
+    <span class="php-var">$semester</span> = (<span class="keyword">int</span>)<span class="php-var">$_POST</span>[<span class="string">'semester'</span>];
+    <span class="php-var">$no_hp</span> = <span class="function">trim</span>(<span class="php-var">$_POST</span>[<span class="string">'no_hp'</span>]);
+    <span class="php-var">$alamat</span> = <span class="function">trim</span>(<span class="php-var">$_POST</span>[<span class="string">'alamat'</span>]);
+
+    <span class="comment">// Validasi sederhana</span>
+    <span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="php-var">$nim</span>) || <span class="keyword">empty</span>(<span class="php-var">$nama</span>) || <span class="keyword">empty</span>(<span class="php-var">$email</span>)) {
+        <span class="function">header</span>(<span class="string">"Location: tambah.php?error=Data wajib harus diisi!"</span>);
+        <span class="keyword">exit</span>;
+    }
+
+    <span class="keyword">try</span> {
+        <span class="comment">// Prepared statement untuk INSERT (aman dari SQL Injection)</span>
+        <span class="php-var">$sql</span> = <span class="string">"INSERT INTO mahasiswa (nim, nama, email, prodi, semester, no_hp, alamat)
+                VALUES (?, ?, ?, ?, ?, ?, ?)"</span>;
+
+        <span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+        <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$nim</span>, <span class="php-var">$nama</span>, <span class="php-var">$email</span>, <span class="php-var">$prodi</span>, <span class="php-var">$semester</span>, <span class="php-var">$no_hp</span>, <span class="php-var">$alamat</span>]);
+
+        <span class="comment">// Berhasil! Redirect ke halaman daftar</span>
+        <span class="function">header</span>(<span class="string">"Location: mahasiswa.php?success=Data berhasil ditambahkan!"</span>);
+        <span class="keyword">exit</span>;
+
+    } <span class="keyword">catch</span> (<span class="class">PDOException</span> <span class="php-var">$e</span>) {
+        <span class="comment">// Jika NIM sudah ada (duplicate key)</span>
+        <span class="keyword">if</span> (<span class="php-var">$e</span>-><span class="method">getCode</span>() == <span class="number">23000</span>) {
+            <span class="function">header</span>(<span class="string">"Location: tambah.php?error=NIM sudah terdaftar!"</span>);
+        } <span class="keyword">else</span> {
+            <span class="function">header</span>(<span class="string">"Location: tambah.php?error=Terjadi kesalahan: "</span> . <span class="php-var">$e</span>-><span class="method">getMessage</span>());
+        }
+        <span class="keyword">exit</span>;
+    }
+} <span class="keyword">else</span> {
+    <span class="function">header</span>(<span class="string">"Location: tambah.php"</span>);
+    <span class="keyword">exit</span>;
+}
+<span class="php-tag">?&gt;</span></code>
+                </div>
+
+                <div class="success-box">
+                    <strong>Prepared Statement:</strong> Dengan menggunakan <code>?</code> sebagai placeholder dan <code>execute()</code> dengan array, data secara otomatis di-escape sehingga aman dari SQL Injection!
+                </div>
+
+                <div class="page-number">Halaman 16</div>
+            </div>
+
+            <!-- PAGE 17: STRUKTUR FOLDER -->
+            <div class="page-content">
+                <h2 class="section-title">&#128193; STRUKTUR FOLDER LENGKAP</h2>
+
+                <div class="file-tree">
+                    <code>sistem-akademik/
+&#9500;&#9472;&#9472; <span class="folder">config/</span>
+&#9474;   &#9492;&#9472;&#9472; <span class="file-new">database.php</span>       <span class="comment"># Koneksi PDO</span>
+&#9500;&#9472;&#9472; <span class="folder">includes/</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="file-new">auth.php</span>           <span class="comment"># Cek login & fungsi user</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="file-php">functions.php</span>      <span class="comment"># Fungsi-fungsi helper</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="file-php">header.php</span>         <span class="comment"># Template header+navbar</span>
+&#9474;   &#9492;&#9472;&#9472; <span class="file-php">footer.php</span>         <span class="comment"># Template footer</span>
+&#9500;&#9472;&#9472; <span class="folder">css/</span>
+&#9474;   &#9492;&#9472;&#9472; <span class="file-php">style.css</span>
+&#9500;&#9472;&#9472; <span class="folder">js/</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="file-php">validasi.js</span>
+&#9474;   &#9492;&#9472;&#9472; <span class="file-php">script.js</span>
+&#9500;&#9472;&#9472; <span class="file-new">index.php</span>              <span class="comment"># Halaman login</span>
+&#9500;&#9472;&#9472; <span class="file-new">proses_login.php</span>       <span class="comment"># Proses login</span>
+&#9500;&#9472;&#9472; <span class="file-new">dashboard.php</span>          <span class="comment"># Dashboard</span>
+&#9500;&#9472;&#9472; <span class="file-new">mahasiswa.php</span>          <span class="comment"># Daftar mahasiswa (READ)</span>
+&#9500;&#9472;&#9472; <span class="file-new">tambah.php</span>             <span class="comment"># Form tambah (CREATE)</span>
+&#9500;&#9472;&#9472; <span class="file-new">proses_tambah.php</span>      <span class="comment"># Proses tambah</span>
+&#9500;&#9472;&#9472; <span class="file-php">edit.php</span>               <span class="comment"># Form edit (pertemuan 7)</span>
+&#9500;&#9472;&#9472; <span class="file-php">hapus.php</span>              <span class="comment"># Proses hapus (pertemuan 7)</span>
+&#9492;&#9472;&#9472; <span class="file-new">logout.php</span>             <span class="comment"># Proses logout</span></code>
+                </div>
+
+                <div class="info-box">
+                    <strong>File Baru di Pertemuan 6:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li><code>config/database.php</code> - Koneksi ke database</li>
+                        <li><code>includes/auth.php</code> - Fungsi autentikasi</li>
+                        <li><code>proses_login.php</code> - Handle form login</li>
+                        <li><code>proses_tambah.php</code> - Handle form tambah</li>
+                        <li><code>logout.php</code> - Handle logout</li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 17</div>
+            </div>
+
+            <!-- PAGE 18: CSS TAMBAHAN -->
+            <div class="page-content">
+                <h3 class="subsection-title">CSS Tambahan untuk Komponen Baru</h3>
+
+                <div class="code-block">
+                    <span class="code-label">css/style.css - Tambahan</span>
+                    <code><span class="comment">/* ===== ALERT MESSAGES ===== */</span>
+.alert {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+<span class="comment">/* ===== STATS GRID ===== */</span>
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.stat-icon { font-size: 40px; margin-bottom: 10px; }
+.stat-number { font-size: 2.5em; font-weight: 700; color: var(--primary); }
+.stat-label { color: var(--text-light); font-size: 14px; }
+
+<span class="comment">/* ===== DATA TABLE ===== */</span>
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.data-table th, .data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+.data-table th {
+    background: var(--primary);
+    color: white;
+}
+.data-table tr:hover { background: #f8f9fa; }
+
+<span class="comment">/* ===== PAGE HEADER ===== */</span>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+<span class="comment">/* ===== FORM CARD ===== */</span>
+.form-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 600px;
+}
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}</code>
+                </div>
+
+                <div class="page-number">Halaman 18</div>
+            </div>
+
+            <!-- PAGE 19: TUGAS -->
+            <div class="page-content">
+                <h2 class="section-title">&#128203; EVALUASI & TUGAS KELOMPOK</h2>
+
+                <div class="project-card">
+                    <h3>&#129513; Tugas: Menyatukan Puzzle!</h3>
+                    <p style="margin-bottom: 15px;">Setiap kelompok harus mengimplementasikan:</p>
+                    <ol style="margin-left: 20px; line-height: 2.2;">
+                        <li><strong>config/database.php</strong> - Koneksi PDO ke database</li>
+                        <li><strong>Sistem Login</strong> - index.php + proses_login.php</li>
+                        <li><strong>includes/auth.php</strong> - Fungsi cek login</li>
+                        <li><strong>dashboard.php</strong> - Dengan statistik dari database</li>
+                        <li><strong>mahasiswa.php</strong> - Menampilkan data dari database</li>
+                        <li><strong>tambah.php + proses_tambah.php</strong> - Form & proses tambah data</li>
+                        <li><strong>logout.php</strong> - Fungsi logout</li>
+                    </ol>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Checklist Sebelum Kumpul:</strong>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>&#9744; Database <code>db_akademik</code> sudah dibuat</li>
+                        <li>&#9744; Tabel <code>users</code> dan <code>mahasiswa</code> ada datanya</li>
+                        <li>&#9744; Login berfungsi dengan benar</li>
+                        <li>&#9744; Dashboard menampilkan statistik</li>
+                        <li>&#9744; Data mahasiswa ditampilkan dari database</li>
+                        <li>&#9744; Form tambah bisa menyimpan ke database</li>
+                        <li>&#9744; Logout berfungsi</li>
+                    </ul>
+                </div>
+
+                <h3 class="subsection-title">Kriteria Penilaian</h3>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Aspek</th><th>Bobot</th><th>Kriteria</th></tr></thead>
+                        <tbody>
+                            <tr><td>Koneksi Database</td><td>20%</td><td>PDO berfungsi, tidak ada error</td></tr>
+                            <tr><td>Sistem Login</td><td>25%</td><td>Login/logout berfungsi, session benar</td></tr>
+                            <tr><td>Read Data</td><td>25%</td><td>Data ditampilkan dari database</td></tr>
+                            <tr><td>Create Data</td><td>20%</td><td>Form tambah berfungsi</td></tr>
+                            <tr><td>Keamanan</td><td>10%</td><td>Prepared statement, htmlspecialchars</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="success-box">
+                    <strong>Pertemuan Selanjutnya:</strong> Melengkapi CRUD dengan <strong>UPDATE dan DELETE</strong>, serta fitur pencarian dan pagination!
+                </div>
+
+                <div class="page-number">Halaman 19</div>
+            </div>
+
+            <!-- FINAL PAGE -->
+            <div class="page-content" style="text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 50vh;">
+                <h2 class="section-title" style="text-align: center;">&#127919; PUZZLE TERSUSUN!</h2>
+                <p style="font-size: 1.2em; margin: 30px 0; color: #666;">
+                    "The whole is greater than the sum of its parts."<br>
+                    <em>- Aristotle</em>
+                </p>
+                <div style="margin-top: 30px; padding: 30px; background: linear-gradient(135deg, #0d4f4f, #128277); color: white; border-radius: 15px;">
+                    <h3 style="color: #1abc9c; margin-bottom: 20px;">Aplikasi Anda Sekarang Bisa:</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; text-align: center;">
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px;">&#128274;</div>
+                            <div style="font-size: 12px;">Login</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px;">&#128200;</div>
+                            <div style="font-size: 12px;">Dashboard</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px;">&#128196;</div>
+                            <div style="font-size: 12px;">Lihat Data</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px;">&#10133;</div>
+                            <div style="font-size: 12px;">Tambah Data</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <div style="font-size: 24px;">&#128275;</div>
+                            <div style="font-size: 12px;">Logout</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 40px; padding: 30px; background: #f8f9fa; border-radius: 15px; border-left: 5px solid #16a085;">
+                    <h3 style="color: #0d4f4f; margin-bottom: 20px;">Contact Information</h3>
+                    <p><strong>Dosen:</strong> Ikhwan Alfath Nurul Fathony, S.Kom., M.Kom.</p>
+                    <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="61080a0916000f4f000d0700150921140f15080500134f00024f0805">[email&#160;protected]</a></p>
+                </div>
+                <div style="margin-top: 30px; font-size: 0.9em; color: #888;">
+                    <p>&copy; 2025 Program Studi Teknologi Informasi - Universitas Tidar</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+        function toggleFullscreen() {
+            var btn = document.getElementById('fullscreenBtn');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(function() { btn.textContent = '\u274C Exit'; });
+            } else {
+                document.exitFullscreen().then(function() { btn.textContent = '\uD83D\uDD0D Fullscreen'; });
+            }
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Home') { e.preventDefault(); scrollToTop(); }
+            if (e.key === 'End') { e.preventDefault(); scrollToBottom(); }
+        });
+    </script>
+</body>
+</html>

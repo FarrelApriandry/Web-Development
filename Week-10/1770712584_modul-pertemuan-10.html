@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul Praktikum Pertemuan 10 - Validasi Form</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; overflow-x: hidden; }
+        .book-container { max-width: 900px; margin: 50px auto; }
+        .book { background: #fff; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden; }
+        .controls { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px; }
+        .control-btn { background: rgba(255,255,255,0.9); border: none; padding: 10px 15px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s ease; }
+        .control-btn:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* Cover - Validation Theme (Green/Teal) */
+        .cover-page { background: linear-gradient(135deg, #1e5128 0%, #4e9f3d 50%, #d8e9a8 100%); color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+        .cover-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 30% 20%, rgba(78,159,61,0.2) 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, rgba(30,81,40,0.15) 0%, transparent 50%); z-index: 1; }
+        .cover-page::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(2px 2px at 10% 15%, rgba(255,255,255,0.15) 50%, transparent 50%), radial-gradient(2px 2px at 85% 25%, rgba(255,255,255,0.1) 50%, transparent 50%), radial-gradient(1px 1px at 55% 65%, rgba(255,255,255,0.12) 50%, transparent 50%); z-index: 1; animation: twinkle 4s ease-in-out infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(78,159,61,0.4); } 50% { box-shadow: 0 0 20px 10px rgba(78,159,61,0.1); } }
+        @keyframes checkmark { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .cover-content { position: relative; z-index: 2; padding: 50px 40px; }
+        .cover-top-bar { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 35px; animation: fadeInUp 0.8s ease-out; }
+        .cover-top-bar .bar-line { flex: 1; max-width: 120px; height: 1px; background: linear-gradient(90deg, transparent, rgba(78,159,61,0.6), transparent); }
+        .cover-university-badge { display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); padding: 10px 24px; border-radius: 50px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+        .cover-icon { font-size: 80px; margin-bottom: 20px; animation: fadeInUp 0.9s ease-out, float 3s ease-in-out infinite; }
+        .cover-label { display: inline-block; background: linear-gradient(135deg, rgba(78,159,61,0.3), rgba(78,159,61,0.1)); border: 1px solid rgba(78,159,61,0.5); padding: 8px 28px; border-radius: 6px; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #d8e9a8; margin-bottom: 25px; animation: fadeInUp 1s ease-out; }
+        .cover-main-title { font-size: 2.6em; font-weight: 800; margin-bottom: 8px; text-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: 2px; line-height: 1.2; animation: fadeInUp 1.1s ease-out; }
+        .cover-main-title .highlight { color: #d8e9a8; }
+        .cover-course-name { font-size: 1.4em; font-weight: 300; margin-bottom: 35px; opacity: 0.9; animation: fadeInUp 1.2s ease-out; }
+        .cover-meeting-badge { display: inline-flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #4e9f3d, #1e5128); color: white; padding: 14px 40px; border-radius: 50px; font-size: 1.3em; font-weight: 700; margin-bottom: 15px; box-shadow: 0 8px 30px rgba(78,159,61,0.4); animation: fadeInUp 1.3s ease-out, pulse 2s infinite; border: 2px solid rgba(255,255,255,0.2); }
+        .cover-meeting-badge .meeting-number { background: rgba(255,255,255,0.2); width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+        .cover-topic { font-size: 1.1em; color: rgba(255,255,255,0.85); margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6; animation: fadeInUp 1.4s ease-out; }
+        .cover-info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 650px; margin: 0 auto; animation: fadeInUp 1.5s ease-out; }
+        .cover-info-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 18px 12px; transition: all 0.3s ease; }
+        .cover-info-card:hover { background: rgba(255,255,255,0.12); border-color: rgba(78,159,61,0.5); transform: translateY(-4px); }
+        .cover-info-card .card-icon { font-size: 24px; margin-bottom: 8px; }
+        .cover-info-card .card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #d8e9a8; margin-bottom: 4px; }
+        .cover-info-card .card-value { font-size: 13px; font-weight: 500; }
+
+        /* Page Styles */
+        .page-content { padding: 60px 50px; line-height: 1.8; font-size: 16px; color: #333; }
+        .page-number { text-align: right; font-size: 14px; color: #999; margin-top: 40px; padding-top: 15px; border-top: 1px solid #eee; }
+        .section-title { color: #1e5128; font-size: 1.9em; font-weight: 700; margin: 40px 0 20px 0; position: relative; }
+        .section-title::before { content: ''; position: absolute; left: 0; bottom: -5px; width: 60px; height: 3px; background: linear-gradient(90deg, #1e5128, #4e9f3d); }
+        .subsection-title { color: #4e9f3d; font-size: 1.35em; font-weight: 600; margin: 30px 0 15px 0; }
+        .objective-list, .content-list { margin: 20px 0; padding-left: 20px; }
+        .objective-list li, .content-list li { margin: 10px 0; position: relative; }
+        .objective-list li::before { content: '\1F3AF'; position: absolute; left: -25px; }
+        .content-list li::before { content: '\1F4CB'; position: absolute; left: -25px; }
+        .learning-outcomes { background: linear-gradient(135deg, #e8f5e9 0%, #fff 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #4e9f3d; box-shadow: 0 5px 15px rgba(78,159,61,0.1); }
+        .lab-setup { background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); padding: 30px; border-radius: 15px; margin: 30px 0; border-left: 5px solid #1e5128; }
+        .warning-box { background: #fff3cd; border-left: 5px solid #f39c12; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .warning-box::before { content: '\26A0\FE0F'; margin-right: 10px; }
+        .info-box { background: #e3f2fd; border-left: 5px solid #2196f3; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .info-box::before { content: '\2139\FE0F'; margin-right: 10px; }
+        .success-box { background: #e8f5e9; border-left: 5px solid #4caf50; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .success-box::before { content: '\2705'; margin-right: 10px; }
+        .danger-box { background: #ffebee; border-left: 5px solid #f44336; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .danger-box::before { content: '\274C'; margin-right: 10px; }
+        .step-item { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 25px; margin: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .step-number { background: linear-gradient(135deg, #1e5128, #4e9f3d); color: white; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 15px; }
+        .step-title { color: #1e5128; font-weight: 600; font-size: 1.1em; margin-bottom: 10px; }
+
+        /* Code Block */
+        .code-block { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 20px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; margin: 20px 0; overflow-x: auto; color: #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; }
+        .code-block::before { content: ''; position: absolute; top: 12px; left: 15px; width: 10px; height: 10px; background: #ff5f57; border-radius: 50%; box-shadow: 16px 0 0 #ffbd2e, 32px 0 0 #28ca42; }
+        .code-block code { display: block; margin-top: 10px; white-space: pre; line-height: 1.6; }
+        .code-label { display: inline-block; background: linear-gradient(135deg, #1e5128, #4e9f3d); color: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-bottom: 8px; }
+        .code-label.js { background: linear-gradient(135deg, #f7df1e, #d4a800); color: #000; }
+        .code-label.php { background: linear-gradient(135deg, #8892be, #4f5b93); }
+        .file-tree { display: block; white-space: pre; line-height: 1.8; overflow-x: auto; }
+
+        /* Syntax Highlighting */
+        .tag { color: #ff79c6; }
+        .attr { color: #50fa7b; }
+        .value { color: #f1fa8c; }
+        .keyword { color: #ff79c6; }
+        .string { color: #50fa7b; }
+        .number { color: #bd93f9; }
+        .comment { color: #6272a4; font-style: italic; }
+        .function { color: #8be9fd; }
+        .php-var { color: #ffb86c; }
+        .method { color: #50fa7b; }
+        .js-keyword { color: #ff79c6; }
+        .js-string { color: #f1fa8c; }
+        .js-func { color: #8be9fd; }
+
+        /* Table */
+        .table-container { overflow-x: auto; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: linear-gradient(135deg, #1e5128, #4e9f3d); color: white; font-weight: 600; }
+        tr:hover { background: #e8f5e9; }
+
+        /* Validation Flow */
+        .validation-flow { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin: 25px 0; padding: 25px; background: linear-gradient(135deg, #f8f9fa, #fff); border-radius: 15px; border: 2px solid #4e9f3d; }
+        .validation-step { text-align: center; padding: 15px 20px; border-radius: 10px; background: white; box-shadow: 0 3px 10px rgba(0,0,0,0.1); min-width: 100px; }
+        .validation-step .step-icon { font-size: 28px; margin-bottom: 5px; }
+        .validation-step .step-label { font-size: 11px; font-weight: 600; color: #333; }
+        .validation-step.client { border: 2px solid #f7df1e; }
+        .validation-step.server { border: 2px solid #8892be; }
+        .validation-step.success { border: 2px solid #4caf50; background: #e8f5e9; }
+        .validation-arrow { font-size: 20px; color: #4e9f3d; }
+
+        /* Example Cards */
+        .example-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin: 20px 0; }
+        .example-card { background: white; border: 2px solid #e0e0e0; border-radius: 12px; overflow: hidden; transition: all 0.3s; }
+        .example-card:hover { border-color: #4e9f3d; box-shadow: 0 5px 20px rgba(78,159,61,0.2); }
+        .example-card-header { background: linear-gradient(135deg, #1e5128, #4e9f3d); color: white; padding: 15px; font-weight: 600; }
+        .example-card-body { padding: 20px; }
+
+        /* Project Card */
+        .project-card { background: linear-gradient(135deg, #1e5128, #4e9f3d); color: white; border-radius: 16px; padding: 30px; margin: 25px 0; }
+        .project-card h3 { color: #d8e9a8; margin-bottom: 15px; }
+
+        /* Two Column Layout */
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+
+        /* Validation Rule Box */
+        .rule-box { background: #f8f9fa; border-radius: 10px; padding: 15px; margin: 10px 0; border-left: 4px solid #4e9f3d; }
+        .rule-box .rule-name { font-weight: 600; color: #1e5128; margin-bottom: 5px; }
+        .rule-box .rule-desc { font-size: 13px; color: #666; }
+
+        @media (max-width: 768px) {
+            .book-container { margin: 15px; }
+            .page-content { padding: 30px 20px; }
+            .cover-main-title { font-size: 2em; }
+            .cover-info-cards { grid-template-columns: 1fr; max-width: 280px; }
+            .code-block { font-size: 11px; padding: 15px; }
+            .two-column { grid-template-columns: 1fr; }
+            .validation-flow { flex-direction: column; }
+            .validation-arrow { transform: rotate(90deg); }
+        }
+        .smooth-scroll { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="smooth-scroll">
+    <div class="controls">
+        <button class="control-btn" onclick="scrollToTop()">&#11014;&#65039; Top</button>
+        <button class="control-btn" onclick="scrollToBottom()">&#11015;&#65039; Bottom</button>
+        <button class="control-btn" onclick="window.print()">&#128424; Print</button>
+    </div>
+
+    <div class="book-container">
+        <div class="book">
+
+            <!-- COVER PAGE -->
+            <div class="cover-page">
+                <div class="cover-content">
+                    <div class="cover-top-bar">
+                        <div class="bar-line"></div>
+                        <div class="cover-university-badge">
+                            <span>&#127891;</span>
+                            <span>Universitas Tidar</span>
+                        </div>
+                        <div class="bar-line"></div>
+                    </div>
+                    <div class="cover-icon">&#9989;</div>
+                    <div class="cover-label">Modul Praktikum</div>
+                    <h1 class="cover-main-title">Form <span class="highlight">Validation</span></h1>
+                    <p class="cover-course-name">JavaScript & PHP Validation</p>
+                    <div class="cover-meeting-badge">
+                        <span class="meeting-number">10</span>
+                        <span>PERTEMUAN 10</span>
+                    </div>
+                    <p class="cover-topic">Memastikan Data yang Dikirim User Valid, Aman, dan Sesuai Format yang Diharapkan</p>
+                    <div class="cover-info-cards">
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128218;</div>
+                            <div class="card-label">Program Studi</div>
+                            <div class="card-value">S1 Teknologi Informasi</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128737;</div>
+                            <div class="card-label">Focus</div>
+                            <div class="card-value">Data Security</div>
+                        </div>
+                        <div class="cover-info-card">
+                            <div class="card-icon">&#128197;</div>
+                            <div class="card-label">Tahun Akademik</div>
+                            <div class="card-value">Genap 2024/2025</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 1: INFO MODUL -->
+            <div class="page-content">
+                <div style="text-align: center; padding: 40px 0; background: linear-gradient(135deg, #1e5128 0%, #4e9f3d 100%); color: white; border-radius: 15px; margin-bottom: 40px;">
+                    <div style="font-size: 50px; margin-bottom: 15px;">&#9989;</div>
+                    <h1 style="font-size: 2.2em; font-weight: 700; margin-bottom: 10px;">FORM VALIDATION</h1>
+                    <h2 style="font-size: 1.3em; opacity: 0.9;">Validasi 2 Layer: Client & Server</h2>
+                </div>
+
+                <div class="learning-outcomes">
+                    <h3 class="subsection-title" style="color: #1e5128; margin-top: 0;">&#127919; Capaian Pembelajaran</h3>
+                    <ul class="objective-list">
+                        <li><strong>Kemampuan Akhir:</strong> Mahasiswa mampu menerapkan validasi pada formulir web menggunakan JavaScript dan PHP</li>
+                        <li>Memahami pentingnya validasi 2 layer (client & server)</li>
+                        <li>Mampu membuat validasi client-side dengan JavaScript</li>
+                        <li>Mampu membuat validasi server-side dengan PHP</li>
+                        <li>Mampu mengimplementasikan validasi pada operasi CRUD</li>
+                        <li>Memahami teknik sanitasi dan escape data</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <strong>&#128161; Catatan Penting:</strong> Contoh pada modul ini menggunakan <strong>Sistem Akademik</strong> sebagai studi kasus. Namun, konsep validasi ini dapat diterapkan pada <strong>project apapun</strong> yang kalian buat (Toko Online, Perpustakaan, Reservasi, dll). Sesuaikan aturan validasi dengan kebutuhan project masing-masing!
+                </div>
+
+                <h3 class="subsection-title">&#128737; Mengapa Validasi Penting?</h3>
+
+                <div class="two-column">
+                    <div class="danger-box" style="margin: 0;">
+                        <strong>&#10060; Tanpa Validasi:</strong>
+                        <ul style="margin-top: 10px; margin-left: 15px; font-size: 14px;">
+                            <li>Data tidak konsisten</li>
+                            <li>Rentan SQL Injection</li>
+                            <li>Rentan XSS Attack</li>
+                            <li>Database berisi data sampah</li>
+                            <li>Aplikasi mudah crash</li>
+                        </ul>
+                    </div>
+                    <div class="success-box" style="margin: 0;">
+                        <strong>&#9989; Dengan Validasi:</strong>
+                        <ul style="margin-top: 10px; margin-left: 15px; font-size: 14px;">
+                            <li>Data terjamin valid</li>
+                            <li>Aman dari serangan</li>
+                            <li>User experience baik</li>
+                            <li>Database bersih</li>
+                            <li>Aplikasi stabil</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="page-number">Halaman 1</div>
+            </div>
+
+            <!-- PAGE 2: KONSEP VALIDASI 2 LAYER -->
+            <div class="page-content">
+                <h2 class="section-title">&#128272; KONSEP VALIDASI 2 LAYER</h2>
+
+                <p>Validasi yang baik harus dilakukan di <strong>dua tempat</strong>: Client-side (browser) dan Server-side (PHP). Keduanya saling melengkapi!</p>
+
+                <div class="validation-flow">
+                    <div class="validation-step">
+                        <div class="step-icon">&#128221;</div>
+                        <div class="step-label">User Input</div>
+                    </div>
+                    <div class="validation-arrow">&#10145;</div>
+                    <div class="validation-step client">
+                        <div class="step-icon">&#9889;</div>
+                        <div class="step-label">JavaScript</div>
+                        <div style="font-size: 10px; color: #666;">Client-side</div>
+                    </div>
+                    <div class="validation-arrow">&#10145;</div>
+                    <div class="validation-step server">
+                        <div class="step-icon">&#128024;</div>
+                        <div class="step-label">PHP</div>
+                        <div style="font-size: 10px; color: #666;">Server-side</div>
+                    </div>
+                    <div class="validation-arrow">&#10145;</div>
+                    <div class="validation-step success">
+                        <div class="step-icon">&#128451;</div>
+                        <div class="step-label">Database</div>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Perbandingan Client-side vs Server-side</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspek</th>
+                                <th>&#9889; Client-side (JS)</th>
+                                <th>&#128024; Server-side (PHP)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Kecepatan</strong></td>
+                                <td>&#9989; Instant (tanpa reload)</td>
+                                <td>&#9888; Perlu request ke server</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Keamanan</strong></td>
+                                <td>&#10060; Bisa di-bypass user</td>
+                                <td>&#9989; Tidak bisa di-bypass</td>
+                            </tr>
+                            <tr>
+                                <td><strong>UX</strong></td>
+                                <td>&#9989; Feedback langsung</td>
+                                <td>&#9888; Feedback setelah submit</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Akses Database</strong></td>
+                                <td>&#10060; Tidak bisa</td>
+                                <td>&#9989; Bisa (cek email duplikat, dll)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Wajib?</strong></td>
+                                <td>&#9888; Opsional (untuk UX)</td>
+                                <td>&#9989; <strong>WAJIB!</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-box">
+                    <strong>&#128161; Prinsip Utama:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li><strong>Client-side:</strong> Untuk kenyamanan user (feedback cepat)</li>
+                        <li><strong>Server-side:</strong> Untuk keamanan (WAJIB, tidak bisa di-skip!)</li>
+                        <li>Jangan pernah percaya data dari client tanpa validasi ulang di server!</li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 2</div>
+            </div>
+
+            <!-- PAGE 3: JENIS VALIDASI -->
+            <div class="page-content">
+                <h2 class="section-title">&#128203; JENIS-JENIS VALIDASI</h2>
+
+                <p>Berikut adalah jenis validasi yang umum digunakan di berbagai project:</p>
+
+                <div class="rule-box">
+                    <div class="rule-name">1. Required (Wajib Diisi)</div>
+                    <div class="rule-desc">Field tidak boleh kosong. Contoh: Nama, Email, Password</div>
+                </div>
+
+                <div class="rule-box">
+                    <div class="rule-name">2. Format/Pattern</div>
+                    <div class="rule-desc">Data harus sesuai format tertentu. Contoh: Email harus ada @, No HP harus angka</div>
+                </div>
+
+                <div class="rule-box">
+                    <div class="rule-name">3. Length (Panjang)</div>
+                    <div class="rule-desc">Minimal/maksimal karakter. Contoh: Password min 6 karakter, Username max 20 karakter</div>
+                </div>
+
+                <div class="rule-box">
+                    <div class="rule-name">4. Range (Rentang)</div>
+                    <div class="rule-desc">Nilai harus dalam rentang tertentu. Contoh: Umur 17-100, Harga > 0</div>
+                </div>
+
+                <div class="rule-box">
+                    <div class="rule-name">5. Unique (Unik)</div>
+                    <div class="rule-desc">Tidak boleh duplikat di database. Contoh: Email, Username, NIM, Kode Produk</div>
+                </div>
+
+                <div class="rule-box">
+                    <div class="rule-name">6. Match (Kecocokan)</div>
+                    <div class="rule-desc">Dua field harus sama. Contoh: Password & Konfirmasi Password</div>
+                </div>
+
+                <div class="rule-box">
+                    <div class="rule-name">7. Type (Tipe Data)</div>
+                    <div class="rule-desc">Harus tipe data tertentu. Contoh: Angka, Tanggal, File gambar</div>
+                </div>
+
+                <h3 class="subsection-title">&#128214; Contoh Penerapan di Berbagai Project</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Project</th><th>Field</th><th>Validasi</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Sistem Akademik</td><td>NIM</td><td>Required, Unique, Format angka</td></tr>
+                            <tr><td>Toko Online</td><td>Harga</td><td>Required, Angka, Min 0</td></tr>
+                            <tr><td>Perpustakaan</td><td>ISBN</td><td>Required, Unique, Format ISBN</td></tr>
+                            <tr><td>Reservasi Hotel</td><td>Tanggal Check-in</td><td>Required, Format tanggal, >= hari ini</td></tr>
+                            <tr><td>E-Voting</td><td>NIK</td><td>Required, Unique, 16 digit</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="page-number">Halaman 3</div>
+            </div>
+
+            <!-- PAGE 4: VALIDASI JAVASCRIPT - BASIC -->
+            <div class="page-content">
+                <h2 class="section-title">&#9889; VALIDASI CLIENT-SIDE (JavaScript)</h2>
+
+                <h3 class="subsection-title">Struktur Dasar Validasi JavaScript</h3>
+
+                <div class="code-block">
+                    <span class="code-label js">JavaScript - Struktur Dasar</span>
+                    <code><span class="comment">// Ambil form element</span>
+<span class="js-keyword">const</span> form = document.<span class="js-func">getElementById</span>(<span class="js-string">'myForm'</span>);
+
+<span class="comment">// Event listener saat form di-submit</span>
+form.<span class="js-func">addEventListener</span>(<span class="js-string">'submit'</span>, <span class="js-keyword">function</span>(e) {
+    <span class="comment">// Ambil nilai input</span>
+    <span class="js-keyword">const</span> nama = document.<span class="js-func">getElementById</span>(<span class="js-string">'nama'</span>).value.<span class="js-func">trim</span>();
+    <span class="js-keyword">const</span> email = document.<span class="js-func">getElementById</span>(<span class="js-string">'email'</span>).value.<span class="js-func">trim</span>();
+
+    <span class="js-keyword">let</span> errors = [];
+
+    <span class="comment">// Validasi: Required</span>
+    <span class="js-keyword">if</span> (nama === <span class="js-string">''</span>) {
+        errors.<span class="js-func">push</span>(<span class="js-string">'Nama wajib diisi!'</span>);
+    }
+
+    <span class="comment">// Validasi: Format Email</span>
+    <span class="js-keyword">const</span> emailPattern = <span class="string">/^[^\s@]+@[^\s@]+\.[^\s@]+$/</span>;
+    <span class="js-keyword">if</span> (!emailPattern.<span class="js-func">test</span>(email)) {
+        errors.<span class="js-func">push</span>(<span class="js-string">'Format email tidak valid!'</span>);
+    }
+
+    <span class="comment">// Jika ada error, tampilkan dan batalkan submit</span>
+    <span class="js-keyword">if</span> (errors.length > <span class="number">0</span>) {
+        e.<span class="js-func">preventDefault</span>();  <span class="comment">// Batalkan submit</span>
+        <span class="js-func">alert</span>(errors.<span class="js-func">join</span>(<span class="js-string">'\n'</span>));
+        <span class="js-keyword">return</span> <span class="js-keyword">false</span>;
+    }
+
+    <span class="comment">// Jika tidak ada error, form akan ter-submit</span>
+    <span class="js-keyword">return</span> <span class="js-keyword">true</span>;
+});</code>
+                </div>
+
+                <h3 class="subsection-title">Fungsi Validasi Reusable</h3>
+                <p>Buat fungsi-fungsi validasi yang bisa digunakan ulang di berbagai form:</p>
+
+                <div class="code-block">
+                    <span class="code-label js">JavaScript - Fungsi Validasi Reusable</span>
+                    <code><span class="comment">// ======== FUNGSI VALIDASI REUSABLE ========</span>
+
+<span class="comment">// Cek apakah field kosong</span>
+<span class="js-keyword">function</span> <span class="js-func">isEmpty</span>(value) {
+    <span class="js-keyword">return</span> value.<span class="js-func">trim</span>() === <span class="js-string">''</span>;
+}
+
+<span class="comment">// Validasi format email</span>
+<span class="js-keyword">function</span> <span class="js-func">isValidEmail</span>(email) {
+    <span class="js-keyword">const</span> pattern = <span class="string">/^[^\s@]+@[^\s@]+\.[^\s@]+$/</span>;
+    <span class="js-keyword">return</span> pattern.<span class="js-func">test</span>(email);
+}
+
+<span class="comment">// Validasi panjang minimal</span>
+<span class="js-keyword">function</span> <span class="js-func">minLength</span>(value, min) {
+    <span class="js-keyword">return</span> value.length >= min;
+}
+
+<span class="comment">// Validasi panjang maksimal</span>
+<span class="js-keyword">function</span> <span class="js-func">maxLength</span>(value, max) {
+    <span class="js-keyword">return</span> value.length <= max;
+}
+
+<span class="comment">// Validasi hanya angka</span>
+<span class="js-keyword">function</span> <span class="js-func">isNumeric</span>(value) {
+    <span class="js-keyword">return</span> <span class="string">/^\d+$/</span>.<span class="js-func">test</span>(value);
+}
+
+<span class="comment">// Validasi nomor HP Indonesia</span>
+<span class="js-keyword">function</span> <span class="js-func">isValidPhone</span>(phone) {
+    <span class="js-keyword">return</span> <span class="string">/^08[0-9]{8,11}$/</span>.<span class="js-func">test</span>(phone);
+}
+
+<span class="comment">// Validasi angka dalam range</span>
+<span class="js-keyword">function</span> <span class="js-func">inRange</span>(value, min, max) {
+    <span class="js-keyword">const</span> num = <span class="js-func">parseFloat</span>(value);
+    <span class="js-keyword">return</span> num >= min && num <= max;
+}</code>
+                </div>
+
+                <div class="page-number">Halaman 4</div>
+            </div>
+
+            <!-- PAGE 5: VALIDASI JAVASCRIPT - IMPLEMENTASI -->
+            <div class="page-content">
+                <h3 class="subsection-title">Contoh Implementasi Lengkap</h3>
+
+                <div class="code-block">
+                    <span class="code-label js">validasi.js - Validasi Form Tambah Data</span>
+                    <code><span class="comment">/**
+ * Validasi Form - Bisa digunakan untuk project apapun
+ * Sesuaikan field dan aturan dengan kebutuhan project
+ */</span>
+
+document.<span class="js-func">addEventListener</span>(<span class="js-string">'DOMContentLoaded'</span>, <span class="js-keyword">function</span>() {
+    <span class="js-keyword">const</span> form = document.<span class="js-func">getElementById</span>(<span class="js-string">'formTambah'</span>);
+
+    <span class="js-keyword">if</span> (form) {
+        form.<span class="js-func">addEventListener</span>(<span class="js-string">'submit'</span>, <span class="js-keyword">function</span>(e) {
+            <span class="js-keyword">let</span> isValid = <span class="js-keyword">true</span>;
+            <span class="js-keyword">let</span> errors = [];
+
+            <span class="comment">// ===== CONTOH: Validasi Nama =====</span>
+            <span class="js-keyword">const</span> nama = document.<span class="js-func">getElementById</span>(<span class="js-string">'nama'</span>);
+            <span class="js-keyword">if</span> (<span class="js-func">isEmpty</span>(nama.value)) {
+                errors.<span class="js-func">push</span>(<span class="js-string">'Nama wajib diisi'</span>);
+                nama.classList.<span class="js-func">add</span>(<span class="js-string">'is-invalid'</span>);
+                isValid = <span class="js-keyword">false</span>;
+            } <span class="js-keyword">else</span> {
+                nama.classList.<span class="js-func">remove</span>(<span class="js-string">'is-invalid'</span>);
+                nama.classList.<span class="js-func">add</span>(<span class="js-string">'is-valid'</span>);
+            }
+
+            <span class="comment">// ===== CONTOH: Validasi Email =====</span>
+            <span class="js-keyword">const</span> email = document.<span class="js-func">getElementById</span>(<span class="js-string">'email'</span>);
+            <span class="js-keyword">if</span> (!<span class="js-func">isValidEmail</span>(email.value)) {
+                errors.<span class="js-func">push</span>(<span class="js-string">'Format email tidak valid'</span>);
+                email.classList.<span class="js-func">add</span>(<span class="js-string">'is-invalid'</span>);
+                isValid = <span class="js-keyword">false</span>;
+            } <span class="js-keyword">else</span> {
+                email.classList.<span class="js-func">remove</span>(<span class="js-string">'is-invalid'</span>);
+                email.classList.<span class="js-func">add</span>(<span class="js-string">'is-valid'</span>);
+            }
+
+            <span class="comment">// ===== CONTOH: Validasi Harga (untuk project Toko) =====</span>
+            <span class="comment">// const harga = document.getElementById('harga');</span>
+            <span class="comment">// if (!isNumeric(harga.value) || parseFloat(harga.value) <= 0) {</span>
+            <span class="comment">//     errors.push('Harga harus angka positif');</span>
+            <span class="comment">//     isValid = false;</span>
+            <span class="comment">// }</span>
+
+            <span class="comment">// Jika ada error</span>
+            <span class="js-keyword">if</span> (!isValid) {
+                e.<span class="js-func">preventDefault</span>();
+                <span class="js-func">showErrors</span>(errors);
+            }
+        });
+    }
+});
+
+<span class="comment">// Fungsi tampilkan error</span>
+<span class="js-keyword">function</span> <span class="js-func">showErrors</span>(errors) {
+    <span class="js-keyword">const</span> alertDiv = document.<span class="js-func">getElementById</span>(<span class="js-string">'alertError'</span>);
+    <span class="js-keyword">if</span> (alertDiv) {
+        alertDiv.innerHTML = <span class="js-string">'&lt;ul&gt;&lt;li&gt;'</span> + errors.<span class="js-func">join</span>(<span class="js-string">'&lt;/li&gt;&lt;li&gt;'</span>) + <span class="js-string">'&lt;/li&gt;&lt;/ul&gt;'</span>;
+        alertDiv.style.display = <span class="js-string">'block'</span>;
+    } <span class="js-keyword">else</span> {
+        <span class="js-func">alert</span>(errors.<span class="js-func">join</span>(<span class="js-string">'\n'</span>));
+    }
+}</code>
+                </div>
+
+                <div class="info-box">
+                    <strong>&#128161; Tips Bootstrap Integration:</strong> Gunakan class <code>is-invalid</code> dan <code>is-valid</code> dari Bootstrap untuk menampilkan visual feedback pada input field.
+                </div>
+
+                <div class="page-number">Halaman 5</div>
+            </div>
+
+            <!-- PAGE 6: VALIDASI PHP - BASIC -->
+            <div class="page-content">
+                <h2 class="section-title">&#128024; VALIDASI SERVER-SIDE (PHP)</h2>
+
+                <h3 class="subsection-title">Struktur Dasar Validasi PHP</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">PHP - Struktur Dasar</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">// Cek apakah form di-submit dengan POST</span>
+<span class="keyword">if</span> (<span class="php-var">$_SERVER</span>[<span class="string">'REQUEST_METHOD'</span>] === <span class="string">'POST'</span>) {
+
+    <span class="comment">// Array untuk menampung error</span>
+    <span class="php-var">$errors</span> = [];
+
+    <span class="comment">// ===== AMBIL & BERSIHKAN DATA =====</span>
+    <span class="php-var">$nama</span> = <span class="function">trim</span>(<span class="php-var">$_POST</span>[<span class="string">'nama'</span>] ?? <span class="string">''</span>);
+    <span class="php-var">$email</span> = <span class="function">trim</span>(<span class="php-var">$_POST</span>[<span class="string">'email'</span>] ?? <span class="string">''</span>);
+    <span class="php-var">$harga</span> = <span class="php-var">$_POST</span>[<span class="string">'harga'</span>] ?? <span class="number">0</span>;
+
+    <span class="comment">// ===== VALIDASI: Required =====</span>
+    <span class="keyword">if</span> (<span class="function">empty</span>(<span class="php-var">$nama</span>)) {
+        <span class="php-var">$errors</span>[] = <span class="string">'Nama wajib diisi!'</span>;
+    }
+
+    <span class="comment">// ===== VALIDASI: Format Email =====</span>
+    <span class="keyword">if</span> (!<span class="function">filter_var</span>(<span class="php-var">$email</span>, FILTER_VALIDATE_EMAIL)) {
+        <span class="php-var">$errors</span>[] = <span class="string">'Format email tidak valid!'</span>;
+    }
+
+    <span class="comment">// ===== VALIDASI: Angka Positif =====</span>
+    <span class="keyword">if</span> (!<span class="function">is_numeric</span>(<span class="php-var">$harga</span>) || <span class="php-var">$harga</span> <= <span class="number">0</span>) {
+        <span class="php-var">$errors</span>[] = <span class="string">'Harga harus angka positif!'</span>;
+    }
+
+    <span class="comment">// ===== CEK HASIL VALIDASI =====</span>
+    <span class="keyword">if</span> (<span class="function">empty</span>(<span class="php-var">$errors</span>)) {
+        <span class="comment">// Validasi berhasil - lanjut proses simpan</span>
+        <span class="comment">// ... INSERT ke database ...</span>
+        <span class="function">header</span>(<span class="string">'Location: index.php?success=1'</span>);
+        <span class="keyword">exit</span>;
+    } <span class="keyword">else</span> {
+        <span class="comment">// Ada error - tampilkan pesan</span>
+        <span class="keyword">foreach</span> (<span class="php-var">$errors</span> <span class="keyword">as</span> <span class="php-var">$error</span>) {
+            <span class="keyword">echo</span> <span class="string">"&lt;p class='text-danger'&gt;</span><span class="php-var">$error</span><span class="string">&lt;/p&gt;"</span>;
+        }
+    }
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <h3 class="subsection-title">Fungsi Validasi PHP Reusable</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">includes/validation.php</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">/**
+ * Kumpulan Fungsi Validasi PHP
+ * Bisa digunakan untuk berbagai project
+ */</span>
+
+<span class="comment">// Cek field kosong</span>
+<span class="keyword">function</span> <span class="function">required</span>(<span class="php-var">$value</span>) {
+    <span class="keyword">return</span> !<span class="function">empty</span>(<span class="function">trim</span>(<span class="php-var">$value</span>));
+}
+
+<span class="comment">// Validasi email</span>
+<span class="keyword">function</span> <span class="function">validEmail</span>(<span class="php-var">$email</span>) {
+    <span class="keyword">return</span> <span class="function">filter_var</span>(<span class="php-var">$email</span>, FILTER_VALIDATE_EMAIL) !== <span class="keyword">false</span>;
+}
+
+<span class="comment">// Validasi panjang minimal</span>
+<span class="keyword">function</span> <span class="function">minLen</span>(<span class="php-var">$value</span>, <span class="php-var">$min</span>) {
+    <span class="keyword">return</span> <span class="function">strlen</span>(<span class="function">trim</span>(<span class="php-var">$value</span>)) >= <span class="php-var">$min</span>;
+}
+
+<span class="comment">// Validasi panjang maksimal</span>
+<span class="keyword">function</span> <span class="function">maxLen</span>(<span class="php-var">$value</span>, <span class="php-var">$max</span>) {
+    <span class="keyword">return</span> <span class="function">strlen</span>(<span class="function">trim</span>(<span class="php-var">$value</span>)) <= <span class="php-var">$max</span>;
+}
+
+<span class="comment">// Validasi angka</span>
+<span class="keyword">function</span> <span class="function">isNumber</span>(<span class="php-var">$value</span>) {
+    <span class="keyword">return</span> <span class="function">is_numeric</span>(<span class="php-var">$value</span>);
+}
+
+<span class="comment">// Validasi angka dalam range</span>
+<span class="keyword">function</span> <span class="function">between</span>(<span class="php-var">$value</span>, <span class="php-var">$min</span>, <span class="php-var">$max</span>) {
+    <span class="keyword">return</span> <span class="php-var">$value</span> >= <span class="php-var">$min</span> && <span class="php-var">$value</span> <= <span class="php-var">$max</span>;
+}
+
+<span class="comment">// Validasi nomor HP Indonesia</span>
+<span class="keyword">function</span> <span class="function">validPhone</span>(<span class="php-var">$phone</span>) {
+    <span class="keyword">return</span> <span class="function">preg_match</span>(<span class="string">'/^08[0-9]{8,11}$/'</span>, <span class="php-var">$phone</span>);
+}
+
+<span class="comment">// Sanitasi string (cegah XSS)</span>
+<span class="keyword">function</span> <span class="function">sanitize</span>(<span class="php-var">$value</span>) {
+    <span class="keyword">return</span> <span class="function">htmlspecialchars</span>(<span class="function">trim</span>(<span class="php-var">$value</span>), ENT_QUOTES, <span class="string">'UTF-8'</span>);
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 6</div>
+            </div>
+
+            <!-- PAGE 7: VALIDASI PHP - UNIQUE CHECK -->
+            <div class="page-content">
+                <h3 class="subsection-title">Validasi Unique (Cek Duplikat di Database)</h3>
+
+                <p>Validasi ini <strong>hanya bisa dilakukan di server</strong> karena memerlukan akses ke database:</p>
+
+                <div class="code-block">
+                    <span class="code-label php">PHP - Cek Data Duplikat</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="keyword">require_once</span> <span class="string">'config/database.php'</span>;
+
+<span class="comment">/**
+ * Cek apakah nilai sudah ada di database
+ * @param PDO $pdo - Koneksi database
+ * @param string $table - Nama tabel
+ * @param string $column - Nama kolom
+ * @param mixed $value - Nilai yang dicek
+ * @param mixed $exceptId - ID yang dikecualikan (untuk update)
+ * @return bool
+ */</span>
+<span class="keyword">function</span> <span class="function">isUnique</span>(<span class="php-var">$pdo</span>, <span class="php-var">$table</span>, <span class="php-var">$column</span>, <span class="php-var">$value</span>, <span class="php-var">$exceptId</span> = <span class="keyword">null</span>) {
+    <span class="keyword">if</span> (<span class="php-var">$exceptId</span>) {
+        <span class="comment">// Untuk UPDATE: kecualikan record yang sedang diedit</span>
+        <span class="php-var">$sql</span> = <span class="string">"SELECT COUNT(*) FROM {$table} WHERE {$column} = ? AND id != ?"</span>;
+        <span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+        <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$value</span>, <span class="php-var">$exceptId</span>]);
+    } <span class="keyword">else</span> {
+        <span class="comment">// Untuk CREATE: cek semua record</span>
+        <span class="php-var">$sql</span> = <span class="string">"SELECT COUNT(*) FROM {$table} WHERE {$column} = ?"</span>;
+        <span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+        <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$value</span>]);
+    }
+
+    <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">fetchColumn</span>() == <span class="number">0</span>;
+}
+
+<span class="comment">// ===== CONTOH PENGGUNAAN =====</span>
+<span class="php-var">$email</span> = <span class="php-var">$_POST</span>[<span class="string">'email'</span>];
+
+<span class="comment">// Untuk CREATE (tambah data baru)</span>
+<span class="keyword">if</span> (!<span class="function">isUnique</span>(<span class="php-var">$pdo</span>, <span class="string">'users'</span>, <span class="string">'email'</span>, <span class="php-var">$email</span>)) {
+    <span class="php-var">$errors</span>[] = <span class="string">'Email sudah terdaftar!'</span>;
+}
+
+<span class="comment">// Untuk UPDATE (edit data)</span>
+<span class="php-var">$id</span> = <span class="php-var">$_POST</span>[<span class="string">'id'</span>];
+<span class="keyword">if</span> (!<span class="function">isUnique</span>(<span class="php-var">$pdo</span>, <span class="string">'users'</span>, <span class="string">'email'</span>, <span class="php-var">$email</span>, <span class="php-var">$id</span>)) {
+    <span class="php-var">$errors</span>[] = <span class="string">'Email sudah digunakan user lain!'</span>;
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="warning-box">
+                    <strong>&#9888; Penting untuk CRUD:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li><strong>CREATE:</strong> Cek apakah data sudah ada (tanpa except)</li>
+                        <li><strong>UPDATE:</strong> Cek duplikat tapi kecualikan record yang sedang diedit</li>
+                        <li><strong>DELETE:</strong> Pastikan data ada sebelum dihapus</li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 7</div>
+            </div>
+
+            <!-- PAGE 8: IMPLEMENTASI CRUD - CREATE -->
+            <div class="page-content">
+                <h2 class="section-title">&#128260; VALIDASI PADA OPERASI CRUD</h2>
+
+                <h3 class="subsection-title">CREATE - Tambah Data Baru</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">proses_tambah.php - Dengan Validasi Lengkap</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="keyword">require_once</span> <span class="string">'config/database.php'</span>;
+<span class="keyword">require_once</span> <span class="string">'includes/validation.php'</span>;
+
+<span class="keyword">if</span> (<span class="php-var">$_SERVER</span>[<span class="string">'REQUEST_METHOD'</span>] === <span class="string">'POST'</span>) {
+    <span class="php-var">$errors</span> = [];
+
+    <span class="comment">// ===== AMBIL & SANITASI DATA =====</span>
+    <span class="php-var">$nama</span>  = <span class="function">sanitize</span>(<span class="php-var">$_POST</span>[<span class="string">'nama'</span>] ?? <span class="string">''</span>);
+    <span class="php-var">$email</span> = <span class="function">sanitize</span>(<span class="php-var">$_POST</span>[<span class="string">'email'</span>] ?? <span class="string">''</span>);
+    <span class="php-var">$no_hp</span> = <span class="function">sanitize</span>(<span class="php-var">$_POST</span>[<span class="string">'no_hp'</span>] ?? <span class="string">''</span>);
+
+    <span class="comment">// ===== VALIDASI =====</span>
+    <span class="comment">// 1. Nama: wajib, min 3 karakter</span>
+    <span class="keyword">if</span> (!<span class="function">required</span>(<span class="php-var">$nama</span>)) {
+        <span class="php-var">$errors</span>[] = <span class="string">'Nama wajib diisi'</span>;
+    } <span class="keyword">elseif</span> (!<span class="function">minLen</span>(<span class="php-var">$nama</span>, <span class="number">3</span>)) {
+        <span class="php-var">$errors</span>[] = <span class="string">'Nama minimal 3 karakter'</span>;
+    }
+
+    <span class="comment">// 2. Email: wajib, format valid, unique</span>
+    <span class="keyword">if</span> (!<span class="function">required</span>(<span class="php-var">$email</span>)) {
+        <span class="php-var">$errors</span>[] = <span class="string">'Email wajib diisi'</span>;
+    } <span class="keyword">elseif</span> (!<span class="function">validEmail</span>(<span class="php-var">$email</span>)) {
+        <span class="php-var">$errors</span>[] = <span class="string">'Format email tidak valid'</span>;
+    } <span class="keyword">elseif</span> (!<span class="function">isUnique</span>(<span class="php-var">$pdo</span>, <span class="string">'users'</span>, <span class="string">'email'</span>, <span class="php-var">$email</span>)) {
+        <span class="php-var">$errors</span>[] = <span class="string">'Email sudah terdaftar'</span>;
+    }
+
+    <span class="comment">// 3. No HP: opsional, tapi jika diisi harus valid</span>
+    <span class="keyword">if</span> (!<span class="function">empty</span>(<span class="php-var">$no_hp</span>) && !<span class="function">validPhone</span>(<span class="php-var">$no_hp</span>)) {
+        <span class="php-var">$errors</span>[] = <span class="string">'Format nomor HP tidak valid'</span>;
+    }
+
+    <span class="comment">// ===== PROSES SIMPAN JIKA VALID =====</span>
+    <span class="keyword">if</span> (<span class="function">empty</span>(<span class="php-var">$errors</span>)) {
+        <span class="keyword">try</span> {
+            <span class="php-var">$sql</span> = <span class="string">"INSERT INTO users (nama, email, no_hp) VALUES (?, ?, ?)"</span>;
+            <span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+            <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$nama</span>, <span class="php-var">$email</span>, <span class="php-var">$no_hp</span>]);
+
+            <span class="function">header</span>(<span class="string">'Location: index.php?success=Data berhasil ditambahkan'</span>);
+            <span class="keyword">exit</span>;
+        } <span class="keyword">catch</span> (PDOException <span class="php-var">$e</span>) {
+            <span class="php-var">$errors</span>[] = <span class="string">'Gagal menyimpan data: '</span> . <span class="php-var">$e</span>-><span class="method">getMessage</span>();
+        }
+    }
+
+    <span class="comment">// Jika ada error, redirect dengan pesan</span>
+    <span class="php-var">$errorMsg</span> = <span class="function">urlencode</span>(<span class="function">implode</span>(<span class="string">'|'</span>, <span class="php-var">$errors</span>));
+    <span class="function">header</span>(<span class="string">"Location: tambah.php?error=</span><span class="php-var">$errorMsg</span><span class="string">"</span>);
+    <span class="keyword">exit</span>;
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 8</div>
+            </div>
+
+            <!-- PAGE 9: IMPLEMENTASI CRUD - UPDATE -->
+            <div class="page-content">
+                <h3 class="subsection-title">UPDATE - Edit Data</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">proses_edit.php - Validasi untuk Update</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="keyword">require_once</span> <span class="string">'config/database.php'</span>;
+<span class="keyword">require_once</span> <span class="string">'includes/validation.php'</span>;
+
+<span class="keyword">if</span> (<span class="php-var">$_SERVER</span>[<span class="string">'REQUEST_METHOD'</span>] === <span class="string">'POST'</span>) {
+    <span class="php-var">$errors</span> = [];
+
+    <span class="comment">// ID record yang diedit (PENTING untuk validasi unique)</span>
+    <span class="php-var">$id</span> = (<span class="keyword">int</span>)<span class="php-var">$_POST</span>[<span class="string">'id'</span>];
+
+    <span class="comment">// Validasi ID</span>
+    <span class="keyword">if</span> (<span class="php-var">$id</span> <= <span class="number">0</span>) {
+        <span class="function">header</span>(<span class="string">'Location: index.php?error=ID tidak valid'</span>);
+        <span class="keyword">exit</span>;
+    }
+
+    <span class="comment">// Cek apakah data ada</span>
+    <span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">prepare</span>(<span class="string">"SELECT id FROM users WHERE id = ?"</span>);
+    <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$id</span>]);
+    <span class="keyword">if</span> (!<span class="php-var">$stmt</span>-><span class="method">fetch</span>()) {
+        <span class="function">header</span>(<span class="string">'Location: index.php?error=Data tidak ditemukan'</span>);
+        <span class="keyword">exit</span>;
+    }
+
+    <span class="comment">// Ambil & sanitasi data</span>
+    <span class="php-var">$nama</span>  = <span class="function">sanitize</span>(<span class="php-var">$_POST</span>[<span class="string">'nama'</span>] ?? <span class="string">''</span>);
+    <span class="php-var">$email</span> = <span class="function">sanitize</span>(<span class="php-var">$_POST</span>[<span class="string">'email'</span>] ?? <span class="string">''</span>);
+
+    <span class="comment">// Validasi (sama seperti create)</span>
+    <span class="keyword">if</span> (!<span class="function">required</span>(<span class="php-var">$nama</span>)) {
+        <span class="php-var">$errors</span>[] = <span class="string">'Nama wajib diisi'</span>;
+    }
+
+    <span class="comment">// PENTING: Cek unique dengan EXCEPT ID</span>
+    <span class="keyword">if</span> (!<span class="function">isUnique</span>(<span class="php-var">$pdo</span>, <span class="string">'users'</span>, <span class="string">'email'</span>, <span class="php-var">$email</span>, <span class="php-var">$id</span>)) {
+        <span class="php-var">$errors</span>[] = <span class="string">'Email sudah digunakan user lain'</span>;
+    }
+
+    <span class="comment">// Proses update jika valid</span>
+    <span class="keyword">if</span> (<span class="function">empty</span>(<span class="php-var">$errors</span>)) {
+        <span class="php-var">$sql</span> = <span class="string">"UPDATE users SET nama = ?, email = ? WHERE id = ?"</span>;
+        <span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+        <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$nama</span>, <span class="php-var">$email</span>, <span class="php-var">$id</span>]);
+
+        <span class="function">header</span>(<span class="string">'Location: index.php?success=Data berhasil diupdate'</span>);
+        <span class="keyword">exit</span>;
+    }
+
+    <span class="comment">// Redirect dengan error</span>
+    <span class="function">header</span>(<span class="string">"Location: edit.php?id=</span><span class="php-var">$id</span><span class="string">&error="</span> . <span class="function">urlencode</span>(<span class="function">implode</span>(<span class="string">'|'</span>, <span class="php-var">$errors</span>)));
+    <span class="keyword">exit</span>;
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="success-box">
+                    <strong>&#128161; Perbedaan Validasi CREATE vs UPDATE:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li><strong>CREATE:</strong> <code>isUnique($pdo, 'table', 'column', $value)</code></li>
+                        <li><strong>UPDATE:</strong> <code>isUnique($pdo, 'table', 'column', $value, <strong>$id</strong>)</code></li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 9</div>
+            </div>
+
+            <!-- PAGE 10: IMPLEMENTASI CRUD - DELETE -->
+            <div class="page-content">
+                <h3 class="subsection-title">DELETE - Hapus Data</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">hapus.php - Validasi Sebelum Hapus</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="keyword">require_once</span> <span class="string">'config/database.php'</span>;
+<span class="keyword">require_once</span> <span class="string">'includes/auth.php'</span>;
+<span class="function">cekLogin</span>();
+
+<span class="comment">// Ambil ID dari GET atau POST</span>
+<span class="php-var">$id</span> = (<span class="keyword">int</span>)(<span class="php-var">$_GET</span>[<span class="string">'id'</span>] ?? <span class="php-var">$_POST</span>[<span class="string">'id'</span>] ?? <span class="number">0</span>);
+
+<span class="comment">// ===== VALIDASI 1: ID harus valid =====</span>
+<span class="keyword">if</span> (<span class="php-var">$id</span> <= <span class="number">0</span>) {
+    <span class="function">header</span>(<span class="string">'Location: index.php?error=ID tidak valid'</span>);
+    <span class="keyword">exit</span>;
+}
+
+<span class="comment">// ===== VALIDASI 2: Data harus ada =====</span>
+<span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">prepare</span>(<span class="string">"SELECT * FROM users WHERE id = ?"</span>);
+<span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$id</span>]);
+<span class="php-var">$data</span> = <span class="php-var">$stmt</span>-><span class="method">fetch</span>();
+
+<span class="keyword">if</span> (!<span class="php-var">$data</span>) {
+    <span class="function">header</span>(<span class="string">'Location: index.php?error=Data tidak ditemukan'</span>);
+    <span class="keyword">exit</span>;
+}
+
+<span class="comment">// ===== VALIDASI 3: Cek relasi (opsional) =====</span>
+<span class="comment">// Contoh: Jangan hapus user jika masih punya transaksi</span>
+<span class="comment">// $cekRelasi = $pdo->prepare("SELECT COUNT(*) FROM orders WHERE user_id = ?");</span>
+<span class="comment">// $cekRelasi->execute([$id]);</span>
+<span class="comment">// if ($cekRelasi->fetchColumn() > 0) {</span>
+<span class="comment">//     header('Location: index.php?error=Tidak bisa hapus, user masih punya transaksi');</span>
+<span class="comment">//     exit;</span>
+<span class="comment">// }</span>
+
+<span class="comment">// ===== PROSES HAPUS =====</span>
+<span class="keyword">try</span> {
+    <span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">prepare</span>(<span class="string">"DELETE FROM users WHERE id = ?"</span>);
+    <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$id</span>]);
+
+    <span class="function">header</span>(<span class="string">'Location: index.php?success=Data berhasil dihapus'</span>);
+} <span class="keyword">catch</span> (PDOException <span class="php-var">$e</span>) {
+    <span class="function">header</span>(<span class="string">'Location: index.php?error=Gagal menghapus data'</span>);
+}
+<span class="keyword">exit</span>;
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <h3 class="subsection-title">READ - Validasi Parameter</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">detail.php - Validasi Saat Baca Data</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">// Validasi parameter ID</span>
+<span class="php-var">$id</span> = <span class="function">filter_input</span>(INPUT_GET, <span class="string">'id'</span>, FILTER_VALIDATE_INT);
+
+<span class="keyword">if</span> (!<span class="php-var">$id</span> || <span class="php-var">$id</span> <= <span class="number">0</span>) {
+    <span class="function">header</span>(<span class="string">'Location: index.php?error=Parameter tidak valid'</span>);
+    <span class="keyword">exit</span>;
+}
+
+<span class="comment">// Validasi parameter pencarian</span>
+<span class="php-var">$search</span> = <span class="function">htmlspecialchars</span>(<span class="php-var">$_GET</span>[<span class="string">'search'</span>] ?? <span class="string">''</span>, ENT_QUOTES, <span class="string">'UTF-8'</span>);
+
+<span class="comment">// Validasi parameter pagination</span>
+<span class="php-var">$page</span> = <span class="function">filter_input</span>(INPUT_GET, <span class="string">'page'</span>, FILTER_VALIDATE_INT) ?: <span class="number">1</span>;
+<span class="php-var">$page</span> = <span class="function">max</span>(<span class="number">1</span>, <span class="php-var">$page</span>); <span class="comment">// Minimal halaman 1</span>
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 10</div>
+            </div>
+
+            <!-- PAGE 11: TAMPILAN ERROR -->
+            <div class="page-content">
+                <h2 class="section-title">&#127912; MENAMPILKAN PESAN VALIDASI</h2>
+
+                <h3 class="subsection-title">HTML Form dengan Error Display</h3>
+
+                <div class="code-block">
+                    <span class="code-label">tambah.php - Form dengan Alert Error</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">// Ambil error dari URL jika ada</span>
+<span class="php-var">$errors</span> = [];
+<span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="php-var">$_GET</span>[<span class="string">'error'</span>])) {
+    <span class="php-var">$errors</span> = <span class="function">explode</span>(<span class="string">'|'</span>, <span class="function">urldecode</span>(<span class="php-var">$_GET</span>[<span class="string">'error'</span>]));
+}
+<span class="tag">?&gt;</span>
+
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"container mt-4"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h2&gt;</span>Tambah Data<span class="tag">&lt;/h2&gt;</span>
+
+    <span class="comment">&lt;!-- Alert Error --&gt;</span>
+    <span class="tag">&lt;?php</span> <span class="keyword">if</span> (!<span class="function">empty</span>(<span class="php-var">$errors</span>)): <span class="tag">?&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"alert alert-danger alert-dismissible fade show"</span> <span class="attr">id</span>=<span class="value">"alertError"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;strong&gt;</span>Terjadi Kesalahan:<span class="tag">&lt;/strong&gt;</span>
+        <span class="tag">&lt;ul</span> <span class="attr">class</span>=<span class="value">"mb-0 mt-2"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;?php</span> <span class="keyword">foreach</span> (<span class="php-var">$errors</span> <span class="keyword">as</span> <span class="php-var">$err</span>): <span class="tag">?&gt;</span>
+                <span class="tag">&lt;li&gt;&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$err</span>) <span class="tag">?&gt;&lt;/li&gt;</span>
+            <span class="tag">&lt;?php</span> <span class="keyword">endforeach</span>; <span class="tag">?&gt;</span>
+        <span class="tag">&lt;/ul&gt;</span>
+        <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="value">"button"</span> <span class="attr">class</span>=<span class="value">"btn-close"</span> <span class="attr">data-bs-dismiss</span>=<span class="value">"alert"</span><span class="tag">&gt;&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;?php</span> <span class="keyword">endif</span>; <span class="tag">?&gt;</span>
+
+    <span class="comment">&lt;!-- Form --&gt;</span>
+    <span class="tag">&lt;form</span> <span class="attr">action</span>=<span class="value">"proses_tambah.php"</span> <span class="attr">method</span>=<span class="value">"POST"</span> <span class="attr">id</span>=<span class="value">"formTambah"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"mb-3"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>Nama <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"text-danger"</span><span class="tag">&gt;</span>*<span class="tag">&lt;/span&gt;&lt;/label&gt;</span>
+            <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"text"</span> <span class="attr">class</span>=<span class="value">"form-control"</span> <span class="attr">name</span>=<span class="value">"nama"</span> <span class="attr">id</span>=<span class="value">"nama"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"invalid-feedback"</span><span class="tag">&gt;</span>Nama wajib diisi<span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"mb-3"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>Email <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"text-danger"</span><span class="tag">&gt;</span>*<span class="tag">&lt;/span&gt;&lt;/label&gt;</span>
+            <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"email"</span> <span class="attr">class</span>=<span class="value">"form-control"</span> <span class="attr">name</span>=<span class="value">"email"</span> <span class="attr">id</span>=<span class="value">"email"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"invalid-feedback"</span><span class="tag">&gt;</span>Format email tidak valid<span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+
+        <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="value">"submit"</span> <span class="attr">class</span>=<span class="value">"btn btn-primary"</span><span class="tag">&gt;</span>Simpan<span class="tag">&lt;/button&gt;</span>
+        <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"index.php"</span> <span class="attr">class</span>=<span class="value">"btn btn-secondary"</span><span class="tag">&gt;</span>Batal<span class="tag">&lt;/a&gt;</span>
+    <span class="tag">&lt;/form&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="value">"js/validasi.js"</span><span class="tag">&gt;&lt;/script&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 11</div>
+            </div>
+
+            <!-- PAGE 12: VALIDASI REAL-TIME -->
+            <div class="page-content">
+                <h3 class="subsection-title">Validasi Real-time (Saat Mengetik)</h3>
+
+                <div class="code-block">
+                    <span class="code-label js">JavaScript - Real-time Validation</span>
+                    <code><span class="comment">// Validasi real-time saat user mengetik/blur</span>
+
+<span class="comment">// Validasi saat input kehilangan fokus (blur)</span>
+document.<span class="js-func">getElementById</span>(<span class="js-string">'email'</span>).<span class="js-func">addEventListener</span>(<span class="js-string">'blur'</span>, <span class="js-keyword">function</span>() {
+    <span class="js-keyword">const</span> email = <span class="js-keyword">this</span>.value.<span class="js-func">trim</span>();
+    <span class="js-keyword">const</span> feedback = <span class="js-keyword">this</span>.nextElementSibling;
+
+    <span class="js-keyword">if</span> (<span class="js-func">isEmpty</span>(email)) {
+        <span class="js-func">setInvalid</span>(<span class="js-keyword">this</span>, <span class="js-string">'Email wajib diisi'</span>);
+    } <span class="js-keyword">else if</span> (!<span class="js-func">isValidEmail</span>(email)) {
+        <span class="js-func">setInvalid</span>(<span class="js-keyword">this</span>, <span class="js-string">'Format email tidak valid'</span>);
+    } <span class="js-keyword">else</span> {
+        <span class="js-func">setValid</span>(<span class="js-keyword">this</span>);
+    }
+});
+
+<span class="comment">// Validasi password saat mengetik (input event)</span>
+document.<span class="js-func">getElementById</span>(<span class="js-string">'password'</span>).<span class="js-func">addEventListener</span>(<span class="js-string">'input'</span>, <span class="js-keyword">function</span>() {
+    <span class="js-keyword">const</span> password = <span class="js-keyword">this</span>.value;
+    <span class="js-keyword">const</span> strength = <span class="js-func">checkPasswordStrength</span>(password);
+
+    <span class="js-func">updateStrengthIndicator</span>(strength);
+});
+
+<span class="comment">// Helper functions</span>
+<span class="js-keyword">function</span> <span class="js-func">setInvalid</span>(input, message) {
+    input.classList.<span class="js-func">remove</span>(<span class="js-string">'is-valid'</span>);
+    input.classList.<span class="js-func">add</span>(<span class="js-string">'is-invalid'</span>);
+    input.nextElementSibling.textContent = message;
+}
+
+<span class="js-keyword">function</span> <span class="js-func">setValid</span>(input) {
+    input.classList.<span class="js-func">remove</span>(<span class="js-string">'is-invalid'</span>);
+    input.classList.<span class="js-func">add</span>(<span class="js-string">'is-valid'</span>);
+}
+
+<span class="comment">// Cek kekuatan password</span>
+<span class="js-keyword">function</span> <span class="js-func">checkPasswordStrength</span>(password) {
+    <span class="js-keyword">let</span> strength = <span class="number">0</span>;
+    <span class="js-keyword">if</span> (password.length >= <span class="number">8</span>) strength++;
+    <span class="js-keyword">if</span> (<span class="string">/[a-z]/</span>.<span class="js-func">test</span>(password)) strength++;
+    <span class="js-keyword">if</span> (<span class="string">/[A-Z]/</span>.<span class="js-func">test</span>(password)) strength++;
+    <span class="js-keyword">if</span> (<span class="string">/[0-9]/</span>.<span class="js-func">test</span>(password)) strength++;
+    <span class="js-keyword">if</span> (<span class="string">/[^a-zA-Z0-9]/</span>.<span class="js-func">test</span>(password)) strength++;
+    <span class="js-keyword">return</span> strength;
+}</code>
+                </div>
+
+                <div class="info-box">
+                    <strong>&#128161; Event yang Umum Digunakan:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li><code>blur</code> - Saat input kehilangan fokus (recommended)</li>
+                        <li><code>input</code> - Setiap kali nilai berubah (real-time)</li>
+                        <li><code>change</code> - Saat nilai berubah dan blur</li>
+                        <li><code>submit</code> - Saat form di-submit</li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 12</div>
+            </div>
+
+            <!-- PAGE 13: TUGAS -->
+            <div class="page-content">
+                <h2 class="section-title">&#128203; TUGAS PRAKTIKUM</h2>
+
+                <div class="project-card">
+                    <h3>&#9989; Tugas: Implementasi Validasi CRUD</h3>
+                    <p style="margin-bottom: 15px;">Implementasikan validasi lengkap pada <strong>project masing-masing</strong> (bukan hanya Sistem Akademik):</p>
+                    <ol style="margin-left: 20px; line-height: 2.2;">
+                        <li>Buat file <code>includes/validation.php</code> dengan fungsi validasi reusable</li>
+                        <li>Implementasi <strong>validasi JavaScript</strong> pada semua form</li>
+                        <li>Implementasi <strong>validasi PHP</strong> pada semua proses CRUD</li>
+                        <li>Pastikan validasi <strong>unique</strong> bekerja untuk CREATE dan UPDATE</li>
+                        <li>Tampilkan <strong>pesan error</strong> dengan Bootstrap Alert</li>
+                        <li>Gunakan <strong>sanitasi data</strong> sebelum simpan ke database</li>
+                    </ol>
+                </div>
+
+                <h3 class="subsection-title">Kriteria Penilaian</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Aspek</th><th>Bobot</th><th>Kriteria</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Validasi Client-side</td><td>25%</td><td>JS validasi semua form, feedback visual</td></tr>
+                            <tr><td>Validasi Server-side</td><td>30%</td><td>PHP validasi lengkap, tidak bisa di-bypass</td></tr>
+                            <tr><td>Validasi Unique</td><td>15%</td><td>Cek duplikat untuk CREATE & UPDATE</td></tr>
+                            <tr><td>Sanitasi Data</td><td>15%</td><td>htmlspecialchars, prepared statement</td></tr>
+                            <tr><td>User Experience</td><td>15%</td><td>Pesan error jelas, form tidak reset</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warning-box">
+                    <strong>&#128679; Checklist Project:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>&#9744; Semua field wajib tervalidasi</li>
+                        <li>&#9744; Format data tervalidasi (email, phone, dll)</li>
+                        <li>&#9744; Data unique tidak bisa duplikat</li>
+                        <li>&#9744; Validasi berjalan di JS DAN PHP</li>
+                        <li>&#9744; Pesan error informatif</li>
+                        <li>&#9744; CRUD berfungsi dengan validasi</li>
+                    </ul>
+                </div>
+
+                <div class="success-box">
+                    <strong>&#128170; Ingat!</strong> Project yang kalian buat bisa berupa: Toko Online, Perpustakaan, Inventaris, Reservasi, E-Voting, atau tema lainnya. Sesuaikan aturan validasi dengan kebutuhan masing-masing project!
+                </div>
+
+                <div style="margin-top: 40px; padding: 30px; background: #f8f9fa; border-radius: 15px; border-left: 5px solid #4e9f3d;">
+                    <h3 style="color: #1e5128; margin-bottom: 15px;">&#128231; Contact Information</h3>
+                    <p><strong>Dosen:</strong> Ikhwan Alfath Nurul Fathony, S.Kom., M.Kom.</p>
+                    <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fd9496958a9c93d39c919b9c8995bd88938994999c8fd39c9ed39499">[email&#160;protected]</a></p>
+                </div>
+
+                <div style="margin-top: 30px; font-size: 0.9em; color: #888; text-align: center;">
+                    <p>&copy; 2025 Program Studi Teknologi Informasi - Universitas Tidar</p>
+                </div>
+
+                <div class="page-number">Halaman 13</div>
+            </div>
+
+            <!-- PAGE 14: BONUS - STRUKTUR MVC -->
+            <div class="page-content">
+                <h2 class="section-title">&#128230; BONUS: IMPLEMENTASI MVC NATIVE PHP</h2>
+
+                <div class="info-box">
+                    <strong>Apa itu MVC?</strong>
+                    <p style="margin-top: 10px;">MVC (Model-View-Controller) adalah pola arsitektur yang memisahkan aplikasi menjadi 3 komponen: <strong>Model</strong> (data/logika bisnis), <strong>View</strong> (tampilan), dan <strong>Controller</strong> (pengendali alur).</p>
+                </div>
+
+                <h3 class="subsection-title">Struktur Direktori MVC</h3>
+
+                <div class="code-block">
+                    <span class="code-label">Struktur Folder Project MVC</span>
+                    <code class="file-tree">project-mvc/
+├── config/
+│   └── database.php          <span class="comment"># Konfigurasi database</span>
+├── models/
+│   └── Mahasiswa.php         <span class="comment"># Model untuk tabel mahasiswa</span>
+├── controllers/
+│   └── MahasiswaController.php <span class="comment"># Controller CRUD</span>
+├── views/
+│   ├── layouts/
+│   │   └── main.php          <span class="comment"># Template utama</span>
+│   └── mahasiswa/
+│       ├── index.php         <span class="comment"># Halaman daftar</span>
+│       ├── create.php        <span class="comment"># Form tambah</span>
+│       ├── edit.php          <span class="comment"># Form edit</span>
+│       └── show.php          <span class="comment"># Detail data</span>
+├── includes/
+│   └── validation.php        <span class="comment"># Fungsi validasi</span>
+├── public/
+│   ├── css/
+│   │   └── style.css         <span class="comment"># Custom CSS</span>
+│   └── js/
+│       └── validasi.js       <span class="comment"># Validasi JavaScript</span>
+└── index.php                 <span class="comment"># Entry point (router)</span></code>
+                </div>
+
+                <div class="validation-flow">
+                    <div class="validation-step" style="background: #e3f2fd;">
+                        <div style="font-size: 24px;">&#128187;</div>
+                        <div style="font-weight: 600;">Request</div>
+                        <div style="font-size: 11px; color: #666;">index.php</div>
+                    </div>
+                    <div style="font-size: 24px; color: #4e9f3d;">&#10140;</div>
+                    <div class="validation-step" style="background: #fff3e0;">
+                        <div style="font-size: 24px;">&#128736;</div>
+                        <div style="font-weight: 600;">Controller</div>
+                        <div style="font-size: 11px; color: #666;">Logic</div>
+                    </div>
+                    <div style="font-size: 24px; color: #4e9f3d;">&#10140;</div>
+                    <div class="validation-step" style="background: #e8f5e9;">
+                        <div style="font-size: 24px;">&#128451;</div>
+                        <div style="font-weight: 600;">Model</div>
+                        <div style="font-size: 11px; color: #666;">Database</div>
+                    </div>
+                    <div style="font-size: 24px; color: #4e9f3d;">&#10140;</div>
+                    <div class="validation-step" style="background: #fce4ec;">
+                        <div style="font-size: 24px;">&#127912;</div>
+                        <div style="font-weight: 600;">View</div>
+                        <div style="font-size: 11px; color: #666;">HTML</div>
+                    </div>
+                </div>
+
+                <div class="page-number">Halaman 14</div>
+            </div>
+
+            <!-- PAGE 15: CONFIG DATABASE -->
+            <div class="page-content">
+                <h3 class="subsection-title">1. Konfigurasi Database</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">config/database.php</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">/**
+ * Konfigurasi koneksi database menggunakan PDO
+ * Singleton Pattern untuk efisiensi koneksi
+ */</span>
+
+<span class="keyword">class</span> <span class="function">Database</span> {
+    <span class="keyword">private static</span> <span class="php-var">$instance</span> = <span class="keyword">null</span>;
+    <span class="keyword">private</span> <span class="php-var">$pdo</span>;
+
+    <span class="comment">// Konfigurasi database</span>
+    <span class="keyword">private</span> <span class="php-var">$host</span> = <span class="string">'localhost'</span>;
+    <span class="keyword">private</span> <span class="php-var">$dbname</span> = <span class="string">'db_akademik'</span>;
+    <span class="keyword">private</span> <span class="php-var">$username</span> = <span class="string">'root'</span>;
+    <span class="keyword">private</span> <span class="php-var">$password</span> = <span class="string">''</span>;
+    <span class="keyword">private</span> <span class="php-var">$charset</span> = <span class="string">'utf8mb4'</span>;
+
+    <span class="keyword">private function</span> <span class="method">__construct</span>() {
+        <span class="keyword">try</span> {
+            <span class="php-var">$dsn</span> = <span class="string">"mysql:host={<span class="php-var">$this</span>->host};dbname={<span class="php-var">$this</span>->dbname};charset={<span class="php-var">$this</span>->charset}"</span>;
+
+            <span class="php-var">$options</span> = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => <span class="keyword">false</span>
+            ];
+
+            <span class="php-var">$this</span>->pdo = <span class="keyword">new</span> PDO(<span class="php-var">$dsn</span>, <span class="php-var">$this</span>->username, <span class="php-var">$this</span>->password, <span class="php-var">$options</span>);
+
+        } <span class="keyword">catch</span> (PDOException <span class="php-var">$e</span>) {
+            <span class="keyword">die</span>(<span class="string">'Database connection failed: '</span> . <span class="php-var">$e</span>-><span class="method">getMessage</span>());
+        }
+    }
+
+    <span class="comment">// Singleton: dapatkan instance koneksi</span>
+    <span class="keyword">public static function</span> <span class="method">getInstance</span>() {
+        <span class="keyword">if</span> (self::<span class="php-var">$instance</span> === <span class="keyword">null</span>) {
+            self::<span class="php-var">$instance</span> = <span class="keyword">new</span> self();
+        }
+        <span class="keyword">return</span> self::<span class="php-var">$instance</span>;
+    }
+
+    <span class="comment">// Dapatkan PDO object</span>
+    <span class="keyword">public function</span> <span class="method">getConnection</span>() {
+        <span class="keyword">return</span> <span class="php-var">$this</span>->pdo;
+    }
+}
+
+<span class="comment">// Helper function untuk akses cepat</span>
+<span class="keyword">function</span> <span class="function">db</span>() {
+    <span class="keyword">return</span> Database::<span class="method">getInstance</span>()-><span class="method">getConnection</span>();
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="success-box">
+                    <strong>Keuntungan Singleton Pattern:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>Hanya 1 koneksi database yang dibuat</li>
+                        <li>Menghemat resource server</li>
+                        <li>Akses mudah dari mana saja dengan <code>db()</code></li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 15</div>
+            </div>
+
+            <!-- PAGE 16: MODEL -->
+            <div class="page-content">
+                <h3 class="subsection-title">2. Model - Mahasiswa.php</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">models/Mahasiswa.php</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="keyword">require_once</span> __DIR__ . <span class="string">'/../config/database.php'</span>;
+<span class="keyword">require_once</span> __DIR__ . <span class="string">'/../includes/validation.php'</span>;
+
+<span class="keyword">class</span> <span class="function">Mahasiswa</span> {
+    <span class="keyword">private</span> <span class="php-var">$pdo</span>;
+    <span class="keyword">private</span> <span class="php-var">$table</span> = <span class="string">'mahasiswa'</span>;
+
+    <span class="keyword">public function</span> <span class="method">__construct</span>() {
+        <span class="php-var">$this</span>->pdo = <span class="function">db</span>();
+    }
+
+    <span class="comment">// READ: Ambil semua data</span>
+    <span class="keyword">public function</span> <span class="method">getAll</span>(<span class="php-var">$search</span> = <span class="string">''</span>) {
+        <span class="php-var">$sql</span> = <span class="string">"SELECT * FROM {<span class="php-var">$this</span>->table}"</span>;
+        <span class="keyword">if</span> (!<span class="function">empty</span>(<span class="php-var">$search</span>)) {
+            <span class="php-var">$sql</span> .= <span class="string">" WHERE nama LIKE :search OR nim LIKE :search"</span>;
+        }
+        <span class="php-var">$sql</span> .= <span class="string">" ORDER BY id DESC"</span>;
+
+        <span class="php-var">$stmt</span> = <span class="php-var">$this</span>->pdo-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+        <span class="keyword">if</span> (!<span class="function">empty</span>(<span class="php-var">$search</span>)) {
+            <span class="php-var">$stmt</span>-><span class="method">bindValue</span>(<span class="string">':search'</span>, <span class="string">"%{<span class="php-var">$search</span>}%"</span>);
+        }
+        <span class="php-var">$stmt</span>-><span class="method">execute</span>();
+        <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">fetchAll</span>();
+    }
+
+    <span class="comment">// READ: Ambil satu data berdasarkan ID</span>
+    <span class="keyword">public function</span> <span class="method">getById</span>(<span class="php-var">$id</span>) {
+        <span class="php-var">$stmt</span> = <span class="php-var">$this</span>->pdo-><span class="method">prepare</span>(<span class="string">"SELECT * FROM {<span class="php-var">$this</span>->table} WHERE id = ?"</span>);
+        <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$id</span>]);
+        <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">fetch</span>();
+    }
+
+    <span class="comment">// CREATE: Simpan data baru</span>
+    <span class="keyword">public function</span> <span class="method">create</span>(<span class="php-var">$data</span>) {
+        <span class="php-var">$sql</span> = <span class="string">"INSERT INTO {<span class="php-var">$this</span>->table} (nim, nama, email, jurusan) VALUES (?, ?, ?, ?)"</span>;
+        <span class="php-var">$stmt</span> = <span class="php-var">$this</span>->pdo-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+        <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">execute</span>([
+            <span class="function">sanitize</span>(<span class="php-var">$data</span>[<span class="string">'nim'</span>]),
+            <span class="function">sanitize</span>(<span class="php-var">$data</span>[<span class="string">'nama'</span>]),
+            <span class="function">sanitize</span>(<span class="php-var">$data</span>[<span class="string">'email'</span>]),
+            <span class="function">sanitize</span>(<span class="php-var">$data</span>[<span class="string">'jurusan'</span>])
+        ]);
+    }
+
+    <span class="comment">// UPDATE: Perbarui data</span>
+    <span class="keyword">public function</span> <span class="method">update</span>(<span class="php-var">$id</span>, <span class="php-var">$data</span>) {
+        <span class="php-var">$sql</span> = <span class="string">"UPDATE {<span class="php-var">$this</span>->table} SET nim=?, nama=?, email=?, jurusan=? WHERE id=?"</span>;
+        <span class="php-var">$stmt</span> = <span class="php-var">$this</span>->pdo-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+        <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">execute</span>([
+            <span class="function">sanitize</span>(<span class="php-var">$data</span>[<span class="string">'nim'</span>]),
+            <span class="function">sanitize</span>(<span class="php-var">$data</span>[<span class="string">'nama'</span>]),
+            <span class="function">sanitize</span>(<span class="php-var">$data</span>[<span class="string">'email'</span>]),
+            <span class="function">sanitize</span>(<span class="php-var">$data</span>[<span class="string">'jurusan'</span>]),
+            <span class="php-var">$id</span>
+        ]);
+    }
+
+    <span class="comment">// DELETE: Hapus data</span>
+    <span class="keyword">public function</span> <span class="method">delete</span>(<span class="php-var">$id</span>) {
+        <span class="php-var">$stmt</span> = <span class="php-var">$this</span>->pdo-><span class="method">prepare</span>(<span class="string">"DELETE FROM {<span class="php-var">$this</span>->table} WHERE id = ?"</span>);
+        <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">execute</span>([<span class="php-var">$id</span>]);
+    }
+
+    <span class="comment">// Cek apakah NIM sudah ada (untuk validasi unique)</span>
+    <span class="keyword">public function</span> <span class="method">isNimExists</span>(<span class="php-var">$nim</span>, <span class="php-var">$exceptId</span> = <span class="keyword">null</span>) {
+        <span class="keyword">return</span> !<span class="function">isUnique</span>(<span class="php-var">$this</span>->pdo, <span class="php-var">$this</span>->table, <span class="string">'nim'</span>, <span class="php-var">$nim</span>, <span class="php-var">$exceptId</span>);
+    }
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 16</div>
+            </div>
+
+            <!-- PAGE 17: CONTROLLER -->
+            <div class="page-content">
+                <h3 class="subsection-title">3. Controller - MahasiswaController.php</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">controllers/MahasiswaController.php</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="keyword">require_once</span> __DIR__ . <span class="string">'/../models/Mahasiswa.php'</span>;
+<span class="keyword">require_once</span> __DIR__ . <span class="string">'/../includes/validation.php'</span>;
+
+<span class="keyword">class</span> <span class="function">MahasiswaController</span> {
+    <span class="keyword">private</span> <span class="php-var">$model</span>;
+
+    <span class="keyword">public function</span> <span class="method">__construct</span>() {
+        <span class="php-var">$this</span>->model = <span class="keyword">new</span> Mahasiswa();
+    }
+
+    <span class="comment">// INDEX: Tampilkan daftar mahasiswa</span>
+    <span class="keyword">public function</span> <span class="method">index</span>() {
+        <span class="php-var">$search</span> = <span class="php-var">$_GET</span>[<span class="string">'search'</span>] ?? <span class="string">''</span>;
+        <span class="php-var">$data</span>[<span class="string">'mahasiswa'</span>] = <span class="php-var">$this</span>->model-><span class="method">getAll</span>(<span class="php-var">$search</span>);
+        <span class="php-var">$data</span>[<span class="string">'search'</span>] = <span class="php-var">$search</span>;
+        <span class="php-var">$this</span>-><span class="method">view</span>(<span class="string">'mahasiswa/index'</span>, <span class="php-var">$data</span>);
+    }
+
+    <span class="comment">// CREATE: Tampilkan form tambah</span>
+    <span class="keyword">public function</span> <span class="method">create</span>() {
+        <span class="php-var">$this</span>-><span class="method">view</span>(<span class="string">'mahasiswa/create'</span>);
+    }
+
+    <span class="comment">// STORE: Proses simpan data baru</span>
+    <span class="keyword">public function</span> <span class="method">store</span>() {
+        <span class="keyword">if</span> (<span class="php-var">$_SERVER</span>[<span class="string">'REQUEST_METHOD'</span>] !== <span class="string">'POST'</span>) {
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=index'</span>);
+        }
+
+        <span class="comment">// Validasi input</span>
+        <span class="php-var">$errors</span> = <span class="php-var">$this</span>-><span class="method">validate</span>(<span class="php-var">$_POST</span>);
+
+        <span class="keyword">if</span> (!<span class="function">empty</span>(<span class="php-var">$errors</span>)) {
+            <span class="php-var">$_SESSION</span>[<span class="string">'errors'</span>] = <span class="php-var">$errors</span>;
+            <span class="php-var">$_SESSION</span>[<span class="string">'old'</span>] = <span class="php-var">$_POST</span>;
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=create'</span>);
+        }
+
+        <span class="comment">// Simpan ke database</span>
+        <span class="keyword">if</span> (<span class="php-var">$this</span>->model-><span class="method">create</span>(<span class="php-var">$_POST</span>)) {
+            <span class="php-var">$_SESSION</span>[<span class="string">'success'</span>] = <span class="string">'Data berhasil ditambahkan!'</span>;
+        } <span class="keyword">else</span> {
+            <span class="php-var">$_SESSION</span>[<span class="string">'error'</span>] = <span class="string">'Gagal menyimpan data!'</span>;
+        }
+        <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=index'</span>);
+    }
+
+    <span class="comment">// SHOW: Tampilkan detail</span>
+    <span class="keyword">public function</span> <span class="method">show</span>(<span class="php-var">$id</span>) {
+        <span class="php-var">$data</span>[<span class="string">'mahasiswa'</span>] = <span class="php-var">$this</span>->model-><span class="method">getById</span>(<span class="php-var">$id</span>);
+        <span class="keyword">if</span> (!<span class="php-var">$data</span>[<span class="string">'mahasiswa'</span>]) {
+            <span class="php-var">$_SESSION</span>[<span class="string">'error'</span>] = <span class="string">'Data tidak ditemukan!'</span>;
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=index'</span>);
+        }
+        <span class="php-var">$this</span>-><span class="method">view</span>(<span class="string">'mahasiswa/show'</span>, <span class="php-var">$data</span>);
+    }
+
+    <span class="comment">// EDIT: Tampilkan form edit</span>
+    <span class="keyword">public function</span> <span class="method">edit</span>(<span class="php-var">$id</span>) {
+        <span class="php-var">$data</span>[<span class="string">'mahasiswa'</span>] = <span class="php-var">$this</span>->model-><span class="method">getById</span>(<span class="php-var">$id</span>);
+        <span class="keyword">if</span> (!<span class="php-var">$data</span>[<span class="string">'mahasiswa'</span>]) {
+            <span class="php-var">$_SESSION</span>[<span class="string">'error'</span>] = <span class="string">'Data tidak ditemukan!'</span>;
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=index'</span>);
+        }
+        <span class="php-var">$this</span>-><span class="method">view</span>(<span class="string">'mahasiswa/edit'</span>, <span class="php-var">$data</span>);
+    }
+
+    <span class="comment">// ... lanjut di halaman berikutnya</span></code>
+                </div>
+
+                <div class="page-number">Halaman 17</div>
+            </div>
+
+            <!-- PAGE 18: CONTROLLER LANJUTAN -->
+            <div class="page-content">
+                <h3 class="subsection-title">Controller (Lanjutan)</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">controllers/MahasiswaController.php (lanjutan)</span>
+                    <code>    <span class="comment">// UPDATE: Proses update data</span>
+    <span class="keyword">public function</span> <span class="method">update</span>(<span class="php-var">$id</span>) {
+        <span class="keyword">if</span> (<span class="php-var">$_SERVER</span>[<span class="string">'REQUEST_METHOD'</span>] !== <span class="string">'POST'</span>) {
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=index'</span>);
+        }
+
+        <span class="comment">// Validasi dengan pengecualian ID saat ini (untuk unique)</span>
+        <span class="php-var">$errors</span> = <span class="php-var">$this</span>-><span class="method">validate</span>(<span class="php-var">$_POST</span>, <span class="php-var">$id</span>);
+
+        <span class="keyword">if</span> (!<span class="function">empty</span>(<span class="php-var">$errors</span>)) {
+            <span class="php-var">$_SESSION</span>[<span class="string">'errors'</span>] = <span class="php-var">$errors</span>;
+            <span class="php-var">$_SESSION</span>[<span class="string">'old'</span>] = <span class="php-var">$_POST</span>;
+            <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">"?action=edit&id={<span class="php-var">$id</span>}"</span>);
+        }
+
+        <span class="keyword">if</span> (<span class="php-var">$this</span>->model-><span class="method">update</span>(<span class="php-var">$id</span>, <span class="php-var">$_POST</span>)) {
+            <span class="php-var">$_SESSION</span>[<span class="string">'success'</span>] = <span class="string">'Data berhasil diperbarui!'</span>;
+        } <span class="keyword">else</span> {
+            <span class="php-var">$_SESSION</span>[<span class="string">'error'</span>] = <span class="string">'Gagal memperbarui data!'</span>;
+        }
+        <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=index'</span>);
+    }
+
+    <span class="comment">// DESTROY: Proses hapus data</span>
+    <span class="keyword">public function</span> <span class="method">destroy</span>(<span class="php-var">$id</span>) {
+        <span class="keyword">if</span> (<span class="php-var">$this</span>->model-><span class="method">delete</span>(<span class="php-var">$id</span>)) {
+            <span class="php-var">$_SESSION</span>[<span class="string">'success'</span>] = <span class="string">'Data berhasil dihapus!'</span>;
+        } <span class="keyword">else</span> {
+            <span class="php-var">$_SESSION</span>[<span class="string">'error'</span>] = <span class="string">'Gagal menghapus data!'</span>;
+        }
+        <span class="php-var">$this</span>-><span class="method">redirect</span>(<span class="string">'?action=index'</span>);
+    }
+
+    <span class="comment">// VALIDATE: Fungsi validasi input</span>
+    <span class="keyword">private function</span> <span class="method">validate</span>(<span class="php-var">$data</span>, <span class="php-var">$exceptId</span> = <span class="keyword">null</span>) {
+        <span class="php-var">$errors</span> = [];
+
+        <span class="keyword">if</span> (!<span class="function">required</span>(<span class="php-var">$data</span>[<span class="string">'nim'</span>] ?? <span class="string">''</span>)) <span class="php-var">$errors</span>[] = <span class="string">'NIM wajib diisi'</span>;
+        <span class="keyword">if</span> (!<span class="function">required</span>(<span class="php-var">$data</span>[<span class="string">'nama'</span>] ?? <span class="string">''</span>)) <span class="php-var">$errors</span>[] = <span class="string">'Nama wajib diisi'</span>;
+        <span class="keyword">if</span> (!<span class="function">required</span>(<span class="php-var">$data</span>[<span class="string">'email'</span>] ?? <span class="string">''</span>)) <span class="php-var">$errors</span>[] = <span class="string">'Email wajib diisi'</span>;
+        <span class="keyword">if</span> (!<span class="function">validEmail</span>(<span class="php-var">$data</span>[<span class="string">'email'</span>] ?? <span class="string">''</span>)) <span class="php-var">$errors</span>[] = <span class="string">'Format email tidak valid'</span>;
+        <span class="keyword">if</span> (<span class="php-var">$this</span>->model-><span class="method">isNimExists</span>(<span class="php-var">$data</span>[<span class="string">'nim'</span>] ?? <span class="string">''</span>, <span class="php-var">$exceptId</span>)) {
+            <span class="php-var">$errors</span>[] = <span class="string">'NIM sudah terdaftar'</span>;
+        }
+
+        <span class="keyword">return</span> <span class="php-var">$errors</span>;
+    }
+
+    <span class="comment">// VIEW: Render tampilan dengan layout</span>
+    <span class="keyword">private function</span> <span class="method">view</span>(<span class="php-var">$view</span>, <span class="php-var">$data</span> = []) {
+        <span class="function">extract</span>(<span class="php-var">$data</span>);
+        <span class="php-var">$content</span> = __DIR__ . <span class="string">"/../views/{<span class="php-var">$view</span>}.php"</span>;
+        <span class="keyword">require</span> __DIR__ . <span class="string">'/../views/layouts/main.php'</span>;
+    }
+
+    <span class="comment">// REDIRECT: Redirect ke URL</span>
+    <span class="keyword">private function</span> <span class="method">redirect</span>(<span class="php-var">$url</span>) {
+        <span class="function">header</span>(<span class="string">"Location: {<span class="php-var">$url</span>}"</span>);
+        <span class="keyword">exit</span>;
+    }
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 18</div>
+            </div>
+
+            <!-- PAGE 19: VIEW LAYOUT -->
+            <div class="page-content">
+                <h3 class="subsection-title">4. View - Layout Utama</h3>
+
+                <div class="code-block">
+                    <span class="code-label">views/layouts/main.php</span>
+                    <code><span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="value">"id"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="value">"UTF-8"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="value">"viewport"</span> <span class="attr">content</span>=<span class="value">"width=device-width, initial-scale=1.0"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;title&gt;</span>Sistem Akademik MVC<span class="tag">&lt;/title&gt;</span>
+    <span class="tag">&lt;link</span> <span class="attr">href</span>=<span class="value">"https://cdn.jsdelivr.net/npm/<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="086a67677c7b7c7a6978483d263b2638">[email&#160;protected]</a>/dist/css/bootstrap.min.css"</span> <span class="attr">rel</span>=<span class="value">"stylesheet"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="value">"stylesheet"</span> <span class="attr">href</span>=<span class="value">"public/css/style.css"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+    <span class="comment">&lt;!-- Navbar --&gt;</span>
+    <span class="tag">&lt;nav</span> <span class="attr">class</span>=<span class="value">"navbar navbar-expand-lg navbar-dark bg-primary"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"container"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;a</span> <span class="attr">class</span>=<span class="value">"navbar-brand"</span> <span class="attr">href</span>=<span class="value">"?action=index"</span><span class="tag">&gt;</span>Sistem Akademik<span class="tag">&lt;/a&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/nav&gt;</span>
+
+    <span class="comment">&lt;!-- Main Content --&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"container mt-4"</span><span class="tag">&gt;</span>
+        <span class="comment">&lt;!-- Flash Messages --&gt;</span>
+        <span class="tag">&lt;?php</span> <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'success'</span>])): <span class="tag">?&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"alert alert-success alert-dismissible fade show"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;?=</span> <span class="php-var">$_SESSION</span>[<span class="string">'success'</span>] <span class="tag">?&gt;</span>
+            <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="value">"button"</span> <span class="attr">class</span>=<span class="value">"btn-close"</span> <span class="attr">data-bs-dismiss</span>=<span class="value">"alert"</span><span class="tag">&gt;&lt;/button&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;?php</span> <span class="keyword">unset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'success'</span>]); <span class="keyword">endif</span>; <span class="tag">?&gt;</span>
+
+        <span class="tag">&lt;?php</span> <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'error'</span>])): <span class="tag">?&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"alert alert-danger alert-dismissible fade show"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;?=</span> <span class="php-var">$_SESSION</span>[<span class="string">'error'</span>] <span class="tag">?&gt;</span>
+            <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="value">"button"</span> <span class="attr">class</span>=<span class="value">"btn-close"</span> <span class="attr">data-bs-dismiss</span>=<span class="value">"alert"</span><span class="tag">&gt;&lt;/button&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;?php</span> <span class="keyword">unset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'error'</span>]); <span class="keyword">endif</span>; <span class="tag">?&gt;</span>
+
+        <span class="tag">&lt;?php</span> <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'errors'</span>])): <span class="tag">?&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"alert alert-danger"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;ul</span> <span class="attr">class</span>=<span class="value">"mb-0"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;?php</span> <span class="keyword">foreach</span>(<span class="php-var">$_SESSION</span>[<span class="string">'errors'</span>] <span class="keyword">as</span> <span class="php-var">$err</span>): <span class="tag">?&gt;</span>
+                <span class="tag">&lt;li&gt;&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$err</span>) <span class="tag">?&gt;&lt;/li&gt;</span>
+            <span class="tag">&lt;?php</span> <span class="keyword">endforeach</span>; <span class="tag">?&gt;</span>
+            <span class="tag">&lt;/ul&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;?php</span> <span class="keyword">unset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'errors'</span>]); <span class="keyword">endif</span>; <span class="tag">?&gt;</span>
+
+        <span class="comment">&lt;!-- Include View Content --&gt;</span>
+        <span class="tag">&lt;?php</span> <span class="keyword">include</span> <span class="php-var">$content</span>; <span class="tag">?&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+
+    <span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="value">"https://cdn.jsdelivr.net/npm/<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="33515c5c47404741524373061d001d03">[email&#160;protected]</a>/dist/js/bootstrap.bundle.min.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+    <span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="value">"public/js/validasi.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 19</div>
+            </div>
+
+            <!-- PAGE 20: VIEW INDEX -->
+            <div class="page-content">
+                <h3 class="subsection-title">View - Halaman Daftar (Index)</h3>
+
+                <div class="code-block">
+                    <span class="code-label">views/mahasiswa/index.php</span>
+                    <code><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"d-flex justify-content-between align-items-center mb-4"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h2&gt;</span>Data Mahasiswa<span class="tag">&lt;/h2&gt;</span>
+    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"?action=create"</span> <span class="attr">class</span>=<span class="value">"btn btn-primary"</span><span class="tag">&gt;</span>+ Tambah Mahasiswa<span class="tag">&lt;/a&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="comment">&lt;!-- Search Form --&gt;</span>
+<span class="tag">&lt;form</span> <span class="attr">method</span>=<span class="value">"GET"</span> <span class="attr">class</span>=<span class="value">"mb-4"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"hidden"</span> <span class="attr">name</span>=<span class="value">"action"</span> <span class="attr">value</span>=<span class="value">"index"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"input-group"</span> <span class="attr">style</span>=<span class="value">"max-width: 400px;"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"text"</span> <span class="attr">name</span>=<span class="value">"search"</span> <span class="attr">class</span>=<span class="value">"form-control"</span>
+               <span class="attr">placeholder</span>=<span class="value">"Cari nama/NIM..."</span> <span class="attr">value</span>=<span class="value">"&lt;?= htmlspecialchars($search ?? '') ?&gt;"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;button</span> <span class="attr">class</span>=<span class="value">"btn btn-outline-primary"</span> <span class="attr">type</span>=<span class="value">"submit"</span><span class="tag">&gt;</span>Cari<span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/form&gt;</span>
+
+<span class="comment">&lt;!-- Data Table --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"table-responsive"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;table</span> <span class="attr">class</span>=<span class="value">"table table-striped table-hover"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;thead</span> <span class="attr">class</span>=<span class="value">"table-dark"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;tr&gt;</span>
+                <span class="tag">&lt;th&gt;</span>No<span class="tag">&lt;/th&gt;</span>
+                <span class="tag">&lt;th&gt;</span>NIM<span class="tag">&lt;/th&gt;</span>
+                <span class="tag">&lt;th&gt;</span>Nama<span class="tag">&lt;/th&gt;</span>
+                <span class="tag">&lt;th&gt;</span>Email<span class="tag">&lt;/th&gt;</span>
+                <span class="tag">&lt;th&gt;</span>Jurusan<span class="tag">&lt;/th&gt;</span>
+                <span class="tag">&lt;th&gt;</span>Aksi<span class="tag">&lt;/th&gt;</span>
+            <span class="tag">&lt;/tr&gt;</span>
+        <span class="tag">&lt;/thead&gt;</span>
+        <span class="tag">&lt;tbody&gt;</span>
+            <span class="tag">&lt;?php</span> <span class="keyword">if</span> (<span class="function">empty</span>(<span class="php-var">$mahasiswa</span>)): <span class="tag">?&gt;</span>
+            <span class="tag">&lt;tr&gt;&lt;td</span> <span class="attr">colspan</span>=<span class="value">"6"</span> <span class="attr">class</span>=<span class="value">"text-center"</span><span class="tag">&gt;</span>Tidak ada data<span class="tag">&lt;/td&gt;&lt;/tr&gt;</span>
+            <span class="tag">&lt;?php</span> <span class="keyword">else</span>: <span class="tag">?&gt;</span>
+            <span class="tag">&lt;?php</span> <span class="keyword">foreach</span> (<span class="php-var">$mahasiswa</span> <span class="keyword">as</span> <span class="php-var">$i</span> => <span class="php-var">$mhs</span>): <span class="tag">?&gt;</span>
+            <span class="tag">&lt;tr&gt;</span>
+                <span class="tag">&lt;td&gt;&lt;?=</span> <span class="php-var">$i</span> + <span class="number">1</span> <span class="tag">?&gt;&lt;/td&gt;</span>
+                <span class="tag">&lt;td&gt;&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$mhs</span>[<span class="string">'nim'</span>]) <span class="tag">?&gt;&lt;/td&gt;</span>
+                <span class="tag">&lt;td&gt;&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$mhs</span>[<span class="string">'nama'</span>]) <span class="tag">?&gt;&lt;/td&gt;</span>
+                <span class="tag">&lt;td&gt;&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$mhs</span>[<span class="string">'email'</span>]) <span class="tag">?&gt;&lt;/td&gt;</span>
+                <span class="tag">&lt;td&gt;&lt;?=</span> <span class="function">htmlspecialchars</span>(<span class="php-var">$mhs</span>[<span class="string">'jurusan'</span>]) <span class="tag">?&gt;&lt;/td&gt;</span>
+                <span class="tag">&lt;td&gt;</span>
+                    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"?action=show&id=&lt;?= $mhs['id'] ?&gt;"</span> <span class="attr">class</span>=<span class="value">"btn btn-info btn-sm"</span><span class="tag">&gt;</span>Detail<span class="tag">&lt;/a&gt;</span>
+                    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"?action=edit&id=&lt;?= $mhs['id'] ?&gt;"</span> <span class="attr">class</span>=<span class="value">"btn btn-warning btn-sm"</span><span class="tag">&gt;</span>Edit<span class="tag">&lt;/a&gt;</span>
+                    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"?action=destroy&id=&lt;?= $mhs['id'] ?&gt;"</span> <span class="attr">class</span>=<span class="value">"btn btn-danger btn-sm"</span>
+                       <span class="attr">onclick</span>=<span class="value">"return confirm('Yakin hapus data?')"</span><span class="tag">&gt;</span>Hapus<span class="tag">&lt;/a&gt;</span>
+                <span class="tag">&lt;/td&gt;</span>
+            <span class="tag">&lt;/tr&gt;</span>
+            <span class="tag">&lt;?php</span> <span class="keyword">endforeach</span>; <span class="tag">?&gt;</span>
+            <span class="tag">&lt;?php</span> <span class="keyword">endif</span>; <span class="tag">?&gt;</span>
+        <span class="tag">&lt;/tbody&gt;</span>
+    <span class="tag">&lt;/table&gt;</span>
+<span class="tag">&lt;/div&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 20</div>
+            </div>
+
+            <!-- PAGE 21: VIEW FORM -->
+            <div class="page-content">
+                <h3 class="subsection-title">View - Form Create & Edit</h3>
+
+                <div class="code-block">
+                    <span class="code-label">views/mahasiswa/create.php</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="php-var">$old</span> = <span class="php-var">$_SESSION</span>[<span class="string">'old'</span>] ?? [];
+<span class="keyword">unset</span>(<span class="php-var">$_SESSION</span>[<span class="string">'old'</span>]);
+<span class="tag">?&gt;</span>
+
+<span class="tag">&lt;h2</span> <span class="attr">class</span>=<span class="value">"mb-4"</span><span class="tag">&gt;</span>Tambah Mahasiswa<span class="tag">&lt;/h2&gt;</span>
+
+<span class="tag">&lt;form</span> <span class="attr">action</span>=<span class="value">"?action=store"</span> <span class="attr">method</span>=<span class="value">"POST"</span> <span class="attr">id</span>=<span class="value">"formMahasiswa"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"row"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"col-md-6"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"mb-3"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>NIM <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"text-danger"</span><span class="tag">&gt;</span>*<span class="tag">&lt;/span&gt;&lt;/label&gt;</span>
+                <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"text"</span> <span class="attr">name</span>=<span class="value">"nim"</span> <span class="attr">class</span>=<span class="value">"form-control"</span>
+                       <span class="attr">value</span>=<span class="value">"&lt;?= htmlspecialchars($old['nim'] ?? '') ?&gt;"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"invalid-feedback"</span><span class="tag">&gt;</span>NIM wajib diisi<span class="tag">&lt;/div&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"mb-3"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>Nama <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"text-danger"</span><span class="tag">&gt;</span>*<span class="tag">&lt;/span&gt;&lt;/label&gt;</span>
+                <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"text"</span> <span class="attr">name</span>=<span class="value">"nama"</span> <span class="attr">class</span>=<span class="value">"form-control"</span>
+                       <span class="attr">value</span>=<span class="value">"&lt;?= htmlspecialchars($old['nama'] ?? '') ?&gt;"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"invalid-feedback"</span><span class="tag">&gt;</span>Nama wajib diisi<span class="tag">&lt;/div&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+
+        <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"col-md-6"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"mb-3"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>Email <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"text-danger"</span><span class="tag">&gt;</span>*<span class="tag">&lt;/span&gt;&lt;/label&gt;</span>
+                <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="value">"email"</span> <span class="attr">name</span>=<span class="value">"email"</span> <span class="attr">class</span>=<span class="value">"form-control"</span>
+                       <span class="attr">value</span>=<span class="value">"&lt;?= htmlspecialchars($old['email'] ?? '') ?&gt;"</span> <span class="attr">required</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"invalid-feedback"</span><span class="tag">&gt;</span>Email tidak valid<span class="tag">&lt;/div&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"mb-3"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;label</span> <span class="attr">class</span>=<span class="value">"form-label"</span><span class="tag">&gt;</span>Jurusan<span class="tag">&lt;/label&gt;</span>
+                <span class="tag">&lt;select</span> <span class="attr">name</span>=<span class="value">"jurusan"</span> <span class="attr">class</span>=<span class="value">"form-select"</span><span class="tag">&gt;</span>
+                    <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="value">""</span><span class="tag">&gt;</span>-- Pilih Jurusan --<span class="tag">&lt;/option&gt;</span>
+                    <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="value">"Teknologi Informasi"</span><span class="tag">&gt;</span>Teknologi Informasi<span class="tag">&lt;/option&gt;</span>
+                    <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="value">"Sistem Informasi"</span><span class="tag">&gt;</span>Sistem Informasi<span class="tag">&lt;/option&gt;</span>
+                    <span class="tag">&lt;option</span> <span class="attr">value</span>=<span class="value">"Teknik Informatika"</span><span class="tag">&gt;</span>Teknik Informatika<span class="tag">&lt;/option&gt;</span>
+                <span class="tag">&lt;/select&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+
+    <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="value">"submit"</span> <span class="attr">class</span>=<span class="value">"btn btn-primary"</span><span class="tag">&gt;</span>Simpan<span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"?action=index"</span> <span class="attr">class</span>=<span class="value">"btn btn-secondary"</span><span class="tag">&gt;</span>Batal<span class="tag">&lt;/a&gt;</span>
+<span class="tag">&lt;/form&gt;</span></code>
+                </div>
+
+                <div class="info-box">
+                    <strong>&#128161; Catatan:</strong> File <code>edit.php</code> serupa dengan <code>create.php</code>, hanya berbeda:
+                    <ul style="margin-top: 8px; margin-left: 15px;">
+                        <li>Form action: <code>?action=update&id=&lt;?= $mahasiswa['id'] ?&gt;</code></li>
+                        <li>Value input: dari <code>$mahasiswa</code> bukan <code>$old</code></li>
+                    </ul>
+                </div>
+
+                <div class="page-number">Halaman 21</div>
+            </div>
+
+            <!-- PAGE 22: ROUTER (INDEX.PHP) -->
+            <div class="page-content">
+                <h3 class="subsection-title">5. Router - Entry Point</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">index.php (Entry Point)</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">/**
+ * Entry Point - Simple Router
+ * Semua request diproses melalui file ini
+ */</span>
+
+<span class="function">session_start</span>();
+
+<span class="comment">// Load Controller</span>
+<span class="keyword">require_once</span> <span class="string">'controllers/MahasiswaController.php'</span>;
+
+<span class="comment">// Inisialisasi controller</span>
+<span class="php-var">$controller</span> = <span class="keyword">new</span> MahasiswaController();
+
+<span class="comment">// Ambil action dari URL, default: index</span>
+<span class="php-var">$action</span> = <span class="php-var">$_GET</span>[<span class="string">'action'</span>] ?? <span class="string">'index'</span>;
+<span class="php-var">$id</span> = <span class="function">filter_input</span>(INPUT_GET, <span class="string">'id'</span>, FILTER_VALIDATE_INT);
+
+<span class="comment">// Simple Routing</span>
+<span class="keyword">switch</span> (<span class="php-var">$action</span>) {
+    <span class="keyword">case</span> <span class="string">'index'</span>:
+        <span class="php-var">$controller</span>-><span class="method">index</span>();
+        <span class="keyword">break</span>;
+
+    <span class="keyword">case</span> <span class="string">'create'</span>:
+        <span class="php-var">$controller</span>-><span class="method">create</span>();
+        <span class="keyword">break</span>;
+
+    <span class="keyword">case</span> <span class="string">'store'</span>:
+        <span class="php-var">$controller</span>-><span class="method">store</span>();
+        <span class="keyword">break</span>;
+
+    <span class="keyword">case</span> <span class="string">'show'</span>:
+        <span class="php-var">$controller</span>-><span class="method">show</span>(<span class="php-var">$id</span>);
+        <span class="keyword">break</span>;
+
+    <span class="keyword">case</span> <span class="string">'edit'</span>:
+        <span class="php-var">$controller</span>-><span class="method">edit</span>(<span class="php-var">$id</span>);
+        <span class="keyword">break</span>;
+
+    <span class="keyword">case</span> <span class="string">'update'</span>:
+        <span class="php-var">$controller</span>-><span class="method">update</span>(<span class="php-var">$id</span>);
+        <span class="keyword">break</span>;
+
+    <span class="keyword">case</span> <span class="string">'destroy'</span>:
+        <span class="php-var">$controller</span>-><span class="method">destroy</span>(<span class="php-var">$id</span>);
+        <span class="keyword">break</span>;
+
+    <span class="keyword">default</span>:
+        <span class="comment">// Redirect ke index jika action tidak dikenali</span>
+        <span class="function">header</span>(<span class="string">'Location: ?action=index'</span>);
+        <span class="keyword">exit</span>;
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="success-box">
+                    <strong>&#127919; Alur Request:</strong>
+                    <ol style="margin-top: 10px; margin-left: 15px;">
+                        <li>User akses <code>index.php?action=create</code></li>
+                        <li>Router membaca parameter <code>action=create</code></li>
+                        <li>Controller method <code>create()</code> dipanggil</li>
+                        <li>Controller memanggil View <code>mahasiswa/create.php</code></li>
+                        <li>View dirender dalam Layout <code>main.php</code></li>
+                    </ol>
+                </div>
+
+                <div class="page-number">Halaman 22</div>
+            </div>
+
+            <!-- PAGE 23: INCLUDES VALIDATION -->
+            <div class="page-content">
+                <h3 class="subsection-title">6. Includes - Fungsi Validasi</h3>
+
+                <div class="code-block">
+                    <span class="code-label php">includes/validation.php</span>
+                    <code><span class="tag">&lt;?php</span>
+<span class="comment">/**
+ * Kumpulan fungsi validasi yang dapat digunakan ulang
+ */</span>
+
+<span class="comment">// Cek apakah nilai tidak kosong</span>
+<span class="keyword">function</span> <span class="function">required</span>(<span class="php-var">$value</span>) {
+    <span class="keyword">return</span> !<span class="function">empty</span>(<span class="function">trim</span>(<span class="php-var">$value</span>));
+}
+
+<span class="comment">// Validasi format email</span>
+<span class="keyword">function</span> <span class="function">validEmail</span>(<span class="php-var">$email</span>) {
+    <span class="keyword">return</span> <span class="function">filter_var</span>(<span class="php-var">$email</span>, FILTER_VALIDATE_EMAIL) !== <span class="keyword">false</span>;
+}
+
+<span class="comment">// Validasi panjang minimum</span>
+<span class="keyword">function</span> <span class="function">minLen</span>(<span class="php-var">$value</span>, <span class="php-var">$min</span>) {
+    <span class="keyword">return</span> <span class="function">strlen</span>(<span class="function">trim</span>(<span class="php-var">$value</span>)) >= <span class="php-var">$min</span>;
+}
+
+<span class="comment">// Validasi panjang maksimum</span>
+<span class="keyword">function</span> <span class="function">maxLen</span>(<span class="php-var">$value</span>, <span class="php-var">$max</span>) {
+    <span class="keyword">return</span> <span class="function">strlen</span>(<span class="function">trim</span>(<span class="php-var">$value</span>)) <= <span class="php-var">$max</span>;
+}
+
+<span class="comment">// Validasi hanya angka</span>
+<span class="keyword">function</span> <span class="function">isNumber</span>(<span class="php-var">$value</span>) {
+    <span class="keyword">return</span> <span class="function">is_numeric</span>(<span class="php-var">$value</span>);
+}
+
+<span class="comment">// Validasi nomor telepon Indonesia</span>
+<span class="keyword">function</span> <span class="function">validPhone</span>(<span class="php-var">$phone</span>) {
+    <span class="keyword">return</span> <span class="function">preg_match</span>(<span class="string">'/^08[0-9]{8,11}$/'</span>, <span class="php-var">$phone</span>);
+}
+
+<span class="comment">// Sanitasi input untuk mencegah XSS</span>
+<span class="keyword">function</span> <span class="function">sanitize</span>(<span class="php-var">$value</span>) {
+    <span class="keyword">return</span> <span class="function">htmlspecialchars</span>(<span class="function">trim</span>(<span class="php-var">$value</span>), ENT_QUOTES, <span class="string">'UTF-8'</span>);
+}
+
+<span class="comment">// Cek keunikan data di database</span>
+<span class="keyword">function</span> <span class="function">isUnique</span>(<span class="php-var">$pdo</span>, <span class="php-var">$table</span>, <span class="php-var">$column</span>, <span class="php-var">$value</span>, <span class="php-var">$exceptId</span> = <span class="keyword">null</span>) {
+    <span class="php-var">$sql</span> = <span class="string">"SELECT COUNT(*) FROM {<span class="php-var">$table</span>} WHERE {<span class="php-var">$column</span>} = ?"</span>;
+    <span class="php-var">$params</span> = [<span class="php-var">$value</span>];
+
+    <span class="keyword">if</span> (<span class="php-var">$exceptId</span>) {
+        <span class="php-var">$sql</span> .= <span class="string">" AND id != ?"</span>;
+        <span class="php-var">$params</span>[] = <span class="php-var">$exceptId</span>;
+    }
+
+    <span class="php-var">$stmt</span> = <span class="php-var">$pdo</span>-><span class="method">prepare</span>(<span class="php-var">$sql</span>);
+    <span class="php-var">$stmt</span>-><span class="method">execute</span>(<span class="php-var">$params</span>);
+
+    <span class="keyword">return</span> <span class="php-var">$stmt</span>-><span class="method">fetchColumn</span>() == <span class="number">0</span>;
+}
+
+<span class="comment">// Validasi hanya huruf dan spasi</span>
+<span class="keyword">function</span> <span class="function">alphaSpace</span>(<span class="php-var">$value</span>) {
+    <span class="keyword">return</span> <span class="function">preg_match</span>(<span class="string">'/^[a-zA-Z\s]+$/'</span>, <span class="php-var">$value</span>);
+}
+
+<span class="comment">// Validasi alfanumerik</span>
+<span class="keyword">function</span> <span class="function">alphaNum</span>(<span class="php-var">$value</span>) {
+    <span class="keyword">return</span> <span class="function">ctype_alnum</span>(<span class="php-var">$value</span>);
+}
+<span class="tag">?&gt;</span></code>
+                </div>
+
+                <div class="page-number">Halaman 23</div>
+            </div>
+
+            <!-- PAGE 24: RINGKASAN MVC -->
+            <div class="page-content">
+                <h2 class="section-title">&#128218; RINGKASAN POLA MVC</h2>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>Komponen</th><th>File</th><th>Fungsi</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Model</strong></td>
+                                <td><code>models/Mahasiswa.php</code></td>
+                                <td>Interaksi dengan database (CRUD operations)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>View</strong></td>
+                                <td><code>views/mahasiswa/*.php</code></td>
+                                <td>Tampilan HTML untuk user</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Controller</strong></td>
+                                <td><code>controllers/*Controller.php</code></td>
+                                <td>Logika bisnis & koordinasi M-V</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Config</strong></td>
+                                <td><code>config/database.php</code></td>
+                                <td>Konfigurasi koneksi database</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Includes</strong></td>
+                                <td><code>includes/validation.php</code></td>
+                                <td>Helper functions yang reusable</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Router</strong></td>
+                                <td><code>index.php</code></td>
+                                <td>Entry point & routing request</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="subsection-title">Keuntungan Menggunakan MVC</h3>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                    <div class="success-box" style="margin: 0;">
+                        <strong>&#9989; Terstruktur</strong>
+                        <p style="margin-top: 5px; font-size: 14px;">Kode lebih rapi dan mudah dikelola</p>
+                    </div>
+                    <div class="success-box" style="margin: 0;">
+                        <strong>&#9989; Reusable</strong>
+                        <p style="margin-top: 5px; font-size: 14px;">Komponen dapat digunakan ulang</p>
+                    </div>
+                    <div class="success-box" style="margin: 0;">
+                        <strong>&#9989; Maintainable</strong>
+                        <p style="margin-top: 5px; font-size: 14px;">Mudah diperbaiki & dikembangkan</p>
+                    </div>
+                    <div class="success-box" style="margin: 0;">
+                        <strong>&#9989; Team Work</strong>
+                        <p style="margin-top: 5px; font-size: 14px;">Memudahkan kerja tim</p>
+                    </div>
+                </div>
+
+                <div class="warning-box" style="margin-top: 25px;">
+                    <strong>&#128161; Tips Implementasi:</strong>
+                    <ul style="margin-top: 10px; margin-left: 15px;">
+                        <li>Mulai dari struktur folder terlebih dahulu</li>
+                        <li>Buat Model untuk setiap tabel database</li>
+                        <li>Satu Controller untuk satu entitas/fitur</li>
+                        <li>View hanya untuk menampilkan data, bukan logika bisnis</li>
+                        <li>Gunakan Layout untuk template yang konsisten</li>
+                    </ul>
+                </div>
+
+                <div style="margin-top: 40px; padding: 30px; background: #f8f9fa; border-radius: 15px; border-left: 5px solid #4e9f3d;">
+                    <h3 style="color: #1e5128; margin-bottom: 15px;">&#128231; Contact Information</h3>
+                    <p><strong>Dosen:</strong> Ikhwan Alfath Nurul Fathony, S.Kom., M.Kom.</p>
+                    <p><strong>Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d4bdbfbca3b5bafab5b8b2b5a0bc94a1baa0bdb0b5a6fab5b7fabdb0">[email&#160;protected]</a></p>
+                </div>
+
+                <div style="margin-top: 30px; font-size: 0.9em; color: #888; text-align: center;">
+                    <p>&copy; 2025 Program Studi Teknologi Informasi - Universitas Tidar</p>
+                </div>
+
+                <div class="page-number">Halaman 24</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Home') { e.preventDefault(); scrollToTop(); }
+            if (e.key === 'End') { e.preventDefault(); scrollToBottom(); }
+        });
+    </script>
+</body>
+</html>
